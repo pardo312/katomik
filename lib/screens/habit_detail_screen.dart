@@ -1,0 +1,312 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
+import 'package:table_calendar/table_calendar.dart';
+import '../models/habit.dart';
+import '../models/habit_completion.dart';
+import '../providers/habit_provider.dart';
+import 'add_habit_screen.dart';
+
+class HabitDetailScreen extends StatefulWidget {
+  final Habit habit;
+  
+  const HabitDetailScreen({super.key, required this.habit});
+
+  @override
+  State<HabitDetailScreen> createState() => _HabitDetailScreenState();
+}
+
+class _HabitDetailScreenState extends State<HabitDetailScreen> {
+  late Habit _habit;
+  CalendarFormat _calendarFormat = CalendarFormat.month;
+  DateTime _focusedDay = DateTime.now();
+  DateTime? _selectedDay;
+  List<HabitCompletion> _completions = [];
+  Map<String, double>? _stats;
+
+  @override
+  void initState() {
+    super.initState();
+    _habit = widget.habit;
+    _selectedDay = DateTime.now();
+    _loadCompletions();
+    _loadStats();
+  }
+
+  Future<void> _loadCompletions() async {
+    final provider = Provider.of<HabitProvider>(context, listen: false);
+    final completions = await provider.getCompletionsForHabit(_habit.id!);
+    setState(() {
+      _completions = completions;
+    });
+  }
+
+  Future<void> _loadStats() async {
+    final provider = Provider.of<HabitProvider>(context, listen: false);
+    final stats = await provider.getCompletionRateForHabit(_habit.id!, 30);
+    setState(() {
+      _stats = stats;
+    });
+  }
+
+  void _deleteHabit() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Habit'),
+        content: Text('Are you sure you want to delete "${_habit.name}"?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () {
+              Provider.of<HabitProvider>(context, listen: false)
+                  .deleteHabit(_habit.id!);
+              Navigator.pop(context); // Close dialog
+              Navigator.pop(context); // Go back to home
+            },
+            style: FilledButton.styleFrom(
+              backgroundColor: Colors.red,
+            ),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  bool _isDateCompleted(DateTime date) {
+    final dateStr = date.toIso8601String().split('T')[0];
+    return _completions.any((c) => 
+      c.date.toIso8601String().split('T')[0] == dateStr && c.isCompleted
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final color = Color(int.parse(_habit.color));
+    
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(_habit.name),
+        backgroundColor: color.withValues(alpha: 0.2),
+        foregroundColor: color,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.edit),
+            onPressed: () async {
+              final provider = Provider.of<HabitProvider>(context, listen: false);
+              await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => AddHabitScreen(habitToEdit: _habit),
+                ),
+              );
+              if (!mounted) return;
+              // Refresh habit data
+              final updatedHabit = provider.habits.firstWhere((h) => h.id == _habit.id);
+              setState(() {
+                _habit = updatedHabit;
+              });
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.delete),
+            onPressed: _deleteHabit,
+          ),
+        ],
+      ),
+      body: ListView(
+        children: [
+          _buildHeader(color),
+          _buildCalendar(color),
+          _buildStatistics(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeader(Color color) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            _habit.description,
+            style: Theme.of(context).textTheme.bodyLarge,
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              _buildInfoCard(
+                icon: Icons.calendar_today,
+                label: 'Started',
+                value: DateFormat('MMM d, y').format(_habit.createdDate),
+                color: color,
+              ),
+              const SizedBox(width: 12),
+              Consumer<HabitProvider>(
+                builder: (context, provider, _) {
+                  final streak = provider.getStreakForHabit(_habit.id!);
+                  return _buildInfoCard(
+                    icon: Icons.local_fire_department,
+                    label: 'Current Streak',
+                    value: '$streak days',
+                    color: Colors.orange,
+                  );
+                },
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoCard({
+    required IconData icon,
+    required String label,
+    required String value,
+    required Color color,
+  }) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(icon, color: color, size: 20),
+            const SizedBox(height: 8),
+            Text(
+              label,
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              value,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCalendar(Color color) {
+    return Consumer<HabitProvider>(
+      builder: (context, provider, _) {
+        return Padding(
+          padding: const EdgeInsets.all(16),
+          child: Card(
+            child: TableCalendar(
+              firstDay: _habit.createdDate,
+              lastDay: DateTime.now().add(const Duration(days: 365)),
+              focusedDay: _focusedDay,
+              calendarFormat: _calendarFormat,
+              selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
+              eventLoader: (day) {
+                return _isDateCompleted(day) ? ['completed'] : [];
+              },
+              startingDayOfWeek: StartingDayOfWeek.monday,
+              calendarStyle: CalendarStyle(
+                outsideDaysVisible: false,
+                markerDecoration: BoxDecoration(
+                  color: color,
+                  shape: BoxShape.circle,
+                ),
+                selectedDecoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.3),
+                  shape: BoxShape.circle,
+                ),
+                todayDecoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.5),
+                  shape: BoxShape.circle,
+                ),
+              ),
+              onDaySelected: (selectedDay, focusedDay) {
+                if (!isSameDay(_selectedDay, selectedDay)) {
+                  setState(() {
+                    _selectedDay = selectedDay;
+                    _focusedDay = focusedDay;
+                  });
+                  
+                  // Toggle completion for selected day
+                  if (!selectedDay.isAfter(DateTime.now())) {
+                    provider.toggleHabitCompletion(_habit.id!, selectedDay);
+                    _loadCompletions();
+                  }
+                }
+              },
+              onFormatChanged: (format) {
+                if (_calendarFormat != format) {
+                  setState(() {
+                    _calendarFormat = format;
+                  });
+                }
+              },
+              onPageChanged: (focusedDay) {
+                _focusedDay = focusedDay;
+              },
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildStatistics() {
+    if (_stats == null) {
+      return const SizedBox.shrink();
+    }
+
+    final completionRate = _stats!['completionRate'] ?? 0;
+    final completedDays = _stats!['completedDays']?.toInt() ?? 0;
+    final totalDays = _stats!['totalDays']?.toInt() ?? 0;
+
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Last 30 Days',
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+          const SizedBox(height: 16),
+          LinearProgressIndicator(
+            value: completionRate / 100,
+            minHeight: 8,
+            borderRadius: BorderRadius.circular(4),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            '${completionRate.toStringAsFixed(1)}% completion rate',
+            style: Theme.of(context).textTheme.bodyLarge,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            '$completedDays out of $totalDays days completed',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
