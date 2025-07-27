@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../providers/habit_provider.dart';
@@ -6,29 +7,29 @@ import '../models/habit.dart';
 import 'add_habit_screen.dart';
 import 'habit_detail_screen.dart';
 import 'statistics_screen.dart';
+import '../widgets/adaptive_widgets.dart';
+import 'dart:io';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Katomik'),
-        centerTitle: true,
-        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.bar_chart),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const StatisticsScreen()),
-              );
-            },
-          ),
-        ],
-      ),
+    return AdaptiveScaffold(
+      title: const Text('Katomik'),
+      actions: [
+        IconButton(
+          icon: Icon(Platform.isIOS ? CupertinoIcons.chart_bar : Icons.bar_chart),
+          onPressed: () {
+            Navigator.push(
+              context,
+              Platform.isIOS
+                  ? CupertinoPageRoute(builder: (_) => const StatisticsScreen())
+                  : MaterialPageRoute(builder: (_) => const StatisticsScreen()),
+            );
+          },
+        ),
+      ],
       body: Column(
         children: [
           _buildDateHeader(context),
@@ -36,7 +37,7 @@ class HomeScreen extends StatelessWidget {
             child: Consumer<HabitProvider>(
               builder: (context, habitProvider, child) {
                 if (habitProvider.isLoading) {
-                  return const Center(child: CircularProgressIndicator());
+                  return const Center(child: AdaptiveProgressIndicator());
                 }
 
                 if (habitProvider.habits.isEmpty) {
@@ -56,15 +57,38 @@ class HomeScreen extends StatelessWidget {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const AddHabitScreen()),
-          );
-        },
-        child: const Icon(Icons.add),
-      ),
+      floatingActionButton: Platform.isIOS
+          ? CupertinoButton(
+              padding: EdgeInsets.zero,
+              child: Container(
+                width: 56,
+                height: 56,
+                decoration: BoxDecoration(
+                  color: CupertinoColors.activeBlue,
+                  borderRadius: BorderRadius.circular(28),
+                ),
+                child: const Icon(
+                  CupertinoIcons.add,
+                  color: CupertinoColors.white,
+                  size: 28,
+                ),
+              ),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  CupertinoPageRoute(builder: (_) => const AddHabitScreen()),
+                );
+              },
+            )
+          : FloatingActionButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const AddHabitScreen()),
+                );
+              },
+              child: const Icon(Icons.add),
+            ),
     );
   }
 
@@ -109,9 +133,11 @@ class HomeScreen extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
-            Icons.track_changes,
+            Platform.isIOS ? CupertinoIcons.time : Icons.track_changes,
             size: 80,
-            color: Theme.of(context).colorScheme.secondary,
+            color: Platform.isIOS
+                ? CupertinoColors.secondaryLabel
+                : Theme.of(context).colorScheme.secondary,
           ),
           const SizedBox(height: 16),
           Text(
@@ -140,9 +166,13 @@ class HomeScreen extends StatelessWidget {
         onTap: () {
           Navigator.push(
             context,
-            MaterialPageRoute(
-              builder: (_) => HabitDetailScreen(habit: habit),
-            ),
+            Platform.isIOS
+                ? CupertinoPageRoute(
+                    builder: (_) => HabitDetailScreen(habit: habit),
+                  )
+                : MaterialPageRoute(
+                    builder: (_) => HabitDetailScreen(habit: habit),
+                  ),
           );
         },
         borderRadius: BorderRadius.circular(12),
@@ -185,7 +215,9 @@ class HomeScreen extends StatelessWidget {
                       Row(
                         children: [
                           Icon(
-                            Icons.local_fire_department,
+                            Platform.isIOS
+                                ? CupertinoIcons.flame
+                                : Icons.local_fire_department,
                             size: 16,
                             color: Colors.orange,
                           ),

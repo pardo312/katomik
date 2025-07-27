@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../providers/habit_provider.dart';
 import '../models/habit.dart';
+import '../widgets/adaptive_widgets.dart';
+import 'dart:io';
 
 class StatisticsScreen extends StatefulWidget {
   const StatisticsScreen({super.key});
@@ -40,11 +43,8 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Statistics'),
-        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-      ),
+    return AdaptiveScaffold(
+      title: const Text('Statistics'),
       body: Consumer<HabitProvider>(
         builder: (context, provider, _) {
           if (provider.habits.isEmpty) {

@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../models/habit.dart';
 import '../models/habit_completion.dart';
 import '../providers/habit_provider.dart';
+import '../widgets/adaptive_widgets.dart';
 import 'add_habit_screen.dart';
+import 'dart:io';
 
 class HabitDetailScreen extends StatefulWidget {
   final Habit habit;
@@ -50,30 +53,26 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
   }
 
   void _deleteHabit() {
-    showDialog(
+    AdaptiveDialog.show(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete Habit'),
-        content: Text('Are you sure you want to delete "${_habit.name}"?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () {
-              Provider.of<HabitProvider>(context, listen: false)
-                  .deleteHabit(_habit.id!);
-              Navigator.pop(context); // Close dialog
-              Navigator.pop(context); // Go back to home
-            },
-            style: FilledButton.styleFrom(
-              backgroundColor: Colors.red,
-            ),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
+      title: 'Delete Habit',
+      content: Text('Are you sure you want to delete "${_habit.name}"?'),
+      actions: [
+        AdaptiveDialogAction(
+          text: 'Cancel',
+          onPressed: () => Navigator.pop(context),
+        ),
+        AdaptiveDialogAction(
+          text: 'Delete',
+          isDestructive: true,
+          onPressed: () {
+            Provider.of<HabitProvider>(context, listen: false)
+                .deleteHabit(_habit.id!);
+            Navigator.pop(context); // Close dialog
+            Navigator.pop(context); // Go back to home
+          },
+        ),
+      ],
     );
   }
 
@@ -88,36 +87,37 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
   Widget build(BuildContext context) {
     final color = Color(int.parse(_habit.color));
     
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(_habit.name),
-        backgroundColor: color.withValues(alpha: 0.2),
-        foregroundColor: color,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.edit),
-            onPressed: () async {
-              final provider = Provider.of<HabitProvider>(context, listen: false);
-              await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => AddHabitScreen(habitToEdit: _habit),
-                ),
-              );
-              if (!mounted) return;
-              // Refresh habit data
-              final updatedHabit = provider.habits.firstWhere((h) => h.id == _habit.id);
-              setState(() {
-                _habit = updatedHabit;
-              });
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.delete),
-            onPressed: _deleteHabit,
-          ),
-        ],
-      ),
+    return AdaptiveScaffold(
+      title: Text(_habit.name),
+      backgroundColor: Platform.isIOS ? null : Theme.of(context).colorScheme.surface,
+      actions: [
+        IconButton(
+          icon: Icon(Platform.isIOS ? CupertinoIcons.pencil : Icons.edit),
+          onPressed: () async {
+            final provider = Provider.of<HabitProvider>(context, listen: false);
+            await Navigator.push(
+              context,
+              Platform.isIOS
+                  ? CupertinoPageRoute(
+                      builder: (_) => AddHabitScreen(habitToEdit: _habit),
+                    )
+                  : MaterialPageRoute(
+                      builder: (_) => AddHabitScreen(habitToEdit: _habit),
+                    ),
+            );
+            if (!mounted) return;
+            // Refresh habit data
+            final updatedHabit = provider.habits.firstWhere((h) => h.id == _habit.id);
+            setState(() {
+              _habit = updatedHabit;
+            });
+          },
+        ),
+        IconButton(
+          icon: Icon(Platform.isIOS ? CupertinoIcons.delete : Icons.delete),
+          onPressed: _deleteHabit,
+        ),
+      ],
       body: ListView(
         children: [
           _buildHeader(color),

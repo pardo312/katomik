@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import '../models/habit.dart';
 import '../providers/habit_provider.dart';
+import '../widgets/adaptive_widgets.dart';
+import 'dart:io';
 
 class AddHabitScreen extends StatefulWidget {
   final Habit? habitToEdit;
@@ -49,13 +52,30 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
   }
 
   void _saveHabit() {
-    if (_formKey.currentState!.validate()) {
+    if (Platform.isIOS || (_formKey.currentState?.validate() ?? false)) {
+      if (_nameController.text.trim().isEmpty || _descriptionController.text.trim().isEmpty) {
+        if (Platform.isIOS) {
+          AdaptiveDialog.show(
+            context: context,
+            title: 'Missing Information',
+            content: const Text('Please fill in all fields to create a habit.'),
+            actions: [
+              AdaptiveDialogAction(
+                text: 'OK',
+                onPressed: () => Navigator.pop(context),
+              ),
+            ],
+          );
+          return;
+        }
+      }
+      
       final habit = Habit(
         id: widget.habitToEdit?.id,
         name: _nameController.text.trim(),
         description: _descriptionController.text.trim(),
         createdDate: widget.habitToEdit?.createdDate ?? DateTime.now(),
-        color: _selectedColor.value.toString(),
+        color: '0x${((_selectedColor.a * 255.0).round() & 0xff).toRadixString(16).padLeft(2, '0')}${((_selectedColor.r * 255.0).round() & 0xff).toRadixString(16).padLeft(2, '0')}${((_selectedColor.g * 255.0).round() & 0xff).toRadixString(16).padLeft(2, '0')}${((_selectedColor.b * 255.0).round() & 0xff).toRadixString(16).padLeft(2, '0')}'.toUpperCase(),
         isActive: true,
       );
 
@@ -75,54 +95,56 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
   Widget build(BuildContext context) {
     final isEditing = widget.habitToEdit != null;
     
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(isEditing ? 'Edit Habit' : 'New Habit'),
-        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-      ),
+    return AdaptiveScaffold(
+      title: Text(isEditing ? 'Edit Habit' : 'New Habit'),
+      actions: Platform.isIOS
+          ? [
+              CupertinoButton(
+                padding: EdgeInsets.zero,
+                onPressed: _saveHabit,
+                child: const Text(
+                  'Save',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
+            ]
+          : null,
       body: Form(
         key: _formKey,
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            TextFormField(
+            AdaptiveTextField(
               controller: _nameController,
-              decoration: const InputDecoration(
-                labelText: 'Habit Name',
-                hintText: 'e.g., Drink Water, Exercise, Read',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.edit),
+              label: 'Habit Name',
+              placeholder: 'e.g., Drink Water, Exercise, Read',
+              prefix: Icon(
+                Platform.isIOS ? CupertinoIcons.pencil : Icons.edit,
+                size: 20,
               ),
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return 'Please enter a habit name';
-                }
-                return null;
-              },
-              textCapitalization: TextCapitalization.sentences,
+              onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: 16),
-            TextFormField(
+            AdaptiveTextField(
               controller: _descriptionController,
-              decoration: const InputDecoration(
-                labelText: 'Description',
-                hintText: 'Why do you want to build this habit?',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.description),
+              label: 'Description',
+              placeholder: 'Why do you want to build this habit?',
+              prefix: Icon(
+                Platform.isIOS ? CupertinoIcons.doc_text : Icons.description,
+                size: 20,
               ),
               maxLines: 3,
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return 'Please enter a description';
-                }
-                return null;
-              },
-              textCapitalization: TextCapitalization.sentences,
+              onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: 24),
             Text(
               'Choose a Color',
-              style: Theme.of(context).textTheme.titleMedium,
+              style: Platform.isIOS
+                  ? CupertinoTheme.of(context).textTheme.textStyle.copyWith(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w600,
+                    )
+                  : Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 12),
             Wrap(
@@ -130,29 +152,30 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
               runSpacing: 12,
               children: _availableColors.map((color) {
                 final isSelected = _selectedColor == color;
-                return InkWell(
+                return GestureDetector(
                   onTap: () {
                     setState(() {
                       _selectedColor = color;
                     });
                   },
-                  borderRadius: BorderRadius.circular(12),
                   child: Container(
                     width: 48,
                     height: 48,
                     decoration: BoxDecoration(
                       color: color,
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(Platform.isIOS ? 10 : 12),
                       border: isSelected
                           ? Border.all(
-                              color: Theme.of(context).colorScheme.primary,
+                              color: Platform.isIOS
+                                  ? CupertinoColors.activeBlue
+                                  : Theme.of(context).colorScheme.primary,
                               width: 3,
                             )
                           : null,
                     ),
                     child: isSelected
                         ? Icon(
-                            Icons.check,
+                            Platform.isIOS ? CupertinoIcons.checkmark : Icons.check,
                             color: Colors.white,
                             size: 20,
                           )
@@ -162,23 +185,26 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
               }).toList(),
             ),
             const SizedBox(height: 32),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text('Cancel'),
+            if (!Platform.isIOS)
+              Row(
+                children: [
+                  Expanded(
+                    child: AdaptiveButton(
+                      text: 'Cancel',
+                      onPressed: () => Navigator.pop(context),
+                      isPrimary: false,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: FilledButton(
-                    onPressed: _saveHabit,
-                    child: Text(isEditing ? 'Update' : 'Create'),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: AdaptiveButton(
+                      text: isEditing ? 'Update' : 'Create',
+                      onPressed: _saveHabit,
+                      isPrimary: true,
+                    ),
                   ),
-                ),
-              ],
-            ),
+                ],
+              ),
           ],
         ),
       ),

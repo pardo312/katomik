@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'providers/habit_provider.dart';
 import 'screens/home_screen.dart';
+import 'theme/app_theme.dart';
+import 'dart:io';
 
 void main() {
   runApp(
@@ -17,13 +20,22 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (Platform.isIOS) {
+      return CupertinoApp(
+        title: 'Katomik - Habit Tracker',
+        theme: AppTheme.cupertinoTheme,
+        home: const HomeScreen(),
+        debugShowCheckedModeBanner: false,
+      );
+    }
+    
     return MaterialApp(
       title: 'Katomik - Habit Tracker',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-        useMaterial3: true,
-      ),
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: ThemeMode.system,
       home: const HomeScreen(),
+      debugShowCheckedModeBanner: false,
     );
   }
 }
