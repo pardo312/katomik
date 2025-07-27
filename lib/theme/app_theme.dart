@@ -4,13 +4,9 @@ import 'package:flutter/services.dart';
 import 'dart:io';
 
 class AppTheme {
-  static const Color _primaryColor = Color(0xFF2196F3);
-  
-  static const Color _iosPrimaryColor = CupertinoColors.systemBlue;
-  
-  static ThemeData get lightTheme {
+  static ThemeData getLightTheme(Color primaryColor) {
     final ColorScheme colorScheme = ColorScheme.fromSeed(
-      seedColor: _primaryColor,
+      seedColor: primaryColor,
       brightness: Brightness.light,
     );
     
@@ -98,9 +94,9 @@ class AppTheme {
     );
   }
   
-  static ThemeData get darkTheme {
+  static ThemeData getDarkTheme(Color primaryColor) {
     final ColorScheme colorScheme = ColorScheme.fromSeed(
-      seedColor: _primaryColor,
+      seedColor: primaryColor,
       brightness: Brightness.dark,
     );
     
@@ -188,9 +184,13 @@ class AppTheme {
     );
   }
   
-  static CupertinoThemeData get cupertinoTheme {
-    return const CupertinoThemeData(
-      primaryColor: _iosPrimaryColor,
+  static CupertinoThemeData getCupertinoTheme(Color primaryColor, bool isDark) {
+    return CupertinoThemeData(
+      primaryColor: CupertinoDynamicColor.withBrightness(
+        color: primaryColor,
+        darkColor: primaryColor,
+      ),
+      brightness: isDark ? Brightness.dark : Brightness.light,
       primaryContrastingColor: CupertinoColors.white,
       scaffoldBackgroundColor: CupertinoColors.systemGroupedBackground,
       barBackgroundColor: CupertinoColors.systemBackground,

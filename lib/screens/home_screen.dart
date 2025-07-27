@@ -7,6 +7,7 @@ import '../models/habit.dart';
 import 'add_habit_screen.dart';
 import 'habit_detail_screen.dart';
 import 'statistics_screen.dart';
+import 'theme_settings_screen.dart';
 import '../widgets/adaptive_widgets.dart';
 import 'dart:io';
 
@@ -26,6 +27,17 @@ class HomeScreen extends StatelessWidget {
               Platform.isIOS
                   ? CupertinoPageRoute(builder: (_) => const StatisticsScreen())
                   : MaterialPageRoute(builder: (_) => const StatisticsScreen()),
+            );
+          },
+        ),
+        IconButton(
+          icon: Icon(Platform.isIOS ? CupertinoIcons.settings : Icons.settings),
+          onPressed: () {
+            Navigator.push(
+              context,
+              Platform.isIOS
+                  ? CupertinoPageRoute(builder: (_) => const ThemeSettingsScreen())
+                  : MaterialPageRoute(builder: (_) => const ThemeSettingsScreen()),
             );
           },
         ),
