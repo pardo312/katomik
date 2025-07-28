@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../providers/habit_provider.dart';
 import 'add_habit_screen.dart';
-import 'habit_detail_screen.dart';
 import '../widgets/adaptive_widgets.dart';
 import '../widgets/habit_icon.dart';
 import 'dart:io';
@@ -66,7 +65,7 @@ class HomeScreen extends StatelessWidget {
             children: [
               const SizedBox(width: 12),
               Text(
-                'Hoy Total',
+                'Total',
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: allCompleted ? Colors.orange : Colors.grey,
@@ -280,22 +279,38 @@ class HomeScreen extends StatelessWidget {
                     ),
                     child: Row(
                       children: [
-                        // Habit icon
-                        Container(
-                          width: 60,
-                          padding: const EdgeInsets.all(8),
+                        // Habit icon (clickable to edit)
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              Platform.isIOS
+                                  ? CupertinoPageRoute(
+                                      builder: (_) =>
+                                          AddHabitScreen(habitToEdit: habit),
+                                    )
+                                  : MaterialPageRoute(
+                                      builder: (_) =>
+                                          AddHabitScreen(habitToEdit: habit),
+                                    ),
+                            );
+                          },
                           child: Container(
-                            width: 40,
-                            height: 40,
-                            decoration: BoxDecoration(
-                              color: color.withValues(alpha: 0.2),
-                              shape: BoxShape.circle,
-                            ),
-                            child: Center(
-                              child: HabitIcon(
-                                iconName: habit.icon,
-                                size: 20,
-                                color: color,
+                            width: 60,
+                            padding: const EdgeInsets.all(8),
+                            child: Container(
+                              width: 40,
+                              height: 40,
+                              decoration: BoxDecoration(
+                                color: color.withValues(alpha: 0.2),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Center(
+                                child: HabitIcon(
+                                  iconName: habit.icon,
+                                  size: 20,
+                                  color: color,
+                                ),
                               ),
                             ),
                           ),
