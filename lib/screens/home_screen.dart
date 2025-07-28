@@ -68,7 +68,7 @@ class HomeScreen extends StatelessWidget {
             children: [
               const SizedBox(width: 12),
               Text(
-                'Total',
+                'Katomik',
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: allCompleted ? Colors.orange : Colors.grey,
@@ -105,53 +105,41 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          Stack(
-            clipBehavior: Clip.none,
-            children: [
-              Container(
-                height: 12,
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                  borderRadius: BorderRadius.circular(6),
-                ),
-              ),
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 800),
-                curve: Curves.easeInOut,
-                height: 12,
-                width: MediaQuery.of(context).size.width * 0.8 * progress,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Colors.yellow, Colors.orange],
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
+          LayoutBuilder(
+            builder: (context, constraints) {
+              // Use the actual available width minus padding for more accurate calculations
+              final barWidth =
+                  constraints.maxWidth - 40; // 20px padding on each side
+              return Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Container(
+                    height: 12,
+                    width: barWidth,
+                    decoration: BoxDecoration(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.surfaceContainerHighest,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
                   ),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-              ),
-              AnimatedPositioned(
-                duration: const Duration(milliseconds: 800),
-                curve: Curves.easeInOut,
-                left: (MediaQuery.of(context).size.width * 0.8 * progress) - 12,
-                top: -6,
-                child: Container(
-                  width: 24,
-                  height: 24,
-                  decoration: BoxDecoration(
-                    color: Colors.yellow,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 3),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.2),
-                        blurRadius: 4,
-                        offset: const Offset(0, 2),
+                  AnimatedContainer(
+                    duration: const Duration(milliseconds: 800),
+                    curve: Curves.easeInOut,
+                    height: 12,
+                    width: barWidth * progress,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [Colors.yellow, Colors.orange],
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
                       ),
-                    ],
+                      borderRadius: BorderRadius.circular(6),
+                    ),
                   ),
-                ),
-              ),
-            ],
+                ],
+              );
+            },
           ),
         ],
       ),
@@ -257,117 +245,127 @@ class HomeScreen extends StatelessWidget {
                       Container(
                         height: 60,
                         decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.surfaceContainer
-                                .withValues(alpha: 0.3),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.surfaceContainer.withValues(alpha: 0.3),
                         ),
                         child: Row(
-                      children: [
-                        // Habit icon (clickable to edit)
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              Platform.isIOS
-                                  ? CupertinoPageRoute(
-                                      builder: (_) =>
-                                          AddHabitScreen(habitToEdit: habit),
-                                    )
-                                  : MaterialPageRoute(
-                                      builder: (_) =>
-                                          AddHabitScreen(habitToEdit: habit),
-                                    ),
-                            );
-                          },
-                          child: Container(
-                            width: 60,
-                            padding: const EdgeInsets.all(8),
-                            child: Container(
-                              width: 40,
-                              height: 40,
-                              decoration: BoxDecoration(
-                                color: color.withValues(alpha: 0.2),
-                                shape: BoxShape.circle,
-                              ),
-                              child: Center(
-                                child: HabitIcon(
-                                  iconName: habit.icon,
-                                  size: 20,
-                                  color: color,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        // Completion checkmarks
-                        ...dates.map((date) {
-                          final isCompleted =
-                              habit.id != null &&
-                              provider.isHabitCompletedForDate(habit.id!, date);
-                          final isToday =
-                              DateFormat.yMd().format(date) ==
-                              DateFormat.yMd().format(today);
-
-                          return Expanded(
-                            child: GestureDetector(
-                              onTap: isToday
-                                  ? () {
-                                      if (habit.id != null) {
-                                        provider.toggleHabitCompletion(
-                                          habit.id!,
-                                          date,
-                                        );
-                                      }
-                                    }
-                                  : null,
-                              child: Center(
+                          children: [
+                            // Habit icon (clickable to edit)
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  Platform.isIOS
+                                      ? CupertinoPageRoute(
+                                          builder: (_) => AddHabitScreen(
+                                            habitToEdit: habit,
+                                          ),
+                                        )
+                                      : MaterialPageRoute(
+                                          builder: (_) => AddHabitScreen(
+                                            habitToEdit: habit,
+                                          ),
+                                        ),
+                                );
+                              },
+                              child: Container(
+                                width: 60,
+                                padding: const EdgeInsets.all(8),
                                 child: Container(
-                                  width: 32,
-                                  height: 32,
+                                  width: 40,
+                                  height: 40,
                                   decoration: BoxDecoration(
-                                    color: isCompleted
-                                        ? color.withValues(
-                                            alpha: isToday ? 1.0 : 0.6,
-                                          )
-                                        : Colors.transparent,
-                                    borderRadius: BorderRadius.circular(8),
-                                    border: Border.all(
-                                      color: isCompleted
-                                          ? Colors.transparent
-                                          : Theme.of(context)
-                                                .colorScheme
-                                                .surfaceContainerHighest
-                                                .withValues(
-                                                  alpha: isToday ? 1.0 : 0.5,
-                                                ),
-                                      width: 2,
+                                    color: color.withValues(alpha: 0.2),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Center(
+                                    child: HabitIcon(
+                                      iconName: habit.icon,
+                                      size: 20,
+                                      color: color,
                                     ),
                                   ),
-                                  child: isCompleted
-                                      ? Icon(
-                                          Icons.check,
-                                          color: Colors.white.withValues(
-                                            alpha: isToday ? 1.0 : 0.8,
-                                          ),
-                                          size: 18,
-                                        )
-                                      : null,
                                 ),
                               ),
                             ),
-                          );
-                        }).toList(),
-                      ],
-                    ),
-                  ),
-                  if (index < provider.habits.length - 1)
-                    Container(
-                      height: 1,
-                      color: Theme.of(context).colorScheme.surfaceContainerHighest
-                            .withValues(alpha: 0.5),
-                    ),
-                ],
-              );
-            }),
+                            // Completion checkmarks
+                            ...dates.map((date) {
+                              final isCompleted =
+                                  habit.id != null &&
+                                  provider.isHabitCompletedForDate(
+                                    habit.id!,
+                                    date,
+                                  );
+                              final isToday =
+                                  DateFormat.yMd().format(date) ==
+                                  DateFormat.yMd().format(today);
+
+                              return Expanded(
+                                child: GestureDetector(
+                                  onTap: isToday
+                                      ? () {
+                                          if (habit.id != null) {
+                                            provider.toggleHabitCompletion(
+                                              habit.id!,
+                                              date,
+                                            );
+                                          }
+                                        }
+                                      : null,
+                                  child: Center(
+                                    child: Container(
+                                      width: 32,
+                                      height: 32,
+                                      decoration: BoxDecoration(
+                                        color: isCompleted
+                                            ? color.withValues(
+                                                alpha: isToday ? 1.0 : 0.6,
+                                              )
+                                            : Colors.transparent,
+                                        borderRadius: BorderRadius.circular(8),
+                                        border: Border.all(
+                                          color: isCompleted
+                                              ? Colors.transparent
+                                              : Theme.of(context)
+                                                    .colorScheme
+                                                    .surfaceContainerHighest
+                                                    .withValues(
+                                                      alpha: isToday
+                                                          ? 1.0
+                                                          : 0.5,
+                                                    ),
+                                          width: 2,
+                                        ),
+                                      ),
+                                      child: isCompleted
+                                          ? Icon(
+                                              Icons.check,
+                                              color: Colors.white.withValues(
+                                                alpha: isToday ? 1.0 : 0.8,
+                                              ),
+                                              size: 18,
+                                            )
+                                          : null,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                          ],
+                        ),
+                      ),
+                      if (index < provider.habits.length - 1)
+                        Container(
+                          height: 1,
+                          color: Theme.of(context)
+                              .colorScheme
+                              .surfaceContainerHighest
+                              .withValues(alpha: 0.5),
+                        ),
+                    ],
+                  );
+                }),
               ),
             ),
           ),
@@ -406,5 +404,4 @@ class HomeScreen extends StatelessWidget {
       ),
     );
   }
-
 }
