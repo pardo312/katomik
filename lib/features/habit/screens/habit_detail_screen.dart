@@ -3,11 +3,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
-import '../models/habit.dart';
-import '../models/habit_completion.dart';
-import '../providers/habit_provider.dart';
-import '../widgets/adaptive_widgets.dart';
-import 'add_habit_screen.dart';
+import 'package:katomik/data/models/habit.dart';
+import 'package:katomik/data/models/habit_completion.dart';
+import 'package:katomik/providers/habit_provider.dart';
+import 'package:katomik/shared/widgets/adaptive_widgets.dart';
+import 'package:katomik/features/habit/screens/add_habit_screen.dart';
 import 'dart:io';
 
 class HabitDetailScreen extends StatefulWidget {

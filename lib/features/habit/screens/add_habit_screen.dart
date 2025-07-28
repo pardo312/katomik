@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
-import '../models/habit.dart';
-import '../providers/habit_provider.dart';
-import '../widgets/adaptive_widgets.dart';
-import '../widgets/habit_icon.dart';
+import 'package:katomik/data/models/habit.dart';
+import 'package:katomik/providers/habit_provider.dart';
+import 'package:katomik/shared/widgets/adaptive_widgets.dart';
+import 'package:katomik/features/habit/widgets/habit_icon.dart';
 import 'dart:io';
 
 class AddHabitScreen extends StatefulWidget {

@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
-import '../models/habit.dart';
-import '../models/habit_completion.dart';
-import '../services/database_service.dart';
+import 'package:katomik/data/models/habit.dart';
+import 'package:katomik/data/models/habit_completion.dart';
+import 'package:katomik/data/services/database_service.dart';
 
 class HabitProvider extends ChangeNotifier {
   final DatabaseService _databaseService = DatabaseService();

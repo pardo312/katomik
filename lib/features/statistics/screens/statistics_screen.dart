@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
-import '../providers/habit_provider.dart';
-import '../models/habit.dart';
-import '../widgets/adaptive_widgets.dart';
+import 'package:katomik/providers/habit_provider.dart';
+import 'package:katomik/data/models/habit.dart';
+import 'package:katomik/shared/widgets/adaptive_widgets.dart';
 
 class StatisticsScreen extends StatefulWidget {
   const StatisticsScreen({super.key});

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
-import '../providers/theme_provider.dart';
+import 'package:katomik/providers/theme_provider.dart';
 import 'dart:io';
 
 class ThemeSettingsScreen extends StatelessWidget {

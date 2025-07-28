@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'dart:io';
-import '../../../../models/habit.dart';
-import '../../../../widgets/habit_icon.dart';
-import '../../add_habit_screen.dart';
-import '../utils/date_utils.dart';
+import 'package:katomik/data/models/habit.dart';
+import 'package:katomik/features/habit/widgets/habit_icon.dart';
+import 'package:katomik/features/habit/screens/add_habit_screen.dart';
+import 'package:katomik/core/utils/date_utils.dart';
 
 class HabitRow extends StatelessWidget {
   final Habit habit;

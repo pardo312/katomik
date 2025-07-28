@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../providers/habit_provider.dart';
-import '../../widgets/adaptive_widgets.dart';
-import 'widgets/streak_header.dart';
-import 'widgets/weekly_habit_tracker.dart';
-import 'widgets/empty_state.dart';
+import 'package:katomik/providers/habit_provider.dart';
+import 'package:katomik/shared/widgets/adaptive_widgets.dart';
+import '../widgets/streak_header.dart';
+import '../widgets/weekly_habit_tracker.dart';
+import '../widgets/empty_state.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});

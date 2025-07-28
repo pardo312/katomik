@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import '../widgets/adaptive_navigation.dart';
-import 'home/home_screen.dart';
-import 'statistics_screen.dart';
-import 'theme_settings_screen.dart';
-import 'add_habit_screen.dart';
+import 'package:katomik/shared/widgets/adaptive_navigation.dart';
+import 'package:katomik/features/home/screens/home_screen.dart';
+import 'package:katomik/features/statistics/screens/statistics_screen.dart';
+import 'package:katomik/features/settings/screens/theme_settings_screen.dart';
+import 'package:katomik/features/habit/screens/add_habit_screen.dart';
 import 'dart:io';
 
 class MainScreen extends StatefulWidget {

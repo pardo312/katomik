@@ -1,7 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
-import 'package:katomik/main.dart';
+import 'package:katomik/app.dart';
 import 'package:katomik/providers/habit_provider.dart';
 import 'package:katomik/providers/theme_provider.dart';
 

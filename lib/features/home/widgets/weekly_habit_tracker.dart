@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../../providers/habit_provider.dart';
-import '../utils/date_utils.dart';
+import 'package:katomik/providers/habit_provider.dart';
+import 'package:katomik/core/utils/date_utils.dart';
 import 'date_header.dart';
 import 'habit_row.dart';
 

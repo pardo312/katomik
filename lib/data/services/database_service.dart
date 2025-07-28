@@ -1,7 +1,7 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
-import '../models/habit.dart';
-import '../models/habit_completion.dart';
+import 'package:katomik/data/models/habit.dart';
+import 'package:katomik/data/models/habit_completion.dart';
 
 class DatabaseService {
   static final DatabaseService _instance = DatabaseService._internal();
