@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import '../widgets/adaptive_navigation.dart';
-import '../widgets/adaptive_widgets.dart';
-import 'home_screen.dart';
+import 'home/home_screen.dart';
 import 'statistics_screen.dart';
 import 'theme_settings_screen.dart';
 import 'add_habit_screen.dart';

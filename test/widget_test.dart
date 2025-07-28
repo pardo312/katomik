@@ -1,30 +1,44 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
+import 'package:provider/provider.dart';
 import 'package:katomik/main.dart';
+import 'package:katomik/providers/habit_provider.dart';
+import 'package:katomik/providers/theme_provider.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('Katomik app smoke test', (WidgetTester tester) async {
+    // Create providers
+    final habitProvider = HabitProvider();
+    final themeProvider = ThemeProvider();
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    // Build our app with providers
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider.value(value: habitProvider),
+          ChangeNotifierProvider.value(value: themeProvider),
+        ],
+        child: const MyApp(),
+      ),
+    );
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    // Wait for async operations to complete
+    await tester.pumpAndSettle();
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    // Verify that app loads and shows Katomik title
+    expect(find.text('Katomik'), findsOneWidget);
+
+    // Verify that the home tab is selected by default
+    expect(find.text('Home'), findsOneWidget);
+
+    // Verify that empty state is shown when no habits exist
+    final emptyStateTexts = [
+      'No habits yet',
+      'Start building better habits today!',
+    ];
+    
+    for (final text in emptyStateTexts) {
+      expect(find.text(text), findsOneWidget);
+    }
   });
 }
