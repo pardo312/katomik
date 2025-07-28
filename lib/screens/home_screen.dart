@@ -3,11 +3,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../providers/habit_provider.dart';
-import '../models/habit.dart';
 import 'add_habit_screen.dart';
 import 'habit_detail_screen.dart';
-import 'statistics_screen.dart';
-import 'theme_settings_screen.dart';
 import '../widgets/adaptive_widgets.dart';
 import 'dart:io';
 
@@ -17,249 +14,405 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AdaptiveScaffold(
-      title: const Text('Katomik'),
-      actions: [
-        IconButton(
-          icon: Icon(Platform.isIOS ? CupertinoIcons.chart_bar : Icons.bar_chart),
-          onPressed: () {
-            Navigator.push(
-              context,
-              Platform.isIOS
-                  ? CupertinoPageRoute(builder: (_) => const StatisticsScreen())
-                  : MaterialPageRoute(builder: (_) => const StatisticsScreen()),
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      body: SafeArea(
+        child: Consumer<HabitProvider>(
+          builder: (context, habitProvider, child) {
+            if (habitProvider.isLoading) {
+              return const Center(child: AdaptiveProgressIndicator());
+            }
+
+            return Column(
+              children: [
+                _buildStreakHeader(context, habitProvider),
+                const SizedBox(height: 20),
+                _buildWeekView(context, habitProvider),
+                const SizedBox(height: 20),
+                if (habitProvider.habits.isEmpty)
+                  Expanded(child: _buildEmptyState(context)),
+              ],
             );
           },
         ),
-        IconButton(
-          icon: Icon(Platform.isIOS ? CupertinoIcons.settings : Icons.settings),
-          onPressed: () {
-            Navigator.push(
-              context,
-              Platform.isIOS
-                  ? CupertinoPageRoute(builder: (_) => const ThemeSettingsScreen())
-                  : MaterialPageRoute(builder: (_) => const ThemeSettingsScreen()),
-            );
-          },
-        ),
-      ],
-      body: Column(
-        children: [
-          _buildDateHeader(context),
-          Expanded(
-            child: Consumer<HabitProvider>(
-              builder: (context, habitProvider, child) {
-                if (habitProvider.isLoading) {
-                  return const Center(child: AdaptiveProgressIndicator());
-                }
-
-                if (habitProvider.habits.isEmpty) {
-                  return _buildEmptyState(context);
-                }
-
-                return ListView.builder(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: habitProvider.habits.length,
-                  itemBuilder: (context, index) {
-                    final habit = habitProvider.habits[index];
-                    return _buildHabitCard(context, habit, habitProvider);
-                  },
-                );
-              },
-            ),
-          ),
-        ],
       ),
-      floatingActionButton: Platform.isIOS
-          ? CupertinoButton(
-              padding: EdgeInsets.zero,
-              child: Container(
-                width: 56,
-                height: 56,
-                decoration: BoxDecoration(
-                  color: CupertinoColors.activeBlue,
-                  borderRadius: BorderRadius.circular(28),
-                ),
-                child: const Icon(
-                  CupertinoIcons.add,
-                  color: CupertinoColors.white,
-                  size: 28,
-                ),
-              ),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  CupertinoPageRoute(builder: (_) => const AddHabitScreen()),
-                );
-              },
-            )
-          : FloatingActionButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const AddHabitScreen()),
-                );
-              },
-              child: const Icon(Icons.add),
-            ),
+      floatingActionButton: _buildFAB(context),
     );
   }
 
-  Widget _buildDateHeader(BuildContext context) {
-    final now = DateTime.now();
-    final dateFormat = DateFormat('EEEE, MMMM d');
+  Widget _buildStreakHeader(BuildContext context, HabitProvider provider) {
+    final totalStreak = provider.getTotalStreak();
+    final progress = provider.getTodayProgress();
+    final allCompleted = provider.areAllHabitsCompletedToday();
     
     return Container(
-      width: double.infinity,
+      margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primaryContainer,
-        borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(24),
-          bottomRight: Radius.circular(24),
-        ),
-      ),
-      child: Column(
-        children: [
-          Text(
-            'Today',
-            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: Theme.of(context).colorScheme.onPrimaryContainer,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            dateFormat.format(now),
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-              color: Theme.of(context).colorScheme.onPrimaryContainer,
-            ),
+        color: Theme.of(context).colorScheme.surfaceContainer,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildEmptyState(BuildContext context) {
-    return Center(
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Platform.isIOS ? CupertinoIcons.time : Icons.track_changes,
-            size: 80,
-            color: Platform.isIOS
-                ? CupertinoColors.secondaryLabel
-                : Theme.of(context).colorScheme.secondary,
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'No habits yet',
-            style: Theme.of(context).textTheme.headlineSmall,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Start building better habits today!',
-            style: Theme.of(context).textTheme.bodyLarge,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildHabitCard(BuildContext context, Habit habit, HabitProvider provider) {
-    final today = DateTime.now();
-    final isCompleted = provider.isHabitCompletedForDate(habit.id!, today);
-    final streak = provider.getStreakForHabit(habit.id!);
-    final color = Color(int.parse(habit.color));
-    
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: InkWell(
-        onTap: () {
-          Navigator.push(
-            context,
-            Platform.isIOS
-                ? CupertinoPageRoute(
-                    builder: (_) => HabitDetailScreen(habit: habit),
-                  )
-                : MaterialPageRoute(
-                    builder: (_) => HabitDetailScreen(habit: habit),
-                  ),
-          );
-        },
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(
-                  Icons.star,
-                  color: color,
-                ),
+              Icon(
+                Platform.isIOS ? CupertinoIcons.flame_fill : Icons.local_fire_department,
+                color: allCompleted ? Colors.orange : Colors.grey,
+                size: 32,
               ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      habit.name,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      habit.description,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                    if (streak > 0) ...[
-                      const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          Icon(
-                            Platform.isIOS
-                                ? CupertinoIcons.flame
-                                : Icons.local_fire_department,
-                            size: 16,
-                            color: Colors.orange,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            '$streak day streak',
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Colors.orange,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-              Checkbox(
-                value: isCompleted,
-                onChanged: (_) {
-                  provider.toggleHabitCompletion(habit.id!, today);
-                },
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(6),
+              const SizedBox(width: 12),
+              Text(
+                'Hoy Total',
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: allCompleted ? Colors.orange : Colors.grey,
                 ),
               ),
             ],
           ),
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            decoration: BoxDecoration(
+              color: Colors.purple.withValues(alpha: 0.2),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Platform.isIOS ? CupertinoIcons.flame_fill : Icons.local_fire_department,
+                  color: Colors.orange,
+                  size: 24,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  '$totalStreak días',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    color: Colors.orange,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          Stack(
+            children: [
+              Container(
+                height: 12,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+              ),
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 500),
+                height: 12,
+                width: MediaQuery.of(context).size.width * 0.8 * progress,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Colors.yellow, Colors.orange],
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                  ),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+              ),
+              Positioned(
+                left: MediaQuery.of(context).size.width * 0.8 * progress - 12,
+                top: -6,
+                child: Container(
+                  width: 24,
+                  height: 24,
+                  decoration: BoxDecoration(
+                    color: Colors.yellow,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white, width: 3),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.2),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildWeekView(BuildContext context, HabitProvider provider) {
+    final today = DateTime.now();
+    final dates = List.generate(5, (i) => today.subtract(Duration(days: i)));
+    final dateFormat = DateFormat.E();
+    
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 4, bottom: 12),
+            child: Text(
+              'Semana',
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          // Header with dates
+          Container(
+            height: 50,
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(16),
+                topRight: Radius.circular(16),
+              ),
+            ),
+            child: Row(
+              children: [
+                const SizedBox(width: 60), // Space for habit icons
+                ...dates.map((date) {
+                  final isToday = DateFormat.yMd().format(date) == 
+                                 DateFormat.yMd().format(today);
+                  return Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          dateFormat.format(date).toUpperCase(),
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: isToday 
+                                ? Theme.of(context).colorScheme.primary
+                                : Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                        Text(
+                          date.day.toString(),
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: isToday 
+                                ? Theme.of(context).colorScheme.primary
+                                : Theme.of(context).colorScheme.onSurface,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }).toList(),
+              ],
+            ),
+          ),
+          // Habit rows
+          Container(
+            constraints: BoxConstraints(
+              maxHeight: provider.habits.length > 3 ? 200 : provider.habits.length * 60.0,
+            ),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: const BorderRadius.only(
+                bottomLeft: Radius.circular(16),
+                bottomRight: Radius.circular(16),
+              ),
+              border: Border.all(
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                width: 1,
+              ),
+            ),
+            child: ClipRRect(
+              borderRadius: const BorderRadius.only(
+                bottomLeft: Radius.circular(16),
+                bottomRight: Radius.circular(16),
+              ),
+              child: ListView.builder(
+                shrinkWrap: true,
+                physics: provider.habits.length > 3 
+                    ? const AlwaysScrollableScrollPhysics() 
+                    : const NeverScrollableScrollPhysics(),
+                padding: EdgeInsets.zero,
+                itemCount: provider.habits.length,
+                itemBuilder: (context, index) {
+                  final habit = provider.habits[index];
+                  final color = Color(int.parse(habit.color));
+                  
+                  // Create colorful backgrounds like the reference
+                  final backgroundColors = [
+                    const Color(0xFF8B4513).withValues(alpha: 0.3), // Brown
+                    const Color(0xFF4682B4).withValues(alpha: 0.3), // Steel Blue  
+                    const Color(0xFF8B4513).withValues(alpha: 0.3), // Brown
+                  ];
+                  
+                  return Container(
+                    height: 60,
+                    decoration: BoxDecoration(
+                      color: index < 3 
+                          ? backgroundColors[index % 3]
+                          : Theme.of(context).colorScheme.surfaceContainer.withValues(alpha: 0.3),
+                    ),
+                    child: Row(
+                      children: [
+                        // Habit name
+                        Container(
+                          width: 60,
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          child: Text(
+                            habit.name,
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                        // Completion checkmarks
+                        ...dates.map((date) {
+                          final isCompleted = habit.id != null && 
+                              provider.isHabitCompletedForDate(habit.id!, date);
+                          final isToday = DateFormat.yMd().format(date) == 
+                                         DateFormat.yMd().format(today);
+                          
+                          return Expanded(
+                            child: GestureDetector(
+                              onTap: isToday ? () {
+                                if (habit.id != null) {
+                                  provider.toggleHabitCompletion(habit.id!, date);
+                                }
+                              } : null,
+                              child: Center(
+                                child: Container(
+                                  width: 32,
+                                  height: 32,
+                                  decoration: BoxDecoration(
+                                    color: isCompleted 
+                                        ? color.withValues(alpha: isToday ? 1.0 : 0.6)
+                                        : Colors.transparent,
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(
+                                      color: isCompleted 
+                                          ? Colors.transparent
+                                          : Theme.of(context).colorScheme.surfaceContainerHighest.withValues(
+                                              alpha: isToday ? 1.0 : 0.5
+                                            ),
+                                      width: 2,
+                                    ),
+                                  ),
+                                  child: isCompleted
+                                      ? Icon(
+                                          Icons.check,
+                                          color: Colors.white.withValues(alpha: isToday ? 1.0 : 0.8),
+                                          size: 18,
+                                        )
+                                      : null,
+                                ),
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+
+  Widget _buildEmptyState(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Platform.isIOS ? CupertinoIcons.sparkles : Icons.auto_awesome,
+              size: 80,
+              color: Colors.grey,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'No habits yet',
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Start building better habits today!',
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
         ),
       ),
+    );
+  }
+
+  Widget _buildFAB(BuildContext context) {
+    if (Platform.isIOS) {
+      return CupertinoButton(
+        padding: EdgeInsets.zero,
+        child: Container(
+          width: 56,
+          height: 56,
+          decoration: BoxDecoration(
+            color: CupertinoColors.activeBlue,
+            borderRadius: BorderRadius.circular(28),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.2),
+                blurRadius: 8,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: const Icon(
+            CupertinoIcons.add,
+            color: CupertinoColors.white,
+            size: 28,
+          ),
+        ),
+        onPressed: () {
+          Navigator.push(
+            context,
+            CupertinoPageRoute(builder: (_) => const AddHabitScreen()),
+          );
+        },
+      );
+    }
+    
+    return FloatingActionButton(
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const AddHabitScreen()),
+        );
+      },
+      child: const Icon(Icons.add),
     );
   }
 }

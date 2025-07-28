@@ -85,7 +85,7 @@ class AppTheme {
       ),
       navigationBarTheme: NavigationBarThemeData(
         height: Platform.isIOS ? 56 : 80,
-        labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
+        labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
       ),
       dividerTheme: DividerThemeData(
         space: Platform.isIOS ? 1 : 16,
@@ -98,6 +98,9 @@ class AppTheme {
     final ColorScheme colorScheme = ColorScheme.fromSeed(
       seedColor: primaryColor,
       brightness: Brightness.dark,
+      surface: const Color(0xFF0A0A0A),
+      surfaceContainer: const Color(0xFF1A1A1A),
+      surfaceContainerHighest: const Color(0xFF2A2A2A),
     );
     
     return ThemeData(
@@ -175,7 +178,7 @@ class AppTheme {
       ),
       navigationBarTheme: NavigationBarThemeData(
         height: Platform.isIOS ? 56 : 80,
-        labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
+        labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
       ),
       dividerTheme: DividerThemeData(
         space: Platform.isIOS ? 1 : 16,

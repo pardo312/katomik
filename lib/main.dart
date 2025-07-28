@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'providers/habit_provider.dart';
 import 'providers/theme_provider.dart';
-import 'screens/home_screen.dart';
+import 'screens/main_screen.dart';
 import 'theme/app_theme.dart';
 import 'dart:io';
 
@@ -35,7 +35,7 @@ class MyApp extends StatelessWidget {
               selectedColor,
               themeProvider.isDarkMode,
             ),
-            home: const HomeScreen(),
+            home: const MainScreen(),
             debugShowCheckedModeBanner: false,
           );
         }
@@ -45,7 +45,7 @@ class MyApp extends StatelessWidget {
           theme: AppTheme.getLightTheme(selectedColor),
           darkTheme: AppTheme.getDarkTheme(selectedColor),
           themeMode: themeProvider.themeMode,
-          home: const HomeScreen(),
+          home: const MainScreen(),
           debugShowCheckedModeBanner: false,
         );
       },

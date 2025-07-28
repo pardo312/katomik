@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../providers/habit_provider.dart';
 import '../models/habit.dart';
 import '../widgets/adaptive_widgets.dart';
-import 'dart:io';
 
 class StatisticsScreen extends StatefulWidget {
   const StatisticsScreen({super.key});

@@ -266,6 +266,7 @@ class AdaptiveSwitch extends StatelessWidget {
       return CupertinoSwitch(
         value: value,
         onChanged: onChanged,
+        // ignore: deprecated_member_use
         activeColor: activeColor ?? CupertinoColors.systemGreen,
       );
     }

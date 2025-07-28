@@ -29,6 +29,11 @@ class HabitProvider extends ChangeNotifier {
       final today = DateTime.now();
       await loadCompletionsForDate(today);
       
+      // Load past week's completions
+      for (int i = 1; i <= 4; i++) {
+        await loadCompletionsForDate(today.subtract(Duration(days: i)));
+      }
+      
       // Load streaks for all habits
       for (final habit in _habits) {
         if (habit.id != null) {
@@ -128,6 +133,69 @@ class HabitProvider extends ChangeNotifier {
 
   int getStreakForHabit(int habitId) {
     return _streaks[habitId] ?? 0;
+  }
+
+  int getTotalStreak() {
+    if (_habits.isEmpty) return 0;
+    
+    int totalStreak = 0;
+    for (final habit in _habits) {
+      if (habit.id != null) {
+        final streak = _streaks[habit.id!] ?? 0;
+        if (totalStreak == 0 || streak < totalStreak) {
+          totalStreak = streak;
+        }
+      }
+    }
+    return totalStreak;
+  }
+
+  double getTodayProgress() {
+    if (_habits.isEmpty) return 0.0;
+    
+    final today = DateTime.now();
+    int completedCount = 0;
+    
+    for (final habit in _habits) {
+      if (habit.id != null && isHabitCompletedForDate(habit.id!, today)) {
+        completedCount++;
+      }
+    }
+    
+    return completedCount / _habits.length;
+  }
+
+  bool areAllHabitsCompletedToday() {
+    if (_habits.isEmpty) return false;
+    
+    final today = DateTime.now();
+    for (final habit in _habits) {
+      if (habit.id != null && !isHabitCompletedForDate(habit.id!, today)) {
+        return false;
+      }
+    }
+    
+    return true;
+  }
+
+  Map<DateTime, double> getWeekProgress() {
+    final Map<DateTime, double> weekProgress = {};
+    final today = DateTime.now();
+    
+    for (int i = 4; i >= 0; i--) {
+      final date = today.subtract(Duration(days: i));
+      int completedCount = 0;
+      
+      for (final habit in _habits) {
+        if (habit.id != null && isHabitCompletedForDate(habit.id!, date)) {
+          completedCount++;
+        }
+      }
+      
+      weekProgress[date] = _habits.isEmpty ? 0.0 : completedCount / _habits.length;
+    }
+    
+    return weekProgress;
   }
 
   Future<Map<String, double>> getCompletionRateForHabit(int habitId, int days) async {
