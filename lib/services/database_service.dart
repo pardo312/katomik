@@ -21,7 +21,7 @@ class DatabaseService {
     
     return await openDatabase(
       path,
-      version: 1,
+      version: 2,
       onCreate: (db, version) async {
         await db.execute('''
           CREATE TABLE habits(
@@ -30,6 +30,7 @@ class DatabaseService {
             description TEXT NOT NULL,
             created_date TEXT NOT NULL,
             color TEXT NOT NULL,
+            icon TEXT NOT NULL DEFAULT 'science',
             is_active INTEGER NOT NULL DEFAULT 1
           )
         ''');
@@ -44,6 +45,11 @@ class DatabaseService {
             UNIQUE(habit_id, date)
           )
         ''');
+      },
+      onUpgrade: (db, oldVersion, newVersion) async {
+        if (oldVersion < 2) {
+          await db.execute('ALTER TABLE habits ADD COLUMN icon TEXT NOT NULL DEFAULT "science"');
+        }
       },
     );
   }

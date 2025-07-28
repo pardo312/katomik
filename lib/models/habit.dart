@@ -4,6 +4,7 @@ class Habit {
   final String description;
   final DateTime createdDate;
   final String color;
+  final String icon;
   final bool isActive;
 
   Habit({
@@ -12,6 +13,7 @@ class Habit {
     required this.description,
     required this.createdDate,
     required this.color,
+    required this.icon,
     this.isActive = true,
   });
 
@@ -22,6 +24,7 @@ class Habit {
       'description': description,
       'created_date': createdDate.toIso8601String(),
       'color': color,
+      'icon': icon,
       'is_active': isActive ? 1 : 0,
     };
   }
@@ -33,6 +36,7 @@ class Habit {
       description: map['description'] as String,
       createdDate: DateTime.parse(map['created_date'] as String),
       color: map['color'] as String,
+      icon: map['icon'] as String? ?? 'science', // Default to atom/science icon
       isActive: (map['is_active'] as int) == 1,
     );
   }
@@ -43,6 +47,7 @@ class Habit {
     String? description,
     DateTime? createdDate,
     String? color,
+    String? icon,
     bool? isActive,
   }) {
     return Habit(
@@ -51,6 +56,7 @@ class Habit {
       description: description ?? this.description,
       createdDate: createdDate ?? this.createdDate,
       color: color ?? this.color,
+      icon: icon ?? this.icon,
       isActive: isActive ?? this.isActive,
     );
   }
@@ -64,6 +70,7 @@ class Habit {
         other.description == description &&
         other.createdDate == createdDate &&
         other.color == color &&
+        other.icon == icon &&
         other.isActive == isActive;
   }
 
@@ -74,6 +81,7 @@ class Habit {
         description.hashCode ^
         createdDate.hashCode ^
         color.hashCode ^
+        icon.hashCode ^
         isActive.hashCode;
   }
 }

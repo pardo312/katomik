@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../models/habit.dart';
 import '../providers/habit_provider.dart';
 import '../widgets/adaptive_widgets.dart';
+import '../widgets/habit_icon.dart';
 import 'dart:io';
 
 class AddHabitScreen extends StatefulWidget {
@@ -21,6 +22,8 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
   final _descriptionController = TextEditingController();
   
   Color _selectedColor = Colors.blue;
+  String _selectedIcon = 'science';
+  
   final List<Color> _availableColors = [
     Colors.blue,
     Colors.green,
@@ -41,6 +44,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
       _nameController.text = widget.habitToEdit!.name;
       _descriptionController.text = widget.habitToEdit!.description;
       _selectedColor = Color(int.parse(widget.habitToEdit!.color));
+      _selectedIcon = widget.habitToEdit!.icon;
     }
   }
 
@@ -76,6 +80,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
         description: _descriptionController.text.trim(),
         createdDate: widget.habitToEdit?.createdDate ?? DateTime.now(),
         color: '0x${((_selectedColor.a * 255.0).round() & 0xff).toRadixString(16).padLeft(2, '0')}${((_selectedColor.r * 255.0).round() & 0xff).toRadixString(16).padLeft(2, '0')}${((_selectedColor.g * 255.0).round() & 0xff).toRadixString(16).padLeft(2, '0')}${((_selectedColor.b * 255.0).round() & 0xff).toRadixString(16).padLeft(2, '0')}'.toUpperCase(),
+        icon: _selectedIcon,
         isActive: true,
       );
 
@@ -183,6 +188,64 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                   ),
                 );
               }).toList(),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'Choose an Icon',
+              style: Platform.isIOS
+                  ? CupertinoTheme.of(context).textTheme.textStyle.copyWith(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w600,
+                    )
+                  : Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 12),
+            SizedBox(
+              height: 60,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: HabitIcon.availableIcons.length,
+                itemBuilder: (context, index) {
+                  final iconName = HabitIcon.availableIcons[index];
+                  final isSelected = _selectedIcon == iconName;
+                  
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 12),
+                    child: GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _selectedIcon = iconName;
+                        });
+                      },
+                      child: Container(
+                        width: 60,
+                        height: 60,
+                        decoration: BoxDecoration(
+                          color: isSelected
+                              ? _selectedColor.withValues(alpha: 0.2)
+                              : Theme.of(context).colorScheme.surfaceContainer,
+                          borderRadius: BorderRadius.circular(Platform.isIOS ? 10 : 12),
+                          border: Border.all(
+                            color: isSelected
+                                ? _selectedColor
+                                : Theme.of(context).colorScheme.surfaceContainerHighest,
+                            width: isSelected ? 3 : 1,
+                          ),
+                        ),
+                        child: Center(
+                          child: HabitIcon(
+                            iconName: iconName,
+                            size: 28,
+                            color: isSelected
+                                ? _selectedColor
+                                : Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
             ),
             const SizedBox(height: 32),
             if (!Platform.isIOS)
