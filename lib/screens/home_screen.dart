@@ -252,24 +252,15 @@ class HomeScreen extends StatelessWidget {
                   final habit = provider.habits[index];
                   final color = Color(int.parse(habit.color));
 
-                  // Create colorful backgrounds like the reference
-                  final backgroundColors = [
-                    const Color(0xFF8B4513).withValues(alpha: 0.3), // Brown
-                    const Color(
-                      0xFF4682B4,
-                    ).withValues(alpha: 0.3), // Steel Blue
-                    const Color(0xFF8B4513).withValues(alpha: 0.3), // Brown
-                  ];
-
-                  return Container(
-                    height: 60,
-                    decoration: BoxDecoration(
-                      color: index < 3
-                          ? backgroundColors[index % 3]
-                          : Theme.of(context).colorScheme.surfaceContainer
+                  return Column(
+                    children: [
+                      Container(
+                        height: 60,
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.surfaceContainer
                                 .withValues(alpha: 0.3),
-                    ),
-                    child: Row(
+                        ),
+                        child: Row(
                       children: [
                         // Habit icon (clickable to edit)
                         GestureDetector(
@@ -367,8 +358,16 @@ class HomeScreen extends StatelessWidget {
                         }).toList(),
                       ],
                     ),
-                  );
-                }),
+                  ),
+                  if (index < provider.habits.length - 1)
+                    Container(
+                      height: 1,
+                      color: Theme.of(context).colorScheme.surfaceContainerHighest
+                            .withValues(alpha: 0.5),
+                    ),
+                ],
+              );
+            }),
               ),
             ),
           ),
