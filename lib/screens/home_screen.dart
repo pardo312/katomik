@@ -15,27 +15,30 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return AdaptiveScaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
-      body: SafeArea(
-        child: Consumer<HabitProvider>(
-          builder: (context, habitProvider, child) {
-            if (habitProvider.isLoading) {
-              return const Center(child: AdaptiveProgressIndicator());
-            }
+      body: Consumer<HabitProvider>(
+        builder: (context, habitProvider, child) {
+          if (habitProvider.isLoading) {
+            return const Center(child: AdaptiveProgressIndicator());
+          }
 
-            return Column(
+          return SingleChildScrollView(
+            child: Column(
               children: [
                 _buildStreakHeader(context, habitProvider),
                 const SizedBox(height: 20),
                 _buildWeekView(context, habitProvider),
                 const SizedBox(height: 20),
                 if (habitProvider.habits.isEmpty)
-                  Expanded(child: _buildEmptyState(context)),
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.4,
+                    child: _buildEmptyState(context),
+                  ),
+                const SizedBox(height: 80), // Space for FAB
               ],
-            );
-          },
-        ),
+            ),
+          );
+        },
       ),
-      floatingActionButton: _buildFAB(context),
     );
   }
 
@@ -228,11 +231,6 @@ class HomeScreen extends StatelessWidget {
           ),
           // Habit rows
           Container(
-            constraints: BoxConstraints(
-              maxHeight: provider.habits.length > 3
-                  ? 200
-                  : provider.habits.length * 60.0,
-            ),
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.surface,
               borderRadius: const BorderRadius.only(
@@ -249,14 +247,8 @@ class HomeScreen extends StatelessWidget {
                 bottomLeft: Radius.circular(16),
                 bottomRight: Radius.circular(16),
               ),
-              child: ListView.builder(
-                shrinkWrap: true,
-                physics: provider.habits.length > 3
-                    ? const AlwaysScrollableScrollPhysics()
-                    : const NeverScrollableScrollPhysics(),
-                padding: EdgeInsets.zero,
-                itemCount: provider.habits.length,
-                itemBuilder: (context, index) {
+              child: Column(
+                children: List.generate(provider.habits.length, (index) {
                   final habit = provider.habits[index];
                   final color = Color(int.parse(habit.color));
 
@@ -376,7 +368,7 @@ class HomeScreen extends StatelessWidget {
                       ],
                     ),
                   );
-                },
+                }),
               ),
             ),
           ),
@@ -416,47 +408,4 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildFAB(BuildContext context) {
-    if (Platform.isIOS) {
-      return CupertinoButton(
-        padding: EdgeInsets.zero,
-        child: Container(
-          width: 56,
-          height: 56,
-          decoration: BoxDecoration(
-            color: CupertinoColors.activeBlue,
-            borderRadius: BorderRadius.circular(28),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.2),
-                blurRadius: 8,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          child: const Icon(
-            CupertinoIcons.add,
-            color: CupertinoColors.white,
-            size: 28,
-          ),
-        ),
-        onPressed: () {
-          Navigator.push(
-            context,
-            CupertinoPageRoute(builder: (_) => const AddHabitScreen()),
-          );
-        },
-      );
-    }
-
-    return FloatingActionButton(
-      onPressed: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const AddHabitScreen()),
-        );
-      },
-      child: const Icon(Icons.add),
-    );
-  }
 }

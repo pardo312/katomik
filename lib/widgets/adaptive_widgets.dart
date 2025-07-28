@@ -49,7 +49,7 @@ class AdaptiveScaffold extends StatelessWidget {
               if (floatingActionButton != null)
                 Positioned(
                   right: 16,
-                  bottom: bottomNavigationBar != null ? 88 : 16,
+                  bottom: 16,
                   child: floatingActionButton!,
                 ),
             ],
