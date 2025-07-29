@@ -66,21 +66,115 @@ class HabitRow extends StatelessWidget {
   }
 
   List<Widget> _buildCompletionCheckmarks(BuildContext context, Color color, DateTime today) {
-    return dates.map((date) {
+    final widgets = <Widget>[];
+    int i = 0;
+    
+    while (i < dates.length) {
+      final startIndex = i;
+      final date = dates[i];
       final completed = habit.id != null && isCompleted(habit.id!, date);
-      final isToday = HomeDateUtils.isSameDay(date, today);
-
-      return Expanded(
-        child: GestureDetector(
-          onTap: isToday && habit.id != null 
-              ? () => onToggleCompletion(habit.id!, date)
-              : null,
-          child: Center(
-            child: _buildCheckmark(context, color, completed, isToday),
-          ),
+      
+      if (completed) {
+        // Find end of consecutive completed group
+        int endIndex = i;
+        while (endIndex < dates.length - 1 && 
+               habit.id != null && 
+               isCompleted(habit.id!, dates[endIndex + 1])) {
+          endIndex++;
+        }
+        
+        // Build grouped checkmarks
+        if (endIndex > startIndex) {
+          // Multiple consecutive days
+          widgets.add(_buildGroupedCheckmarks(
+            context, 
+            color, 
+            dates.sublist(startIndex, endIndex + 1),
+            today,
+          ));
+          i = endIndex + 1;
+        } else {
+          // Single completed day
+          widgets.add(_buildSingleCheckmark(
+            context,
+            color,
+            date,
+            completed,
+            HomeDateUtils.isSameDay(date, today),
+          ));
+          i++;
+        }
+      } else {
+        // Uncompleted day
+        widgets.add(_buildSingleCheckmark(
+          context,
+          color,
+          date,
+          completed,
+          HomeDateUtils.isSameDay(date, today),
+        ));
+        i++;
+      }
+    }
+    
+    return widgets;
+  }
+  
+  Widget _buildSingleCheckmark(
+    BuildContext context,
+    Color color,
+    DateTime date,
+    bool completed,
+    bool isToday,
+  ) {
+    return Expanded(
+      child: GestureDetector(
+        onTap: isToday && habit.id != null 
+            ? () => onToggleCompletion(habit.id!, date)
+            : null,
+        child: Center(
+          child: _buildCheckmark(context, color, completed, isToday),
         ),
-      );
-    }).toList();
+      ),
+    );
+  }
+  
+  Widget _buildGroupedCheckmarks(
+    BuildContext context,
+    Color color,
+    List<DateTime> groupDates,
+    DateTime today,
+  ) {
+    return Expanded(
+      flex: groupDates.length,
+      child: Container(
+        height: 32,
+        margin: const EdgeInsets.symmetric(horizontal: 4),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.8),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          children: groupDates.map((date) {
+            final isToday = HomeDateUtils.isSameDay(date, today);
+            return Expanded(
+              child: GestureDetector(
+                onTap: isToday && habit.id != null 
+                    ? () => onToggleCompletion(habit.id!, date)
+                    : null,
+                child: Center(
+                  child: Icon(
+                    Icons.check,
+                    color: Colors.white.withValues(alpha: isToday ? 1.0 : 0.8),
+                    size: 18,
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+      ),
+    );
   }
 
   Widget _buildCheckmark(BuildContext context, Color color, bool completed, bool isToday) {
