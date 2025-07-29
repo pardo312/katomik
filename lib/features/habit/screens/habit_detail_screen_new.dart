@@ -240,79 +240,207 @@ class _HabitDetailScreenNewState extends State<HabitDetailScreenNew>
               .toList(),
         ),
         const SizedBox(height: 8),
-        GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 7,
-            childAspectRatio: 1,
-            crossAxisSpacing: 4,
-            mainAxisSpacing: 4,
-          ),
-          itemCount: 42,
-          itemBuilder: (context, index) {
-            if (index < firstWeekday || index >= firstWeekday + daysInMonth) {
-              final prevMonthLastDay = DateTime(
-                _focusedMonth.year,
-                _focusedMonth.month,
-                0,
-              ).day;
-              final nextMonthDay = index - firstWeekday - daysInMonth + 1;
-              final prevMonthDay = prevMonthLastDay - firstWeekday + index + 1;
+        _buildCalendarWeeks(firstWeekday, daysInMonth, color),
+      ],
+    );
+  }
 
-              return Center(
-                child: Text(
-                  index < firstWeekday ? '$prevMonthDay' : '$nextMonthDay',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.outline.withValues(alpha: 0.3),
-                  ),
-                ),
-              );
-            }
+  Widget _buildCalendarWeeks(int firstWeekday, int daysInMonth, Color color) {
+    List<Widget> weeks = [];
+    
+    for (int weekStart = 0; weekStart < 42; weekStart += 7) {
+      weeks.add(_buildCalendarWeek(weekStart, firstWeekday, daysInMonth, color));
+      if (weekStart + 7 - firstWeekday >= daysInMonth) break;
+    }
+    
+    return Column(
+      children: weeks,
+    );
+  }
 
-            final day = index - firstWeekday + 1;
-            final date = DateTime(_focusedMonth.year, _focusedMonth.month, day);
-            final isCompleted = _isDateCompleted(date);
+  Widget _buildCalendarWeek(int weekStartIndex, int firstWeekday, int daysInMonth, Color color) {
+    return Container(
+      height: 36,
+      margin: const EdgeInsets.symmetric(vertical: 2),
+      child: Row(
+        children: _buildWeekDays(weekStartIndex, firstWeekday, daysInMonth, color),
+      ),
+    );
+  }
+
+  List<Widget> _buildWeekDays(int weekStartIndex, int firstWeekday, int daysInMonth, Color color) {
+    List<Widget> widgets = [];
+    List<int> weekIndices = [];
+    List<DateTime> weekDates = [];
+    List<bool> weekCompleted = [];
+    
+    // Collect week data
+    for (int i = 0; i < 7; i++) {
+      int index = weekStartIndex + i;
+      weekIndices.add(index);
+      
+      if (index >= firstWeekday && index < firstWeekday + daysInMonth) {
+        final day = index - firstWeekday + 1;
+        final date = DateTime(_focusedMonth.year, _focusedMonth.month, day);
+        weekDates.add(date);
+        weekCompleted.add(_isDateCompleted(date));
+      } else {
+        weekDates.add(DateTime(0)); // Placeholder for out-of-month days
+        weekCompleted.add(false);
+      }
+    }
+    
+    // Build widgets with grouping
+    int i = 0;
+    while (i < 7) {
+      final index = weekIndices[i];
+      final date = weekDates[i];
+      final isCompleted = weekCompleted[i];
+      final isValidDate = date.year != 0;
+      
+      if (isValidDate && isCompleted) {
+        // Find consecutive completed days
+        int groupStart = i;
+        int groupEnd = i;
+        
+        while (groupEnd < 6 && 
+               weekDates[groupEnd + 1].year != 0 &&
+               weekCompleted[groupEnd + 1]) {
+          groupEnd++;
+        }
+        
+        if (groupEnd > groupStart) {
+          // Multiple consecutive days
+          widgets.add(_buildGroupedCalendarDays(
+            weekDates.sublist(groupStart, groupEnd + 1),
+            color,
+            groupEnd - groupStart + 1,
+          ));
+          i = groupEnd + 1;
+        } else {
+          // Single completed day
+          widgets.add(_buildSingleCalendarDay(index, firstWeekday, daysInMonth, color));
+          i++;
+        }
+      } else {
+        // Uncompleted or out-of-month day
+        widgets.add(_buildSingleCalendarDay(index, firstWeekday, daysInMonth, color));
+        i++;
+      }
+    }
+    
+    return widgets;
+  }
+
+  Widget _buildGroupedCalendarDays(List<DateTime> dates, Color color, int count) {
+    return Expanded(
+      flex: count,
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 2),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.8),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          children: dates.map((date) {
             final isToday = HomeDateUtils.isSameDay(date, DateTime.now());
-
-            return GestureDetector(
-              onTap: () {
-                if (!date.isAfter(DateTime.now())) {
-                  Provider.of<HabitProvider>(
-                    context,
-                    listen: false,
-                  ).toggleHabitCompletion(_habit.id!, date);
-                  _loadCompletions();
-                }
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                  color: isCompleted ? color : Colors.transparent,
-                  shape: BoxShape.circle,
-                  border: isToday && !isCompleted
-                      ? Border.all(color: color, width: 2)
-                      : null,
-                ),
+            return Expanded(
+              child: GestureDetector(
+                onTap: () {
+                  if (!date.isAfter(DateTime.now())) {
+                    Provider.of<HabitProvider>(
+                      context,
+                      listen: false,
+                    ).toggleHabitCompletion(_habit.id!, date);
+                    _loadCompletions();
+                  }
+                },
                 child: Center(
                   child: Text(
-                    '$day',
+                    '${date.day}',
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: isToday ? FontWeight.bold : FontWeight.normal,
-                      color: isCompleted
-                          ? Colors.white
-                          : Theme.of(context).colorScheme.onSurface,
+                      color: Colors.white,
                     ),
                   ),
                 ),
               ),
             );
-          },
+          }).toList(),
         ),
-      ],
+      ),
+    );
+  }
+
+  Widget _buildSingleCalendarDay(int index, int firstWeekday, int daysInMonth, Color color) {
+    if (index < firstWeekday || index >= firstWeekday + daysInMonth) {
+      final prevMonthLastDay = DateTime(
+        _focusedMonth.year,
+        _focusedMonth.month,
+        0,
+      ).day;
+      final nextMonthDay = index - firstWeekday - daysInMonth + 1;
+      final prevMonthDay = prevMonthLastDay - firstWeekday + index + 1;
+
+      return Expanded(
+        child: Center(
+          child: Text(
+            index < firstWeekday ? '$prevMonthDay' : '$nextMonthDay',
+            style: TextStyle(
+              fontSize: 14,
+              color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
+            ),
+          ),
+        ),
+      );
+    }
+
+    final day = index - firstWeekday + 1;
+    final date = DateTime(_focusedMonth.year, _focusedMonth.month, day);
+    final isCompleted = _isDateCompleted(date);
+    final isToday = HomeDateUtils.isSameDay(date, DateTime.now());
+
+    return Expanded(
+      child: GestureDetector(
+        onTap: () {
+          if (!date.isAfter(DateTime.now())) {
+            Provider.of<HabitProvider>(
+              context,
+              listen: false,
+            ).toggleHabitCompletion(_habit.id!, date);
+            _loadCompletions();
+          }
+        },
+        child: Container(
+          margin: const EdgeInsets.symmetric(horizontal: 2),
+          height: 32,
+          decoration: BoxDecoration(
+            color: isCompleted ? color : Colors.transparent,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: isCompleted
+                  ? Colors.transparent
+                  : isToday
+                      ? color
+                      : Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+              width: isToday && !isCompleted ? 2 : 1,
+            ),
+          ),
+          child: Center(
+            child: Text(
+              '$day',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: isToday ? FontWeight.bold : FontWeight.normal,
+                color: isCompleted
+                    ? Colors.white
+                    : Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 
