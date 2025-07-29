@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:katomik/data/models/habit.dart';
 import 'package:katomik/features/habit/widgets/habit_icon.dart';
 import 'package:katomik/features/habit/screens/add_habit_screen.dart';
+import 'package:katomik/features/habit/screens/habit_detail_screen_new.dart';
 import 'package:katomik/core/utils/date_utils.dart';
 
 class HabitRow extends StatelessWidget {
@@ -41,7 +42,7 @@ class HabitRow extends StatelessWidget {
 
   Widget _buildHabitIcon(BuildContext context, Color color) {
     return GestureDetector(
-      onTap: () => _navigateToEditHabit(context),
+      onTap: () => _navigateToHabitDetail(context),
       child: Container(
         width: 60,
         padding: const EdgeInsets.all(8),
@@ -120,6 +121,19 @@ class HabitRow extends StatelessWidget {
             )
           : MaterialPageRoute(
               builder: (_) => AddHabitScreen(habitToEdit: habit),
+            ),
+    );
+  }
+
+  void _navigateToHabitDetail(BuildContext context) {
+    Navigator.push(
+      context,
+      Platform.isIOS
+          ? CupertinoPageRoute(
+              builder: (_) => HabitDetailScreenNew(habit: habit),
+            )
+          : MaterialPageRoute(
+              builder: (_) => HabitDetailScreenNew(habit: habit),
             ),
     );
   }
