@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'dart:io';
+import 'package:provider/provider.dart';
 import 'package:katomik/data/models/habit.dart';
 import 'package:katomik/features/habit/widgets/habit_icon.dart';
 import 'package:katomik/features/habit/screens/add_habit_screen.dart';
 import 'package:katomik/features/habit/screens/habit_detail_screen_new.dart';
 import 'package:katomik/core/utils/date_utils.dart';
+import 'package:katomik/providers/navigation_provider.dart';
 
 class HabitRow extends StatelessWidget {
   final Habit habit;
@@ -220,6 +222,9 @@ class HabitRow extends StatelessWidget {
   }
 
   void _navigateToHabitDetail(BuildContext context) {
+    // Hide FAB when navigating to detail
+    context.read<NavigationProvider>().hideHomeFab();
+    
     Navigator.push(
       context,
       Platform.isIOS
@@ -229,6 +234,11 @@ class HabitRow extends StatelessWidget {
           : MaterialPageRoute(
               builder: (_) => HabitDetailScreenNew(habit: habit),
             ),
-    );
+    ).then((_) {
+      // Show FAB again when returning
+      if (context.mounted) {
+        context.read<NavigationProvider>().showHomeFabIfNeeded();
+      }
+    });
   }
 }

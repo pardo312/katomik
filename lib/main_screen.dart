@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:provider/provider.dart';
 import 'package:katomik/shared/widgets/adaptive_navigation.dart';
 import 'package:katomik/shared/widgets/adaptive_widgets.dart';
 import 'package:katomik/core/platform/platform_icons.dart';
@@ -8,6 +9,7 @@ import 'package:katomik/features/home/screens/home_screen.dart';
 import 'package:katomik/features/statistics/screens/statistics_screen.dart';
 import 'package:katomik/features/settings/screens/theme_settings_screen.dart';
 import 'package:katomik/features/habit/screens/add_habit_screen.dart';
+import 'package:katomik/providers/navigation_provider.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -49,76 +51,90 @@ class _MainScreenState extends State<MainScreen> {
     ];
 
     if (context.platform.isIOS) {
-      return Stack(
-        children: [
-          AdaptiveTabScaffold(
+      return Consumer<NavigationProvider>(
+        builder: (context, navProvider, child) {
+          return Stack(
+            children: [
+              AdaptiveTabScaffold(
+                tabs: tabs,
+                currentIndex: _currentIndex,
+                onTabChanged: (index) {
+                  setState(() {
+                    _currentIndex = index;
+                  });
+                  if (index == 0) {
+                    navProvider.showHomeFabIfNeeded();
+                  }
+                },
+              ),
+              if (_currentIndex == 0 && navProvider.showHomeFab)
+                Positioned(
+                  bottom: 100,
+                  right: 16,
+                  child: CupertinoButton(
+                    padding: EdgeInsets.zero,
+                    child: Container(
+                      width: 56,
+                      height: 56,
+                      decoration: BoxDecoration(
+                        color: CupertinoColors.activeBlue,
+                        borderRadius: BorderRadius.circular(28),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.2),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: const Icon(
+                        CupertinoIcons.add,
+                        color: CupertinoColors.white,
+                        size: 28,
+                      ),
+                    ),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        CupertinoPageRoute(builder: (_) => const AddHabitScreen()),
+                      );
+                    },
+                  ),
+                ),
+            ],
+          );
+        },
+      );
+    }
+
+    return Consumer<NavigationProvider>(
+      builder: (context, navProvider, child) {
+        return Scaffold(
+          body: AdaptiveTabScaffold(
             tabs: tabs,
             currentIndex: _currentIndex,
             onTabChanged: (index) {
               setState(() {
                 _currentIndex = index;
               });
+              if (index == 0) {
+                navProvider.showHomeFabIfNeeded();
+              }
             },
           ),
-          if (_currentIndex == 0) // Show FAB only on Home tab
-            Positioned(
-              bottom: 100,
-              right: 16,
-              child: CupertinoButton(
-                padding: EdgeInsets.zero,
-                child: Container(
-                  width: 56,
-                  height: 56,
-                  decoration: BoxDecoration(
-                    color: CupertinoColors.activeBlue,
-                    borderRadius: BorderRadius.circular(28),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.2),
-                        blurRadius: 8,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: const Icon(
-                    CupertinoIcons.add,
-                    color: CupertinoColors.white,
-                    size: 28,
-                  ),
-                ),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    CupertinoPageRoute(builder: (_) => const AddHabitScreen()),
-                  );
-                },
-              ),
-            ),
-        ],
-      );
-    }
-
-    return Scaffold(
-      body: AdaptiveTabScaffold(
-        tabs: tabs,
-        currentIndex: _currentIndex,
-        onTabChanged: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
-      ),
-      floatingActionButton: _currentIndex == 0 // Show FAB only on Home tab
-          ? FloatingActionButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const AddHabitScreen()),
-                );
-              },
-              child: const Icon(Icons.add),
-            )
-          : null,
+          floatingActionButton: _currentIndex == 0 && navProvider.showHomeFab
+              ? FloatingActionButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const AddHabitScreen()),
+                    );
+                  },
+                  child: const Icon(Icons.add),
+                )
+              : null,
+        );
+      },
     );
   }
 }
