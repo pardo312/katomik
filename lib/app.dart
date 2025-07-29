@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
-import 'dart:io';
 import 'main_screen.dart';
 import 'providers/theme_provider.dart';
+import 'providers/platform_provider.dart';
 import 'core/theme/app_theme.dart';
 
 class MyApp extends StatelessWidget {
@@ -11,11 +11,11 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<ThemeProvider>(
-      builder: (context, themeProvider, child) {
+    return Consumer2<ThemeProvider, PlatformProvider>(
+      builder: (context, themeProvider, platformProvider, child) {
         final selectedColor = themeProvider.selectedColor;
         
-        if (Platform.isIOS) {
+        if (platformProvider.isIOS) {
           return CupertinoApp(
             title: 'Katomik - Habit Tracker',
             theme: AppTheme.getCupertinoTheme(

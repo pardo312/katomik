@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:katomik/shared/widgets/adaptive_navigation.dart';
+import 'package:katomik/shared/widgets/adaptive_widgets.dart';
+import 'package:katomik/core/platform/platform_icons.dart';
+import 'package:katomik/core/platform/platform_service.dart';
 import 'package:katomik/features/home/screens/home_screen.dart';
 import 'package:katomik/features/statistics/screens/statistics_screen.dart';
 import 'package:katomik/features/settings/screens/theme_settings_screen.dart';
 import 'package:katomik/features/habit/screens/add_habit_screen.dart';
-import 'dart:io';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -21,32 +23,32 @@ class _MainScreenState extends State<MainScreen> {
   Widget build(BuildContext context) {
     final tabs = [
       AdaptiveTabItem(
-        icon: Icon(Platform.isIOS ? CupertinoIcons.house : Icons.home_outlined),
-        activeIcon: Icon(Platform.isIOS ? CupertinoIcons.house_fill : Icons.home),
+        icon: Icon(PlatformIcons.home),
+        activeIcon: Icon(PlatformIcons.homeActive),
         label: 'Home',
         page: const HomeScreen(),
       ),
       AdaptiveTabItem(
-        icon: Icon(Platform.isIOS ? CupertinoIcons.chart_bar : Icons.analytics_outlined),
-        activeIcon: Icon(Platform.isIOS ? CupertinoIcons.chart_bar_fill : Icons.analytics),
+        icon: Icon(PlatformIcons.analytics),
+        activeIcon: Icon(PlatformIcons.analyticsActive),
         label: 'Analytics',
         page: const StatisticsScreen(),
       ),
       AdaptiveTabItem(
-        icon: Icon(Platform.isIOS ? CupertinoIcons.globe : Icons.public_outlined),
-        activeIcon: Icon(Platform.isIOS ? CupertinoIcons.globe : Icons.public),
+        icon: Icon(PlatformIcons.globe),
+        activeIcon: Icon(PlatformIcons.globeActive),
         label: 'Network',
         page: const Center(child: Text('Network - Coming Soon')),
       ),
       AdaptiveTabItem(
-        icon: Icon(Platform.isIOS ? CupertinoIcons.person : Icons.person_outline),
-        activeIcon: Icon(Platform.isIOS ? CupertinoIcons.person_fill : Icons.person),
+        icon: Icon(PlatformIcons.person),
+        activeIcon: Icon(PlatformIcons.personActive),
         label: 'Profile',
         page: const ThemeSettingsScreen(),
       ),
     ];
 
-    if (Platform.isIOS) {
+    if (context.platform.isIOS) {
       return Stack(
         children: [
           AdaptiveTabScaffold(

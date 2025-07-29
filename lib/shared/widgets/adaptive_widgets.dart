@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'dart:io';
+import '../../core/platform/platform_service.dart';
+import '../../core/platform/platform_icons.dart';
+import '../../core/platform/platform_constants.dart';
 
 class AdaptiveScaffold extends StatelessWidget {
   final Widget? title;
@@ -486,5 +489,306 @@ class AdaptiveDatePicker extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const SizedBox.shrink();
+  }
+}
+
+class AdaptiveIcon extends StatelessWidget {
+  final IconData? materialIcon;
+  final IconData? cupertinoIcon;
+  final double? size;
+  final Color? color;
+  final String? semanticLabel;
+  
+  const AdaptiveIcon({
+    super.key,
+    this.materialIcon,
+    this.cupertinoIcon,
+    this.size,
+    this.color,
+    this.semanticLabel,
+  }) : assert(
+    materialIcon != null || cupertinoIcon != null,
+    'At least one icon must be provided',
+  );
+  
+  @override
+  Widget build(BuildContext context) {
+    final platform = DefaultPlatformService();
+    final iconData = platform.isCupertino
+        ? (cupertinoIcon ?? materialIcon!)
+        : (materialIcon ?? cupertinoIcon!);
+    
+    return Icon(
+      iconData,
+      size: size ?? PlatformConstants.mediumIconSize,
+      color: color,
+      semanticLabel: semanticLabel,
+    );
+  }
+  
+  // Factory constructors for common icons
+  factory AdaptiveIcon.home({bool active = false, double? size, Color? color}) {
+    return AdaptiveIcon(
+      materialIcon: active ? Icons.home : Icons.home_outlined,
+      cupertinoIcon: active ? CupertinoIcons.house_fill : CupertinoIcons.house,
+      size: size,
+      color: color,
+    );
+  }
+  
+  factory AdaptiveIcon.add({double? size, Color? color}) {
+    return AdaptiveIcon(
+      materialIcon: Icons.add,
+      cupertinoIcon: CupertinoIcons.add,
+      size: size,
+      color: color,
+    );
+  }
+  
+  factory AdaptiveIcon.edit({double? size, Color? color}) {
+    return AdaptiveIcon(
+      materialIcon: Icons.edit,
+      cupertinoIcon: CupertinoIcons.pencil,
+      size: size,
+      color: color,
+    );
+  }
+  
+  factory AdaptiveIcon.delete({double? size, Color? color}) {
+    return AdaptiveIcon(
+      materialIcon: Icons.delete,
+      cupertinoIcon: CupertinoIcons.delete,
+      size: size,
+      color: color,
+    );
+  }
+  
+  factory AdaptiveIcon.check({double? size, Color? color}) {
+    return AdaptiveIcon(
+      materialIcon: Icons.check,
+      cupertinoIcon: CupertinoIcons.checkmark,
+      size: size,
+      color: color,
+    );
+  }
+  
+  factory AdaptiveIcon.settings({double? size, Color? color}) {
+    return AdaptiveIcon(
+      materialIcon: Icons.settings,
+      cupertinoIcon: CupertinoIcons.settings,
+      size: size,
+      color: color,
+    );
+  }
+  
+  factory AdaptiveIcon.search({double? size, Color? color}) {
+    return AdaptiveIcon(
+      materialIcon: Icons.search,
+      cupertinoIcon: CupertinoIcons.search,
+      size: size,
+      color: color,
+    );
+  }
+  
+  factory AdaptiveIcon.back({double? size, Color? color}) {
+    return AdaptiveIcon(
+      materialIcon: Icons.arrow_back,
+      cupertinoIcon: CupertinoIcons.back,
+      size: size,
+      color: color,
+    );
+  }
+  
+  factory AdaptiveIcon.forward({double? size, Color? color}) {
+    return AdaptiveIcon(
+      materialIcon: Icons.arrow_forward,
+      cupertinoIcon: CupertinoIcons.forward,
+      size: size,
+      color: color,
+    );
+  }
+  
+  factory AdaptiveIcon.share({double? size, Color? color}) {
+    return AdaptiveIcon(
+      materialIcon: Icons.share,
+      cupertinoIcon: CupertinoIcons.share,
+      size: size,
+      color: color,
+    );
+  }
+}
+
+class AdaptiveListTile extends StatelessWidget {
+  final Widget? leading;
+  final Widget? title;
+  final Widget? subtitle;
+  final Widget? trailing;
+  final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
+  final EdgeInsets? contentPadding;
+  final bool enabled;
+  final bool selected;
+  final Color? selectedColor;
+  final Color? backgroundColor;
+  
+  const AdaptiveListTile({
+    super.key,
+    this.leading,
+    this.title,
+    this.subtitle,
+    this.trailing,
+    this.onTap,
+    this.onLongPress,
+    this.contentPadding,
+    this.enabled = true,
+    this.selected = false,
+    this.selectedColor,
+    this.backgroundColor,
+  });
+  
+  @override
+  Widget build(BuildContext context) {
+    final platform = DefaultPlatformService();
+    
+    if (platform.isCupertino) {
+      final content = Container(
+        padding: contentPadding ?? PlatformConstants.defaultButtonPadding,
+        decoration: BoxDecoration(
+          color: selected
+              ? (selectedColor ?? CupertinoColors.systemGrey4.resolveFrom(context))
+                  .withValues(alpha: 0.3)
+              : backgroundColor ?? Colors.transparent,
+          borderRadius: PlatformConstants.smallBorderRadius,
+        ),
+        child: Row(
+          children: [
+            if (leading != null) ...[
+              leading!,
+              SizedBox(width: PlatformConstants.mediumSpace),
+            ],
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (title != null) 
+                    DefaultTextStyle(
+                      style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
+                        fontSize: 17,
+                        color: enabled ? null : CupertinoColors.systemGrey,
+                      ),
+                      child: title!,
+                    ),
+                  if (subtitle != null) ...[
+                    const SizedBox(height: 2),
+                    DefaultTextStyle(
+                      style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
+                        fontSize: 15,
+                        color: CupertinoColors.secondaryLabel.resolveFrom(context),
+                      ),
+                      child: subtitle!,
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            if (trailing != null) ...[
+              SizedBox(width: PlatformConstants.mediumSpace),
+              trailing!,
+            ],
+          ],
+        ),
+      );
+      
+      return GestureDetector(
+        onTap: enabled ? onTap : null,
+        onLongPress: enabled ? onLongPress : null,
+        behavior: HitTestBehavior.opaque,
+        child: content,
+      );
+    }
+    
+    // Material Design
+    return ListTile(
+      leading: leading,
+      title: title,
+      subtitle: subtitle,
+      trailing: trailing,
+      onTap: onTap,
+      onLongPress: onLongPress,
+      contentPadding: contentPadding,
+      enabled: enabled,
+      selected: selected,
+      selectedColor: selectedColor,
+      tileColor: backgroundColor,
+      shape: RoundedRectangleBorder(
+        borderRadius: PlatformConstants.smallBorderRadius,
+      ),
+    );
+  }
+}
+
+class AdaptiveAppBar extends StatelessWidget implements PreferredSizeWidget {
+  final Widget? title;
+  final Widget? leading;
+  final List<Widget>? actions;
+  final Color? backgroundColor;
+  final bool automaticallyImplyLeading;
+  final double? elevation;
+  final PreferredSizeWidget? bottom;
+  
+  const AdaptiveAppBar({
+    super.key,
+    this.title,
+    this.leading,
+    this.actions,
+    this.backgroundColor,
+    this.automaticallyImplyLeading = true,
+    this.elevation,
+    this.bottom,
+  });
+  
+  @override
+  Size get preferredSize => Size.fromHeight(
+    (DefaultPlatformService().isCupertino ? 44.0 : kToolbarHeight) +
+    (bottom?.preferredSize.height ?? 0.0),
+  );
+  
+  @override
+  Widget build(BuildContext context) {
+    final platform = DefaultPlatformService();
+    
+    if (platform.isCupertino) {
+      return CupertinoNavigationBar(
+        middle: title,
+        leading: leading,
+        trailing: actions?.isNotEmpty == true
+            ? Row(
+                mainAxisSize: MainAxisSize.min,
+                children: actions!,
+              )
+            : null,
+        backgroundColor: backgroundColor?.withValues(alpha: 0.9) ?? 
+            CupertinoTheme.of(context).barBackgroundColor.withValues(alpha: 0.9),
+        border: elevation == 0 ? null : const Border(
+          bottom: BorderSide(
+            color: Color(0x4C000000),
+            width: 0.0,
+          ),
+        ),
+        automaticallyImplyLeading: automaticallyImplyLeading,
+      );
+    }
+    
+    return AppBar(
+      title: title,
+      leading: leading,
+      actions: actions,
+      backgroundColor: backgroundColor,
+      automaticallyImplyLeading: automaticallyImplyLeading,
+      elevation: elevation,
+      centerTitle: PlatformConstants.centerTitle,
+      bottom: bottom,
+    );
   }
 }
