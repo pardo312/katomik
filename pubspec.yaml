@@ -56,6 +56,18 @@ dependencies:
   
   # Preferences storage
   shared_preferences: ^2.3.3
+  
+  # GraphQL client for backend communication
+  graphql_flutter: ^5.1.2
+  
+  # HTTP client
+  http: ^1.2.0
+  
+  # Secure storage for tokens
+  flutter_secure_storage: ^9.2.2
+  
+  # JWT decoder
+  jwt_decoder: ^2.0.1
 
 dev_dependencies:
   flutter_test:

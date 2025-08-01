@@ -38,6 +38,11 @@ class PlatformIcons {
       ? CupertinoIcons.person_fill 
       : Icons.person;
   
+  // Settings Icon
+  static IconData get settings => _platform.isCupertino 
+      ? CupertinoIcons.settings 
+      : Icons.settings;
+  
   // Action Icons
   static IconData get add => _platform.isCupertino 
       ? CupertinoIcons.add 

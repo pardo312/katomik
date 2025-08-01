@@ -2,12 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'package:katomik/shared/widgets/adaptive_navigation.dart';
-import 'package:katomik/shared/widgets/adaptive_widgets.dart';
 import 'package:katomik/core/platform/platform_icons.dart';
 import 'package:katomik/core/platform/platform_service.dart';
 import 'package:katomik/features/home/screens/home_screen.dart';
 import 'package:katomik/features/statistics/screens/statistics_screen.dart';
-import 'package:katomik/features/settings/screens/theme_settings_screen.dart';
+import 'package:katomik/features/profile/screens/profile_screen.dart';
 import 'package:katomik/features/habit/screens/add_habit_screen.dart';
 import 'package:katomik/providers/navigation_provider.dart';
 
@@ -46,7 +45,7 @@ class _MainScreenState extends State<MainScreen> {
         icon: Icon(PlatformIcons.person),
         activeIcon: Icon(PlatformIcons.personActive),
         label: 'Profile',
-        page: const ThemeSettingsScreen(),
+        page: const ProfileScreen(),
       ),
     ];
 

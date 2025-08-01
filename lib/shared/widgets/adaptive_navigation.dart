@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'dart:io';
+import '../../features/settings/screens/theme_settings_screen.dart';
+import '../../features/habit/screens/add_habit_screen.dart';
+import '../../features/habit/screens/habit_detail_screen.dart';
+import '../../data/models/habit.dart';
 
 class AdaptiveNavigationHelper {
   static Future<T?> push<T extends Object?>(
@@ -77,6 +81,28 @@ class AdaptiveTabScaffold extends StatelessWidget {
         tabBuilder: (context, index) {
           return CupertinoTabView(
             builder: (_) => tabs[index].page,
+            onGenerateRoute: (settings) {
+              // Handle navigation within tab
+              switch (settings.name) {
+                case '/theme-settings':
+                  return CupertinoPageRoute(
+                    builder: (context) => const ThemeSettingsScreen(),
+                  );
+                case '/add-habit':
+                  return CupertinoPageRoute(
+                    builder: (context) => const AddHabitScreen(),
+                  );
+                case '/habit-detail':
+                  final habit = settings.arguments as Habit;
+                  return CupertinoPageRoute(
+                    builder: (context) => HabitDetailScreen(habit: habit),
+                  );
+                default:
+                  return CupertinoPageRoute(
+                    builder: (_) => tabs[index].page,
+                  );
+              }
+            },
           );
         },
       );
