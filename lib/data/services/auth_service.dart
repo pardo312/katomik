@@ -1,11 +1,15 @@
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'graphql_client.dart';
 import '../models/user.dart';
 
 class AuthService {
   static const FlutterSecureStorage _secureStorage = FlutterSecureStorage();
+  static final GoogleSignIn _googleSignIn = GoogleSignIn(
+    scopes: ['email', 'profile'],
+  );
 
   // GraphQL Mutations
   static const String _loginMutation = r'''
@@ -88,6 +92,28 @@ class AuthService {
         emailVerified
         createdAt
         updatedAt
+      }
+    }
+  ''';
+
+  static const String _googleLoginMutation = r'''
+    mutation GoogleLogin($input: GoogleLoginInput!) {
+      googleLogin(input: $input) {
+        user {
+          id
+          email
+          username
+          displayName
+          avatarUrl
+          bio
+          timezone
+          isActive
+          emailVerified
+          createdAt
+          updatedAt
+        }
+        accessToken
+        refreshToken
       }
     }
   ''';
@@ -258,9 +284,66 @@ class AuthService {
     }
   }
 
+  // Google Sign In
+  Future<AuthResult> signInWithGoogle() async {
+    try {
+      // Trigger the authentication flow
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      
+      if (googleUser == null) {
+        throw Exception('Google sign in was cancelled');
+      }
+
+      // Obtain the auth details from the request
+      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      
+      // Get the ID token
+      final idToken = googleAuth.idToken;
+      
+      if (idToken == null) {
+        throw Exception('Failed to get Google ID token');
+      }
+
+      // Send the ID token to our backend
+      final client = GraphQLConfig.getUnauthenticatedClient();
+      
+      final result = await client.mutate(
+        MutationOptions(
+          document: gql(_googleLoginMutation),
+          variables: {
+            'input': {
+              'idToken': idToken,
+            },
+          },
+        ),
+      );
+
+      if (result.hasException) {
+        throw _handleException(result.exception!);
+      }
+
+      final data = result.data?['googleLogin'];
+      if (data == null) {
+        throw Exception('Google login failed: No data returned');
+      }
+
+      // Store tokens securely
+      await _storeTokens(data['accessToken'], data['refreshToken']);
+
+      return AuthResult(
+        user: User.fromJson(data['user']),
+        accessToken: data['accessToken'],
+        refreshToken: data['refreshToken'],
+      );
+    } catch (e) {
+      throw Exception('Google sign in failed: ${e.toString()}');
+    }
+  }
+
   // Logout
   Future<void> logout() async {
     await _secureStorage.deleteAll();
+    await _googleSignIn.signOut();
   }
 
   // Helper method to store tokens

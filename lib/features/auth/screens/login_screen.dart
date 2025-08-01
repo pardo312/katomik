@@ -50,6 +50,28 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  Future<void> _handleGoogleSignIn() async {
+    setState(() => _isLoading = true);
+
+    try {
+      final authProvider = context.read<AuthProvider>();
+      await authProvider.signInWithGoogle();
+      
+      // Navigate to home screen on successful login
+      if (mounted && authProvider.isAuthenticated) {
+        Navigator.pushReplacementNamed(context, '/');
+      }
+    } catch (e) {
+      if (mounted) {
+        _showError(e.toString());
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
   void _showError(String message) {
     // Parse backend error messages
     String displayMessage = message;
@@ -243,6 +265,78 @@ class _LoginScreenState extends State<LoginScreen> {
                       },
                       isPrimary: false,
                     ),
+                    const SizedBox(height: 32),
+                    Row(
+                      children: [
+                        const Expanded(child: Divider()),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Text(
+                            'Or',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        ),
+                        const Expanded(child: Divider()),
+                      ],
+                    ),
+                    const SizedBox(height: 32),
+                    if (context.isIOS)
+                      CupertinoButton(
+                        onPressed: _isLoading ? null : _handleGoogleSignIn,
+                        child: Container(
+                          height: 50,
+                          decoration: BoxDecoration(
+                            color: CupertinoColors.systemBackground,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: CupertinoColors.systemGrey4,
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Image.network(
+                                'https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg',
+                                height: 24,
+                                width: 24,
+                              ),
+                              const SizedBox(width: 12),
+                              const Text(
+                                'Sign in with Google',
+                                style: TextStyle(
+                                  color: CupertinoColors.label,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
+                    else
+                      OutlinedButton(
+                        onPressed: _isLoading ? null : _handleGoogleSignIn,
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Image.network(
+                              'https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg',
+                              height: 24,
+                              width: 24,
+                            ),
+                            const SizedBox(width: 12),
+                            const Text(
+                              'Sign in with Google',
+                              style: TextStyle(fontSize: 16),
+                            ),
+                          ],
+                        ),
+                      ),
                   ],
                 ),
               ),
