@@ -21,13 +21,13 @@ class DatabaseService {
     
     return await openDatabase(
       path,
-      version: 2,
+      version: 3,
       onCreate: (db, version) async {
         await db.execute('''
           CREATE TABLE habits(
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
-            description TEXT NOT NULL,
+            phrases TEXT NOT NULL DEFAULT '',
             created_date TEXT NOT NULL,
             color TEXT NOT NULL,
             icon TEXT NOT NULL DEFAULT 'science',
@@ -49,6 +49,24 @@ class DatabaseService {
       onUpgrade: (db, oldVersion, newVersion) async {
         if (oldVersion < 2) {
           await db.execute('ALTER TABLE habits ADD COLUMN icon TEXT NOT NULL DEFAULT "science"');
+        }
+        if (oldVersion < 3) {
+          // Add phrases column and migrate description data
+          await db.execute('ALTER TABLE habits ADD COLUMN phrases TEXT NOT NULL DEFAULT ""');
+          
+          // Migrate existing descriptions to phrases
+          final habits = await db.query('habits');
+          for (final habit in habits) {
+            final description = habit['description'] as String?;
+            if (description != null && description.isNotEmpty) {
+              await db.update(
+                'habits',
+                {'phrases': description},
+                where: 'id = ?',
+                whereArgs: [habit['id']],
+              );
+            }
+          }
         }
       },
     );

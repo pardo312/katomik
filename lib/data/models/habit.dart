@@ -1,7 +1,7 @@
 class Habit {
   final int? id;
   final String name;
-  final String description;
+  final List<String> phrases;
   final DateTime createdDate;
   final String color;
   final String icon;
@@ -10,7 +10,7 @@ class Habit {
   Habit({
     this.id,
     required this.name,
-    required this.description,
+    required this.phrases,
     required this.createdDate,
     required this.color,
     required this.icon,
@@ -21,7 +21,7 @@ class Habit {
     return {
       'id': id,
       'name': name,
-      'description': description,
+      'phrases': phrases.join('|||'),
       'created_date': createdDate.toIso8601String(),
       'color': color,
       'icon': icon,
@@ -30,10 +30,13 @@ class Habit {
   }
 
   factory Habit.fromMap(Map<String, dynamic> map) {
+    final phrasesString = map['phrases'] as String? ?? '';
+    final phrases = phrasesString.isEmpty ? <String>[] : phrasesString.split('|||');
+    
     return Habit(
       id: map['id'] as int?,
       name: map['name'] as String,
-      description: map['description'] as String,
+      phrases: phrases,
       createdDate: DateTime.parse(map['created_date'] as String),
       color: map['color'] as String,
       icon: map['icon'] as String? ?? 'science', // Default to atom/science icon
@@ -44,7 +47,7 @@ class Habit {
   Habit copyWith({
     int? id,
     String? name,
-    String? description,
+    List<String>? phrases,
     DateTime? createdDate,
     String? color,
     String? icon,
@@ -53,7 +56,7 @@ class Habit {
     return Habit(
       id: id ?? this.id,
       name: name ?? this.name,
-      description: description ?? this.description,
+      phrases: phrases ?? this.phrases,
       createdDate: createdDate ?? this.createdDate,
       color: color ?? this.color,
       icon: icon ?? this.icon,
@@ -67,7 +70,7 @@ class Habit {
     return other is Habit &&
         other.id == id &&
         other.name == name &&
-        other.description == description &&
+        other.phrases == phrases &&
         other.createdDate == createdDate &&
         other.color == color &&
         other.icon == icon &&
@@ -78,7 +81,7 @@ class Habit {
   int get hashCode {
     return id.hashCode ^
         name.hashCode ^
-        description.hashCode ^
+        phrases.hashCode ^
         createdDate.hashCode ^
         color.hashCode ^
         icon.hashCode ^

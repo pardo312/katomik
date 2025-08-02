@@ -570,15 +570,43 @@ class _HabitDetailScreenNewState extends State<HabitDetailScreenNew>
   }
 
   List<Widget> _buildFloatingUserPhrases() {
-    return [
-      _FloatingPhrase(
+    if (_habit.phrases.isEmpty) {
+      return [];
+    }
+
+    return _habit.phrases.asMap().entries.map((entry) {
+      final index = entry.key;
+      final phrase = entry.value;
+      
+      // Create different positions for each phrase
+      final positions = [
+        [const Offset(0.1, 0.1), const Offset(0.3, 0.2)],
+        [const Offset(0.6, 0.2), const Offset(0.7, 0.1)],
+        [const Offset(0.2, 0.3), const Offset(0.4, 0.4)],
+        [const Offset(0.5, 0.05), const Offset(0.6, 0.15)],
+        [const Offset(0.05, 0.4), const Offset(0.15, 0.5)],
+      ];
+      
+      final posIndex = index % positions.length;
+      final colors = [
+        Colors.white,
+        Colors.black,
+        Theme.of(context).colorScheme.primary,
+        Theme.of(context).colorScheme.secondary,
+        Theme.of(context).colorScheme.tertiary,
+      ];
+      final bgColor = colors[index % colors.length];
+      final textColor = bgColor == Colors.white ? Colors.black : Colors.white;
+
+      return _FloatingPhrase(
         animation: _floatingAnimationController,
-        startPosition: const Offset(0.1, 0.1),
-        endPosition: const Offset(0.3, 0.2),
+        startPosition: positions[posIndex][0],
+        endPosition: positions[posIndex][1],
         child: Container(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(16),
+          constraints: const BoxConstraints(maxWidth: 200),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: bgColor,
             borderRadius: BorderRadius.circular(8),
             boxShadow: [
               BoxShadow(
@@ -588,65 +616,19 @@ class _HabitDetailScreenNewState extends State<HabitDetailScreenNew>
               ),
             ],
           ),
-          child: Column(
-            children: [
-              Image.asset(
-                'assets/images/discipline.jpg',
-                width: 100,
-                height: 100,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
-                    width: 100,
-                    height: 100,
-                    color: Colors.grey[300],
-                    child: const Icon(Icons.image, size: 50),
-                  );
-                },
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                'DISCIPLINE\nBEATS\nMOTIVATION',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
-              ),
-            ],
+          child: Text(
+            phrase,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+              color: textColor,
+              fontFamily: Platform.isIOS ? '.SF UI Display' : 'Roboto',
+            ),
           ),
         ),
-      ),
-      _FloatingPhrase(
-        animation: _floatingAnimationController,
-        startPosition: const Offset(0.6, 0.2),
-        endPosition: const Offset(0.7, 0.1),
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.black,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Column(
-            children: [
-              Text(
-                'Aquí todos\nestamos locos',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                  fontFamily: Platform.isIOS ? '.SF UI Display' : 'Roboto',
-                ),
-              ),
-              const SizedBox(height: 8),
-              const Text('😀 😀', style: TextStyle(fontSize: 24)),
-            ],
-          ),
-        ),
-      ),
-    ];
+      );
+    }).toList();
   }
 
   List<Widget> _buildFloatingCommunityCards() {

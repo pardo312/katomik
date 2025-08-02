@@ -19,7 +19,7 @@ class AddHabitScreen extends StatefulWidget {
 class _AddHabitScreenState extends State<AddHabitScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
-  final _descriptionController = TextEditingController();
+  final List<TextEditingController> _phraseControllers = [];
   
   Color _selectedColor = Colors.blue;
   String _selectedIcon = 'science';
@@ -42,27 +42,45 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
     super.initState();
     if (widget.habitToEdit != null) {
       _nameController.text = widget.habitToEdit!.name;
-      _descriptionController.text = widget.habitToEdit!.description;
+      // Initialize phrase controllers with existing phrases
+      for (final phrase in widget.habitToEdit!.phrases) {
+        final controller = TextEditingController(text: phrase);
+        _phraseControllers.add(controller);
+      }
+      // Add one empty controller if no phrases exist
+      if (_phraseControllers.isEmpty) {
+        _phraseControllers.add(TextEditingController());
+      }
       _selectedColor = Color(int.parse(widget.habitToEdit!.color));
       _selectedIcon = widget.habitToEdit!.icon;
+    } else {
+      // Add one empty controller for new habits
+      _phraseControllers.add(TextEditingController());
     }
   }
 
   @override
   void dispose() {
     _nameController.dispose();
-    _descriptionController.dispose();
+    for (final controller in _phraseControllers) {
+      controller.dispose();
+    }
     super.dispose();
   }
 
   void _saveHabit() {
     if (Platform.isIOS || (_formKey.currentState?.validate() ?? false)) {
-      if (_nameController.text.trim().isEmpty || _descriptionController.text.trim().isEmpty) {
+      final phrases = _phraseControllers
+          .map((controller) => controller.text.trim())
+          .where((phrase) => phrase.isNotEmpty)
+          .toList();
+      
+      if (_nameController.text.trim().isEmpty || phrases.isEmpty) {
         if (Platform.isIOS) {
           AdaptiveDialog.show(
             context: context,
             title: 'Missing Information',
-            content: const Text('Please fill in all fields to create a habit.'),
+            content: const Text('Please provide a habit name and at least one phrase.'),
             actions: [
               AdaptiveDialogAction(
                 text: 'OK',
@@ -77,7 +95,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
       final habit = Habit(
         id: widget.habitToEdit?.id,
         name: _nameController.text.trim(),
-        description: _descriptionController.text.trim(),
+        phrases: phrases,
         createdDate: widget.habitToEdit?.createdDate ?? DateTime.now(),
         color: '0x${((_selectedColor.a * 255.0).round() & 0xff).toRadixString(16).padLeft(2, '0')}${((_selectedColor.r * 255.0).round() & 0xff).toRadixString(16).padLeft(2, '0')}${((_selectedColor.g * 255.0).round() & 0xff).toRadixString(16).padLeft(2, '0')}${((_selectedColor.b * 255.0).round() & 0xff).toRadixString(16).padLeft(2, '0')}'.toUpperCase(),
         icon: _selectedIcon,
@@ -130,17 +148,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
               onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: 16),
-            AdaptiveTextField(
-              controller: _descriptionController,
-              label: 'Description',
-              placeholder: 'Why do you want to build this habit?',
-              prefix: Icon(
-                Platform.isIOS ? CupertinoIcons.doc_text : Icons.description,
-                size: 20,
-              ),
-              maxLines: 3,
-              onChanged: (_) => setState(() {}),
-            ),
+            _buildPhrasesSection(),
             const SizedBox(height: 24),
             Text(
               'Choose a Color',
@@ -271,6 +279,84 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildPhrasesSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Why do you want to build this habit?',
+              style: Platform.isIOS
+                  ? CupertinoTheme.of(context).textTheme.textStyle.copyWith(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w600,
+                    )
+                  : Theme.of(context).textTheme.titleMedium,
+            ),
+            IconButton(
+              icon: Icon(
+                Platform.isIOS ? CupertinoIcons.add : Icons.add,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              onPressed: () {
+                setState(() {
+                  _phraseControllers.add(TextEditingController());
+                });
+              },
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Add phrases that motivate you',
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: 12),
+        ..._phraseControllers.asMap().entries.map((entry) {
+          final index = entry.key;
+          final controller = entry.value;
+          
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: Row(
+              children: [
+                Expanded(
+                  child: AdaptiveTextField(
+                    controller: controller,
+                    label: 'Phrase ${index + 1}',
+                    placeholder: 'Enter a motivating phrase',
+                    prefix: Icon(
+                      Platform.isIOS ? CupertinoIcons.quote_bubble : Icons.format_quote,
+                      size: 20,
+                    ),
+                    onChanged: (_) => setState(() {}),
+                  ),
+                ),
+                if (_phraseControllers.length > 1)
+                  IconButton(
+                    icon: Icon(
+                      Platform.isIOS ? CupertinoIcons.minus_circle : Icons.remove_circle_outline,
+                      color: Colors.red,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        controller.dispose();
+                        _phraseControllers.removeAt(index);
+                      });
+                    },
+                  ),
+              ],
+            ),
+          );
+        }).toList(),
+      ],
     );
   }
 }

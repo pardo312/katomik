@@ -138,7 +138,7 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            _habit.description,
+            _habit.phrases.isNotEmpty ? _habit.phrases.join(' • ') : 'No phrases added',
             style: Theme.of(context).textTheme.bodyLarge,
           ),
           const SizedBox(height: 16),
