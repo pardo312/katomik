@@ -295,10 +295,10 @@ class _LoginScreenState extends State<LoginScreen> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Image.network(
-                                'https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg',
-                                height: 24,
-                                width: 24,
+                              Icon(
+                                Icons.g_mobiledata,
+                                size: 24,
+                                color: Colors.blue,
                               ),
                               const SizedBox(width: 12),
                               const Text(
@@ -324,10 +324,10 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Image.network(
-                              'https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg',
-                              height: 24,
-                              width: 24,
+                            Icon(
+                              CupertinoIcons.person_crop_circle,
+                              size: 24,
+                              color: CupertinoColors.systemBlue,
                             ),
                             const SizedBox(width: 12),
                             const Text(
