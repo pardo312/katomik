@@ -8,6 +8,8 @@ import 'package:katomik/providers/habit_provider.dart';
 import 'package:katomik/core/utils/date_utils.dart';
 import 'package:katomik/features/home/widgets/date_header.dart';
 import 'package:katomik/features/home/widgets/habit_row.dart';
+import 'package:katomik/features/habit/screens/add_habit_screen.dart';
+import 'package:katomik/features/habit/widgets/habit_icon.dart';
 import 'dart:io';
 import 'dart:math' as math;
 
@@ -85,6 +87,7 @@ class _HabitDetailScreenNewState extends State<HabitDetailScreenNew>
               Expanded(
                 child: ListView(
                   children: [
+                    _buildHabitHeader(color),
                     _buildWeeklyTracker(color),
                     _buildCalendar(color),
                     _buildWhySection(),
@@ -106,6 +109,7 @@ class _HabitDetailScreenNewState extends State<HabitDetailScreenNew>
             Expanded(
               child: ListView(
                 children: [
+                  _buildHabitHeader(color),
                   _buildWeeklyTracker(color),
                   _buildCalendar(color),
                   _buildWhySection(),
@@ -131,6 +135,66 @@ class _HabitDetailScreenNewState extends State<HabitDetailScreenNew>
             ),
             onPressed: () => Navigator.pop(context),
           ),
+          const Spacer(),
+          IconButton(
+            icon: Icon(
+              Platform.isIOS ? CupertinoIcons.pencil : Icons.edit,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            onPressed: () async {
+              final provider = Provider.of<HabitProvider>(context, listen: false);
+              await Navigator.push(
+                context,
+                Platform.isIOS
+                    ? CupertinoPageRoute(
+                        builder: (_) => AddHabitScreen(habitToEdit: _habit),
+                      )
+                    : MaterialPageRoute(
+                        builder: (_) => AddHabitScreen(habitToEdit: _habit),
+                      ),
+              );
+              if (!mounted) return;
+              // Refresh habit data
+              final updatedHabit = provider.habits.firstWhere((h) => h.id == _habit.id);
+              setState(() {
+                _habit = updatedHabit;
+              });
+              _loadCompletions();
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHabitHeader(Color color) {
+    return Container(
+      color: Theme.of(context).colorScheme.surface,
+      padding: const EdgeInsets.symmetric(vertical: 24),
+      child: Column(
+        children: [
+          Container(
+            width: 80,
+            height: 80,
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.2),
+              shape: BoxShape.circle,
+            ),
+            child: Center(
+              child: HabitIcon(
+                iconName: _habit.icon,
+                size: 40,
+                color: color,
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            _habit.name,
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.w500,
+                ),
+          ),
         ],
       ),
     );
@@ -141,10 +205,11 @@ class _HabitDetailScreenNewState extends State<HabitDetailScreenNew>
 
     return Container(
       color: Theme.of(context).colorScheme.surface,
+      margin: const EdgeInsets.only(top: 8),
       padding: const EdgeInsets.all(16),
       child: Column(
         children: [
-          DateHeader(dates: dates),
+          DateHeader(dates: dates, showIconSpace: false),
           Container(
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.surface,
@@ -168,12 +233,14 @@ class _HabitDetailScreenNewState extends State<HabitDetailScreenNew>
                 _loadCompletions();
               },
               isCompleted: (habitId, date) => _isDateCompleted(date),
+              showIcon: false,
             ),
           ),
         ],
       ),
     );
   }
+
 
   Widget _buildCalendar(Color color) {
     return Container(

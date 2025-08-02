@@ -3,10 +3,12 @@ import 'package:katomik/core/utils/date_utils.dart';
 
 class DateHeader extends StatelessWidget {
   final List<DateTime> dates;
+  final bool showIconSpace;
 
   const DateHeader({
     super.key,
     required this.dates,
+    this.showIconSpace = true,
   });
 
   @override
@@ -24,7 +26,7 @@ class DateHeader extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const SizedBox(width: 60), // Space for habit icons
+          if (showIconSpace) const SizedBox(width: 60), // Space for habit icons
           ...dates.map((date) {
             final isToday = HomeDateUtils.isSameDay(date, today);
             return Expanded(

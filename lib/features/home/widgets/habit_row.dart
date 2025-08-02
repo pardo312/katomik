@@ -13,6 +13,7 @@ class HabitRow extends StatelessWidget {
   final List<DateTime> dates;
   final Function(int habitId, DateTime date) onToggleCompletion;
   final Function(int habitId, DateTime date) isCompleted;
+  final bool showIcon;
 
   const HabitRow({
     super.key,
@@ -20,6 +21,7 @@ class HabitRow extends StatelessWidget {
     required this.dates,
     required this.onToggleCompletion,
     required this.isCompleted,
+    this.showIcon = true,
   });
 
   @override
@@ -30,11 +32,13 @@ class HabitRow extends StatelessWidget {
     return Container(
       height: 60,
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainer.withValues(alpha: 0.3),
+        color: Theme.of(
+          context,
+        ).colorScheme.surfaceContainer.withValues(alpha: 0.3),
       ),
       child: Row(
         children: [
-          _buildHabitIcon(context, color),
+          if (showIcon) _buildHabitIcon(context, color),
           ..._buildCompletionCheckmarks(context, color, today),
         ],
       ),
@@ -55,72 +59,78 @@ class HabitRow extends StatelessWidget {
             shape: BoxShape.circle,
           ),
           child: Center(
-            child: HabitIcon(
-              iconName: habit.icon,
-              size: 20,
-              color: color,
-            ),
+            child: HabitIcon(iconName: habit.icon, size: 20, color: color),
           ),
         ),
       ),
     );
   }
 
-  List<Widget> _buildCompletionCheckmarks(BuildContext context, Color color, DateTime today) {
+  List<Widget> _buildCompletionCheckmarks(
+    BuildContext context,
+    Color color,
+    DateTime today,
+  ) {
     final widgets = <Widget>[];
     int i = 0;
-    
+
     while (i < dates.length) {
       final startIndex = i;
       final date = dates[i];
       final completed = habit.id != null && isCompleted(habit.id!, date);
-      
+
       if (completed) {
         // Find end of consecutive completed group
         int endIndex = i;
-        while (endIndex < dates.length - 1 && 
-               habit.id != null && 
-               isCompleted(habit.id!, dates[endIndex + 1])) {
+        while (endIndex < dates.length - 1 &&
+            habit.id != null &&
+            isCompleted(habit.id!, dates[endIndex + 1])) {
           endIndex++;
         }
-        
+
         // Build grouped checkmarks
         if (endIndex > startIndex) {
           // Multiple consecutive days
-          widgets.add(_buildGroupedCheckmarks(
-            context, 
-            color, 
-            dates.sublist(startIndex, endIndex + 1),
-            today,
-          ));
+          widgets.add(
+            _buildGroupedCheckmarks(
+              context,
+              color,
+              dates.sublist(startIndex, endIndex + 1),
+              today,
+            ),
+          );
           i = endIndex + 1;
         } else {
           // Single completed day
-          widgets.add(_buildSingleCheckmark(
+          widgets.add(
+            _buildSingleCheckmark(
+              context,
+              color,
+              date,
+              completed,
+              HomeDateUtils.isSameDay(date, today),
+            ),
+          );
+          i++;
+        }
+      } else {
+        // Uncompleted day
+        widgets.add(
+          _buildSingleCheckmark(
             context,
             color,
             date,
             completed,
             HomeDateUtils.isSameDay(date, today),
-          ));
-          i++;
-        }
-      } else {
-        // Uncompleted day
-        widgets.add(_buildSingleCheckmark(
-          context,
-          color,
-          date,
-          completed,
-          HomeDateUtils.isSameDay(date, today),
-        ));
+          ),
+        );
         i++;
       }
     }
-    
+
     return widgets;
   }
-  
+
   Widget _buildSingleCheckmark(
     BuildContext context,
     Color color,
@@ -130,7 +140,7 @@ class HabitRow extends StatelessWidget {
   ) {
     return Expanded(
       child: GestureDetector(
-        onTap: isToday && habit.id != null 
+        onTap: isToday && habit.id != null
             ? () => onToggleCompletion(habit.id!, date)
             : null,
         child: Center(
@@ -139,7 +149,7 @@ class HabitRow extends StatelessWidget {
       ),
     );
   }
-  
+
   Widget _buildGroupedCheckmarks(
     BuildContext context,
     Color color,
@@ -150,7 +160,7 @@ class HabitRow extends StatelessWidget {
       flex: groupDates.length,
       child: Container(
         height: 32,
-        margin: const EdgeInsets.symmetric(horizontal: 4),
+        margin: const EdgeInsets.symmetric(horizontal: 12),
         decoration: BoxDecoration(
           color: color.withValues(alpha: 0.8),
           borderRadius: BorderRadius.circular(16),
@@ -160,7 +170,7 @@ class HabitRow extends StatelessWidget {
             final isToday = HomeDateUtils.isSameDay(date, today);
             return Expanded(
               child: GestureDetector(
-                onTap: isToday && habit.id != null 
+                onTap: isToday && habit.id != null
                     ? () => onToggleCompletion(habit.id!, date)
                     : null,
                 child: Center(
@@ -178,7 +188,12 @@ class HabitRow extends StatelessWidget {
     );
   }
 
-  Widget _buildCheckmark(BuildContext context, Color color, bool completed, bool isToday) {
+  Widget _buildCheckmark(
+    BuildContext context,
+    Color color,
+    bool completed,
+    bool isToday,
+  ) {
     return Container(
       width: 32,
       height: 32,
@@ -190,10 +205,8 @@ class HabitRow extends StatelessWidget {
         border: Border.all(
           color: completed
               ? Colors.transparent
-              : Theme.of(context)
-                  .colorScheme
-                  .surfaceContainerHighest
-                  .withValues(alpha: isToday ? 1.0 : 0.5),
+              : Theme.of(context).colorScheme.surfaceContainerHighest
+                    .withValues(alpha: isToday ? 1.0 : 0.5),
           width: 2,
         ),
       ),
@@ -207,11 +220,10 @@ class HabitRow extends StatelessWidget {
     );
   }
 
-
   void _navigateToHabitDetail(BuildContext context) {
     // Hide FAB when navigating to detail
     context.read<NavigationProvider>().hideHomeFab();
-    
+
     Navigator.push(
       context,
       Platform.isIOS
