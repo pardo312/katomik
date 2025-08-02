@@ -9,6 +9,7 @@ import 'package:katomik/features/statistics/screens/statistics_screen.dart';
 import 'package:katomik/features/profile/screens/profile_screen.dart';
 import 'package:katomik/features/habit/screens/add_habit_screen.dart';
 import 'package:katomik/providers/navigation_provider.dart';
+import 'package:katomik/shared/widgets/profile_tab_icon.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -42,8 +43,8 @@ class _MainScreenState extends State<MainScreen> {
         page: const Center(child: Text('Network - Coming Soon')),
       ),
       AdaptiveTabItem(
-        icon: Icon(PlatformIcons.person),
-        activeIcon: Icon(PlatformIcons.personActive),
+        icon: const ProfileTabIcon(isActive: false),
+        activeIcon: const ProfileTabIcon(isActive: true),
         label: 'Profile',
         page: const ProfileScreen(),
       ),

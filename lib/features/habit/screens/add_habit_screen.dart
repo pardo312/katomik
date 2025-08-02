@@ -7,6 +7,7 @@ import 'package:katomik/shared/widgets/adaptive_widgets.dart';
 import 'package:katomik/features/habit/widgets/habit_icon.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
+import 'package:katomik/core/utils/platform_messages.dart';
 
 class AddHabitScreen extends StatefulWidget {
   final Habit? habitToEdit;
@@ -557,9 +558,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
           ),
         );
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to pick image: $e')),
-        );
+        PlatformMessages.showError(context, 'Failed to pick image: $e');
       }
     }
   }

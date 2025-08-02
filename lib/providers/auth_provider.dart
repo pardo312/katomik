@@ -160,6 +160,14 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  // Update user data
+  void updateUser(User user) {
+    if (_status == AuthStatus.authenticated) {
+      _user = user;
+      notifyListeners();
+    }
+  }
+
   // Clear error
   void clearError() {
     _error = null;

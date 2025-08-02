@@ -25,6 +25,7 @@ class AuthService {
           timezone
           isActive
           emailVerified
+          googleId
           createdAt
           updatedAt
         }
@@ -47,6 +48,7 @@ class AuthService {
           timezone
           isActive
           emailVerified
+          googleId
           createdAt
           updatedAt
         }
@@ -69,6 +71,7 @@ class AuthService {
           timezone
           isActive
           emailVerified
+          googleId
           createdAt
           updatedAt
         }
@@ -90,6 +93,7 @@ class AuthService {
         timezone
         isActive
         emailVerified
+        googleId
         createdAt
         updatedAt
       }
@@ -109,6 +113,7 @@ class AuthService {
           timezone
           isActive
           emailVerified
+          googleId
           createdAt
           updatedAt
         }
@@ -122,15 +127,12 @@ class AuthService {
   Future<AuthResult> login(String emailOrUsername, String password) async {
     try {
       final client = GraphQLConfig.getUnauthenticatedClient();
-      
+
       final result = await client.mutate(
         MutationOptions(
           document: gql(_loginMutation),
           variables: {
-            'input': {
-              'emailOrUsername': emailOrUsername,
-              'password': password,
-            },
+            'input': {'emailOrUsername': emailOrUsername, 'password': password},
           },
         ),
       );
@@ -167,7 +169,7 @@ class AuthService {
   }) async {
     try {
       final client = GraphQLConfig.getUnauthenticatedClient();
-      
+
       final result = await client.mutate(
         MutationOptions(
           document: gql(_registerMutation),
@@ -214,13 +216,11 @@ class AuthService {
       }
 
       final client = GraphQLConfig.getUnauthenticatedClient();
-      
+
       final result = await client.mutate(
         MutationOptions(
           document: gql(_refreshTokenMutation),
-          variables: {
-            'refreshToken': refreshToken,
-          },
+          variables: {'refreshToken': refreshToken},
         ),
       );
 
@@ -250,12 +250,8 @@ class AuthService {
   Future<User?> getCurrentUser() async {
     try {
       final client = await GraphQLConfig.getClient();
-      
-      final result = await client.query(
-        QueryOptions(
-          document: gql(_meQuery),
-        ),
-      );
+
+      final result = await client.query(QueryOptions(document: gql(_meQuery)));
 
       if (result.hasException) {
         throw _handleException(result.exception!);
@@ -289,31 +285,30 @@ class AuthService {
     try {
       // Trigger the authentication flow
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-      
+
       if (googleUser == null) {
         throw Exception('Google sign in was cancelled');
       }
 
       // Obtain the auth details from the request
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-      
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+
       // Get the ID token
       final idToken = googleAuth.idToken;
-      
+
       if (idToken == null) {
         throw Exception('Failed to get Google ID token');
       }
 
       // Send the ID token to our backend
       final client = GraphQLConfig.getUnauthenticatedClient();
-      
+
       final result = await client.mutate(
         MutationOptions(
           document: gql(_googleLoginMutation),
           variables: {
-            'input': {
-              'idToken': idToken,
-            },
+            'input': {'idToken': idToken},
           },
         ),
       );
@@ -357,7 +352,8 @@ class AuthService {
     if (exception.graphqlErrors.isNotEmpty) {
       final error = exception.graphqlErrors.first;
       // Check if it's a validation error with details
-      if (error.extensions != null && error.extensions!['originalError'] != null) {
+      if (error.extensions != null &&
+          error.extensions!['originalError'] != null) {
         final originalError = error.extensions!['originalError'];
         if (originalError['message'] is List) {
           return (originalError['message'] as List).join(', ');
@@ -365,8 +361,7 @@ class AuthService {
         return originalError['message'] ?? error.message;
       }
       return error.message;
-    }
-    if (exception.linkException != null) {
+    } else {
       return 'Network error: Please check your connection';
     }
     return 'An unexpected error occurred';

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../shared/widgets/adaptive_widgets.dart';
 import '../../../core/platform/platform_service.dart';
 import '../../../providers/auth_provider.dart';
+import '../../../core/utils/platform_messages.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -165,36 +166,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       displayMessage = 'Please check your input and try again. Make sure your password is at least 8 characters.';
     }
     
-    if (context.isIOS) {
-      showCupertinoDialog(
-        context: context,
-        builder: (context) => CupertinoAlertDialog(
-          title: const Text('Registration Error'),
-          content: Text(displayMessage),
-          actions: [
-            CupertinoDialogAction(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('OK'),
-            ),
-          ],
-        ),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(displayMessage),
-          backgroundColor: Colors.red,
-          behavior: SnackBarBehavior.floating,
-          action: SnackBarAction(
-            label: 'Dismiss',
-            textColor: Colors.white,
-            onPressed: () {
-              ScaffoldMessenger.of(context).hideCurrentSnackBar();
-            },
-          ),
-        ),
-      );
-    }
+    PlatformMessages.showError(context, displayMessage);
   }
 
   Widget _buildIOSField({

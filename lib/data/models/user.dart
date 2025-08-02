@@ -8,6 +8,7 @@ class User {
   final String timezone;
   final bool isActive;
   final bool emailVerified;
+  final String? googleId;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -21,6 +22,7 @@ class User {
     required this.timezone,
     required this.isActive,
     required this.emailVerified,
+    this.googleId,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -36,6 +38,7 @@ class User {
       timezone: json['timezone'] ?? 'UTC',
       isActive: json['isActive'] ?? true,
       emailVerified: json['emailVerified'] ?? false,
+      googleId: json['googleId'],
       createdAt: DateTime.parse(json['createdAt']),
       updatedAt: DateTime.parse(json['updatedAt']),
     );
@@ -52,6 +55,7 @@ class User {
       'timezone': timezone,
       'isActive': isActive,
       'emailVerified': emailVerified,
+      'googleId': googleId,
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
     };
@@ -67,6 +71,7 @@ class User {
     String? timezone,
     bool? isActive,
     bool? emailVerified,
+    String? googleId,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -80,6 +85,7 @@ class User {
       timezone: timezone ?? this.timezone,
       isActive: isActive ?? this.isActive,
       emailVerified: emailVerified ?? this.emailVerified,
+      googleId: googleId ?? this.googleId,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
