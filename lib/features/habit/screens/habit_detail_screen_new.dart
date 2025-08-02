@@ -559,6 +559,50 @@ class _HabitDetailScreenNewState extends State<HabitDetailScreenNew>
             height: 400,
             child: Stack(
               children: [
+                if (_habit.phrases.isEmpty && _habit.images.isEmpty)
+                  Center(
+                    child: GestureDetector(
+                      onTap: () async {
+                        final provider = Provider.of<HabitProvider>(context, listen: false);
+                        await Navigator.push(
+                          context,
+                          Platform.isIOS
+                              ? CupertinoPageRoute(
+                                  builder: (_) => AddHabitScreen(habitToEdit: _habit),
+                                )
+                              : MaterialPageRoute(
+                                  builder: (_) => AddHabitScreen(habitToEdit: _habit),
+                                ),
+                        );
+                        if (!mounted) return;
+                        // Refresh habit data
+                        final updatedHabit = provider.habits.firstWhere((h) => h.id == _habit.id);
+                        setState(() {
+                          _habit = updatedHabit;
+                        });
+                        _loadCompletions();
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.surface,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: Theme.of(context).colorScheme.primary,
+                            width: 2,
+                          ),
+                        ),
+                        child: Text(
+                          'add',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                 ..._buildFloatingUserPhrases(),
                 ..._buildFloatingCommunityCards(),
               ],
@@ -570,65 +614,116 @@ class _HabitDetailScreenNewState extends State<HabitDetailScreenNew>
   }
 
   List<Widget> _buildFloatingUserPhrases() {
-    if (_habit.phrases.isEmpty) {
-      return [];
-    }
-
-    return _habit.phrases.asMap().entries.map((entry) {
-      final index = entry.key;
-      final phrase = entry.value;
-      
-      // Create different positions for each phrase
-      final positions = [
-        [const Offset(0.1, 0.1), const Offset(0.3, 0.2)],
-        [const Offset(0.6, 0.2), const Offset(0.7, 0.1)],
-        [const Offset(0.2, 0.3), const Offset(0.4, 0.4)],
-        [const Offset(0.5, 0.05), const Offset(0.6, 0.15)],
-        [const Offset(0.05, 0.4), const Offset(0.15, 0.5)],
-      ];
-      
-      final posIndex = index % positions.length;
-      final colors = [
-        Colors.white,
-        Colors.black,
-        Theme.of(context).colorScheme.primary,
-        Theme.of(context).colorScheme.secondary,
-        Theme.of(context).colorScheme.tertiary,
-      ];
-      final bgColor = colors[index % colors.length];
+    final List<Widget> floatingElements = [];
+    
+    // Create different positions for floating elements
+    final positions = [
+      [const Offset(0.1, 0.1), const Offset(0.3, 0.2)],
+      [const Offset(0.6, 0.2), const Offset(0.7, 0.1)],
+      [const Offset(0.2, 0.3), const Offset(0.4, 0.4)],
+      [const Offset(0.5, 0.05), const Offset(0.6, 0.15)],
+      [const Offset(0.05, 0.4), const Offset(0.15, 0.5)],
+      [const Offset(0.7, 0.35), const Offset(0.8, 0.45)],
+      [const Offset(0.15, 0.25), const Offset(0.25, 0.35)],
+    ];
+    
+    final colors = [
+      Colors.white,
+      Colors.black,
+      Theme.of(context).colorScheme.primary,
+      Theme.of(context).colorScheme.secondary,
+      Theme.of(context).colorScheme.tertiary,
+    ];
+    
+    int positionIndex = 0;
+    
+    // Add phrases
+    for (final phrase in _habit.phrases) {
+      final posIndex = positionIndex % positions.length;
+      final bgColor = colors[positionIndex % colors.length];
       final textColor = bgColor == Colors.white ? Colors.black : Colors.white;
 
-      return _FloatingPhrase(
-        animation: _floatingAnimationController,
-        startPosition: positions[posIndex][0],
-        endPosition: positions[posIndex][1],
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          constraints: const BoxConstraints(maxWidth: 200),
-          decoration: BoxDecoration(
-            color: bgColor,
-            borderRadius: BorderRadius.circular(8),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.1),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
+      floatingElements.add(
+        _FloatingPhrase(
+          animation: _floatingAnimationController,
+          startPosition: positions[posIndex][0],
+          endPosition: positions[posIndex][1],
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            constraints: const BoxConstraints(maxWidth: 200),
+            decoration: BoxDecoration(
+              color: bgColor,
+              borderRadius: BorderRadius.circular(8),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.1),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Text(
+              phrase,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                color: textColor,
+                fontFamily: Platform.isIOS ? '.SF UI Display' : 'Roboto',
               ),
-            ],
-          ),
-          child: Text(
-            phrase,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-              color: textColor,
-              fontFamily: Platform.isIOS ? '.SF UI Display' : 'Roboto',
             ),
           ),
         ),
       );
-    }).toList();
+      positionIndex++;
+    }
+    
+    // Add images
+    for (final imagePath in _habit.images) {
+      final posIndex = positionIndex % positions.length;
+      
+      floatingElements.add(
+        _FloatingPhrase(
+          animation: _floatingAnimationController,
+          startPosition: positions[posIndex][0],
+          endPosition: positions[posIndex][1],
+          child: Container(
+            width: 120,
+            height: 120,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.15),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Image.file(
+                File(imagePath),
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return Container(
+                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                    child: Icon(
+                      Platform.isIOS ? CupertinoIcons.photo : Icons.image,
+                      size: 40,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+        ),
+      );
+      positionIndex++;
+    }
+    
+    return floatingElements;
   }
 
   List<Widget> _buildFloatingCommunityCards() {

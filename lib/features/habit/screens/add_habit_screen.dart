@@ -6,6 +6,7 @@ import 'package:katomik/providers/habit_provider.dart';
 import 'package:katomik/shared/widgets/adaptive_widgets.dart';
 import 'package:katomik/features/habit/widgets/habit_icon.dart';
 import 'dart:io';
+import 'package:image_picker/image_picker.dart';
 
 class AddHabitScreen extends StatefulWidget {
   final Habit? habitToEdit;
@@ -20,6 +21,8 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final List<TextEditingController> _phraseControllers = [];
+  final List<String> _imagePaths = [];
+  final ImagePicker _picker = ImagePicker();
   
   Color _selectedColor = Colors.blue;
   String _selectedIcon = 'science';
@@ -51,6 +54,8 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
       if (_phraseControllers.isEmpty) {
         _phraseControllers.add(TextEditingController());
       }
+      // Initialize images
+      _imagePaths.addAll(widget.habitToEdit!.images);
       _selectedColor = Color(int.parse(widget.habitToEdit!.color));
       _selectedIcon = widget.habitToEdit!.icon;
     } else {
@@ -96,6 +101,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
         id: widget.habitToEdit?.id,
         name: _nameController.text.trim(),
         phrases: phrases,
+        images: _imagePaths,
         createdDate: widget.habitToEdit?.createdDate ?? DateTime.now(),
         color: '0x${((_selectedColor.a * 255.0).round() & 0xff).toRadixString(16).padLeft(2, '0')}${((_selectedColor.r * 255.0).round() & 0xff).toRadixString(16).padLeft(2, '0')}${((_selectedColor.g * 255.0).round() & 0xff).toRadixString(16).padLeft(2, '0')}${((_selectedColor.b * 255.0).round() & 0xff).toRadixString(16).padLeft(2, '0')}'.toUpperCase(),
         icon: _selectedIcon,
@@ -149,6 +155,8 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
             ),
             const SizedBox(height: 16),
             _buildPhrasesSection(),
+            const SizedBox(height: 24),
+            _buildImagesSection(),
             const SizedBox(height: 24),
             Text(
               'Choose a Color',
@@ -358,5 +366,201 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
         }).toList(),
       ],
     );
+  }
+
+  Widget _buildImagesSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Add Images',
+          style: Platform.isIOS
+              ? CupertinoTheme.of(context).textTheme.textStyle.copyWith(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w600,
+                )
+              : Theme.of(context).textTheme.titleMedium,
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Add images that inspire you',
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: 12),
+        SizedBox(
+          height: 120,
+          child: ListView(
+            scrollDirection: Axis.horizontal,
+            children: [
+              ..._imagePaths.asMap().entries.map((entry) {
+                final index = entry.key;
+                final imagePath = entry.value;
+                
+                return Padding(
+                  padding: const EdgeInsets.only(right: 12),
+                  child: Stack(
+                    children: [
+                      Container(
+                        width: 120,
+                        height: 120,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(Platform.isIOS ? 10 : 12),
+                          image: DecorationImage(
+                            image: FileImage(File(imagePath)),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        top: 4,
+                        right: 4,
+                        child: GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              _imagePaths.removeAt(index);
+                            });
+                          },
+                          child: Container(
+                            width: 28,
+                            height: 28,
+                            decoration: BoxDecoration(
+                              color: Colors.black.withValues(alpha: 0.6),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.close,
+                              color: Colors.white,
+                              size: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }).toList(),
+              GestureDetector(
+                onTap: _pickImage,
+                child: Container(
+                  width: 120,
+                  height: 120,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surfaceContainer,
+                    borderRadius: BorderRadius.circular(Platform.isIOS ? 10 : 12),
+                    border: Border.all(
+                      color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                      width: 2,
+                      style: BorderStyle.solid,
+                    ),
+                  ),
+                  child: Center(
+                    child: Icon(
+                      Platform.isIOS ? CupertinoIcons.camera : Icons.camera_alt,
+                      size: 32,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _pickImage() async {
+    if (Platform.isIOS) {
+      showCupertinoModalPopup(
+        context: context,
+        builder: (BuildContext context) => CupertinoActionSheet(
+          title: const Text('Select Image Source'),
+          actions: [
+            CupertinoActionSheetAction(
+              child: const Text('Camera'),
+              onPressed: () {
+                Navigator.pop(context);
+                _getImage(ImageSource.camera);
+              },
+            ),
+            CupertinoActionSheetAction(
+              child: const Text('Photo Library'),
+              onPressed: () {
+                Navigator.pop(context);
+                _getImage(ImageSource.gallery);
+              },
+            ),
+          ],
+          cancelButton: CupertinoActionSheetAction(
+            isDefaultAction: true,
+            child: const Text('Cancel'),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          ),
+        ),
+      );
+    } else {
+      showModalBottomSheet(
+        context: context,
+        builder: (BuildContext context) {
+          return SafeArea(
+            child: Wrap(
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.camera_alt),
+                  title: const Text('Camera'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _getImage(ImageSource.camera);
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.photo_library),
+                  title: const Text('Photo Library'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _getImage(ImageSource.gallery);
+                  },
+                ),
+              ],
+            ),
+          );
+        },
+      );
+    }
+  }
+
+  Future<void> _getImage(ImageSource source) async {
+    try {
+      final XFile? image = await _picker.pickImage(source: source);
+      if (image != null) {
+        setState(() {
+          _imagePaths.add(image.path);
+        });
+      }
+    } catch (e) {
+      if (Platform.isIOS) {
+        showCupertinoDialog(
+          context: context,
+          builder: (context) => CupertinoAlertDialog(
+            title: const Text('Error'),
+            content: Text('Failed to pick image: $e'),
+            actions: [
+              CupertinoDialogAction(
+                child: const Text('OK'),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ],
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to pick image: $e')),
+        );
+      }
+    }
   }
 }

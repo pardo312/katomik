@@ -71,6 +71,9 @@ dependencies:
   
   # Google Sign In
   google_sign_in: ^6.2.2
+  
+  # Image picker for habit images
+  image_picker: ^1.1.2
 
 dev_dependencies:
   flutter_test:

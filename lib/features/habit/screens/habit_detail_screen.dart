@@ -141,6 +141,41 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
             _habit.phrases.isNotEmpty ? _habit.phrases.join(' • ') : 'No phrases added',
             style: Theme.of(context).textTheme.bodyLarge,
           ),
+          if (_habit.images.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            SizedBox(
+              height: 100,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: _habit.images.length,
+                itemBuilder: (context, index) {
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(Platform.isIOS ? 10 : 12),
+                      child: Image.file(
+                        File(_habit.images[index]),
+                        height: 100,
+                        width: 100,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            height: 100,
+                            width: 100,
+                            color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                            child: Icon(
+                              Platform.isIOS ? CupertinoIcons.photo : Icons.image,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
           const SizedBox(height: 16),
           Row(
             children: [

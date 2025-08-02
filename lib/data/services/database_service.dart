@@ -21,13 +21,14 @@ class DatabaseService {
     
     return await openDatabase(
       path,
-      version: 3,
+      version: 4,
       onCreate: (db, version) async {
         await db.execute('''
           CREATE TABLE habits(
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
             phrases TEXT NOT NULL DEFAULT '',
+            images TEXT NOT NULL DEFAULT '',
             created_date TEXT NOT NULL,
             color TEXT NOT NULL,
             icon TEXT NOT NULL DEFAULT 'science',
@@ -67,6 +68,10 @@ class DatabaseService {
               );
             }
           }
+        }
+        if (oldVersion < 4) {
+          // Add images column for storing image paths
+          await db.execute('ALTER TABLE habits ADD COLUMN images TEXT NOT NULL DEFAULT ""');
         }
       },
     );
