@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:provider/provider.dart';
 import 'package:katomik/data/models/habit.dart';
 import 'package:katomik/features/habit/widgets/habit_icon.dart';
-import 'package:katomik/features/habit/screens/add_habit_screen.dart';
 import 'package:katomik/features/habit/screens/habit_detail_screen_new.dart';
 import 'package:katomik/core/utils/date_utils.dart';
 import 'package:katomik/providers/navigation_provider.dart';
@@ -208,18 +207,6 @@ class HabitRow extends StatelessWidget {
     );
   }
 
-  void _navigateToEditHabit(BuildContext context) {
-    Navigator.push(
-      context,
-      Platform.isIOS
-          ? CupertinoPageRoute(
-              builder: (_) => AddHabitScreen(habitToEdit: habit),
-            )
-          : MaterialPageRoute(
-              builder: (_) => AddHabitScreen(habitToEdit: habit),
-            ),
-    );
-  }
 
   void _navigateToHabitDetail(BuildContext context) {
     // Hide FAB when navigating to detail

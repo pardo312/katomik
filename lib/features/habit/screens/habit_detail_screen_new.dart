@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
-import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:katomik/data/models/habit.dart';
 import 'package:katomik/data/models/habit_completion.dart';
 import 'package:katomik/providers/habit_provider.dart';
-import 'package:katomik/shared/widgets/adaptive_widgets.dart';
 import 'package:katomik/core/utils/date_utils.dart';
-import 'package:katomik/features/habit/widgets/habit_icon.dart';
 import 'package:katomik/features/home/widgets/date_header.dart';
 import 'package:katomik/features/home/widgets/habit_row.dart';
 import 'dart:io';
@@ -26,7 +23,7 @@ class HabitDetailScreenNew extends StatefulWidget {
 class _HabitDetailScreenNewState extends State<HabitDetailScreenNew>
     with TickerProviderStateMixin {
   late Habit _habit;
-  DateTime _focusedMonth = DateTime.now();
+  final DateTime _focusedMonth = DateTime.now();
   List<HabitCompletion> _completions = [];
   late AnimationController _floatingAnimationController;
 
@@ -247,38 +244,53 @@ class _HabitDetailScreenNewState extends State<HabitDetailScreenNew>
 
   Widget _buildCalendarWeeks(int firstWeekday, int daysInMonth, Color color) {
     List<Widget> weeks = [];
-    
+
     for (int weekStart = 0; weekStart < 42; weekStart += 7) {
-      weeks.add(_buildCalendarWeek(weekStart, firstWeekday, daysInMonth, color));
+      weeks.add(
+        _buildCalendarWeek(weekStart, firstWeekday, daysInMonth, color),
+      );
       if (weekStart + 7 - firstWeekday >= daysInMonth) break;
     }
-    
-    return Column(
-      children: weeks,
-    );
+
+    return Column(children: weeks);
   }
 
-  Widget _buildCalendarWeek(int weekStartIndex, int firstWeekday, int daysInMonth, Color color) {
+  Widget _buildCalendarWeek(
+    int weekStartIndex,
+    int firstWeekday,
+    int daysInMonth,
+    Color color,
+  ) {
     return Container(
       height: 36,
       margin: const EdgeInsets.symmetric(vertical: 2),
       child: Row(
-        children: _buildWeekDays(weekStartIndex, firstWeekday, daysInMonth, color),
+        children: _buildWeekDays(
+          weekStartIndex,
+          firstWeekday,
+          daysInMonth,
+          color,
+        ),
       ),
     );
   }
 
-  List<Widget> _buildWeekDays(int weekStartIndex, int firstWeekday, int daysInMonth, Color color) {
+  List<Widget> _buildWeekDays(
+    int weekStartIndex,
+    int firstWeekday,
+    int daysInMonth,
+    Color color,
+  ) {
     List<Widget> widgets = [];
     List<int> weekIndices = [];
     List<DateTime> weekDates = [];
     List<bool> weekCompleted = [];
-    
+
     // Collect week data
     for (int i = 0; i < 7; i++) {
       int index = weekStartIndex + i;
       weekIndices.add(index);
-      
+
       if (index >= firstWeekday && index < firstWeekday + daysInMonth) {
         final day = index - firstWeekday + 1;
         final date = DateTime(_focusedMonth.year, _focusedMonth.month, day);
@@ -289,7 +301,7 @@ class _HabitDetailScreenNewState extends State<HabitDetailScreenNew>
         weekCompleted.add(false);
       }
     }
-    
+
     // Build widgets with grouping
     int i = 0;
     while (i < 7) {
@@ -297,42 +309,52 @@ class _HabitDetailScreenNewState extends State<HabitDetailScreenNew>
       final date = weekDates[i];
       final isCompleted = weekCompleted[i];
       final isValidDate = date.year != 0;
-      
+
       if (isValidDate && isCompleted) {
         // Find consecutive completed days
         int groupStart = i;
         int groupEnd = i;
-        
-        while (groupEnd < 6 && 
-               weekDates[groupEnd + 1].year != 0 &&
-               weekCompleted[groupEnd + 1]) {
+
+        while (groupEnd < 6 &&
+            weekDates[groupEnd + 1].year != 0 &&
+            weekCompleted[groupEnd + 1]) {
           groupEnd++;
         }
-        
+
         if (groupEnd > groupStart) {
           // Multiple consecutive days
-          widgets.add(_buildGroupedCalendarDays(
-            weekDates.sublist(groupStart, groupEnd + 1),
-            color,
-            groupEnd - groupStart + 1,
-          ));
+          widgets.add(
+            _buildGroupedCalendarDays(
+              weekDates.sublist(groupStart, groupEnd + 1),
+              color,
+              groupEnd - groupStart + 1,
+            ),
+          );
           i = groupEnd + 1;
         } else {
           // Single completed day
-          widgets.add(_buildSingleCalendarDay(index, firstWeekday, daysInMonth, color));
+          widgets.add(
+            _buildSingleCalendarDay(index, firstWeekday, daysInMonth, color),
+          );
           i++;
         }
       } else {
         // Uncompleted or out-of-month day
-        widgets.add(_buildSingleCalendarDay(index, firstWeekday, daysInMonth, color));
+        widgets.add(
+          _buildSingleCalendarDay(index, firstWeekday, daysInMonth, color),
+        );
         i++;
       }
     }
-    
+
     return widgets;
   }
 
-  Widget _buildGroupedCalendarDays(List<DateTime> dates, Color color, int count) {
+  Widget _buildGroupedCalendarDays(
+    List<DateTime> dates,
+    Color color,
+    int count,
+  ) {
     return Expanded(
       flex: count,
       child: Container(
@@ -373,7 +395,12 @@ class _HabitDetailScreenNewState extends State<HabitDetailScreenNew>
     );
   }
 
-  Widget _buildSingleCalendarDay(int index, int firstWeekday, int daysInMonth, Color color) {
+  Widget _buildSingleCalendarDay(
+    int index,
+    int firstWeekday,
+    int daysInMonth,
+    Color color,
+  ) {
     if (index < firstWeekday || index >= firstWeekday + daysInMonth) {
       final prevMonthLastDay = DateTime(
         _focusedMonth.year,
@@ -389,7 +416,9 @@ class _HabitDetailScreenNewState extends State<HabitDetailScreenNew>
             index < firstWeekday ? '$prevMonthDay' : '$nextMonthDay',
             style: TextStyle(
               fontSize: 14,
-              color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
+              color: Theme.of(
+                context,
+              ).colorScheme.outline.withValues(alpha: 0.3),
             ),
           ),
         ),
@@ -422,8 +451,9 @@ class _HabitDetailScreenNewState extends State<HabitDetailScreenNew>
               color: isCompleted
                   ? Colors.transparent
                   : isToday
-                      ? color
-                      : Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                  ? color
+                  : Theme.of(context).colorScheme.surfaceContainerHighest
+                        .withValues(alpha: 0.5),
               width: isToday && !isCompleted ? 2 : 1,
             ),
           ),
@@ -476,6 +506,8 @@ class _HabitDetailScreenNewState extends State<HabitDetailScreenNew>
     return [
       _FloatingPhrase(
         animation: _floatingAnimationController,
+        startPosition: const Offset(0.1, 0.1),
+        endPosition: const Offset(0.3, 0.2),
         child: Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
@@ -518,11 +550,11 @@ class _HabitDetailScreenNewState extends State<HabitDetailScreenNew>
             ],
           ),
         ),
-        startPosition: const Offset(0.1, 0.1),
-        endPosition: const Offset(0.3, 0.2),
       ),
       _FloatingPhrase(
         animation: _floatingAnimationController,
+        startPosition: const Offset(0.6, 0.2),
+        endPosition: const Offset(0.7, 0.1),
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
@@ -546,8 +578,6 @@ class _HabitDetailScreenNewState extends State<HabitDetailScreenNew>
             ],
           ),
         ),
-        startPosition: const Offset(0.6, 0.2),
-        endPosition: const Offset(0.7, 0.1),
       ),
     ];
   }
@@ -559,6 +589,8 @@ class _HabitDetailScreenNewState extends State<HabitDetailScreenNew>
 
       return _FloatingPhrase(
         animation: _floatingAnimationController,
+        startPosition: Offset(0.1 + index * 0.3, 0.5 + index * 0.1),
+        endPosition: Offset(0.2 + index * 0.3, 0.6 + index * 0.1),
         child: Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
@@ -627,15 +659,8 @@ class _HabitDetailScreenNewState extends State<HabitDetailScreenNew>
             ],
           ),
         ),
-        startPosition: Offset(0.1 + index * 0.3, 0.5 + index * 0.1),
-        endPosition: Offset(0.2 + index * 0.3, 0.6 + index * 0.1),
       );
     }).toList();
-  }
-
-  String _getDayAbbreviation(DateTime date) {
-    const days = ['LUN', 'MAR', 'MIE', 'JUE', 'VIE', 'SAB', 'DOM'];
-    return days[date.weekday - 1];
   }
 
   String _getMonthName(DateTime date) {

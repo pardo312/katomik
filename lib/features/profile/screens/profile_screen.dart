@@ -12,7 +12,7 @@ class ProfileScreen extends StatelessWidget {
   Future<void> _handleLogout(BuildContext context) async {
     // Show confirmation dialog
     final confirmed = await _showLogoutConfirmation(context);
-    if (confirmed == true) {
+    if (confirmed == true && context.mounted) {
       final authProvider = context.read<AuthProvider>();
       await authProvider.logout();
     }

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../../core/platform/platform_icons.dart';
-import '../../../shared/widgets/adaptive_widgets.dart';
 
 class HabitIcon extends StatelessWidget {
   final String iconName;
@@ -16,13 +15,8 @@ class HabitIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Icon(
-      PlatformIcons.getHabitIcon(iconName),
-      size: size,
-      color: color,
-    );
+    return Icon(PlatformIcons.getHabitIcon(iconName), size: size, color: color);
   }
-
 
   static List<String> get availableIcons => [
     'science',
