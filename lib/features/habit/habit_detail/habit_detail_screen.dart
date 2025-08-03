@@ -5,11 +5,14 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:katomik/data/models/habit.dart';
 import 'package:katomik/data/models/habit_completion.dart';
 import 'package:katomik/providers/habit_provider.dart';
+import 'package:katomik/providers/community_provider.dart';
 import 'package:katomik/core/utils/date_utils.dart';
 import 'package:katomik/features/home/widgets/date_header.dart';
 import 'package:katomik/features/home/widgets/habit_row.dart';
 import 'package:katomik/features/habit/add_habit/add_habit_screen.dart';
 import 'package:katomik/features/habit/widgets/habit_icon.dart';
+import 'package:katomik/features/community/widgets/make_habit_public_dialog.dart';
+import 'package:katomik/features/community/screens/community_detail_screen.dart';
 import 'dart:io';
 import 'package:katomik/features/habit/habit_detail/widgets/floating_phrase.dart';
 
@@ -70,6 +73,72 @@ class _HabitDetailScreenNewState extends State<HabitDetailScreen>
     final dateStr = date.toIso8601String().split('T')[0];
     return _completions.any(
       (c) => c.date.toIso8601String().split('T')[0] == dateStr && c.isCompleted,
+    );
+  }
+
+  void _showMakePublicDialog() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => MakeHabitPublicDialog(
+        habitName: _habit.name,
+        onMakePublic: (settings) async {
+          Navigator.pop(context);
+          
+          final communityProvider = context.read<CommunityProvider>();
+          final habitProvider = context.read<HabitProvider>();
+          
+          final success = await communityProvider.makeHabitPublic(
+            _habit,
+            settings,
+            habitProvider,
+          );
+          
+          if (success) {
+            if (mounted) {
+              // Refresh habit data
+              final updatedHabit = habitProvider.habits.firstWhere(
+                (h) => h.id == _habit.id,
+              );
+              setState(() {
+                _habit = updatedHabit;
+              });
+              
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('${_habit.name} is now public!'),
+                  backgroundColor: Colors.green,
+                  action: SnackBarAction(
+                    label: 'View Community',
+                    textColor: Colors.white,
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => CommunityDetailScreen(
+                            communityId: updatedHabit.communityId!,
+                            communityName: updatedHabit.name,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              );
+            }
+          } else {
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Failed to make habit public'),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            }
+          }
+        },
+      ),
     );
   }
 
@@ -136,6 +205,15 @@ class _HabitDetailScreenNewState extends State<HabitDetailScreen>
             onPressed: () => Navigator.pop(context),
           ),
           const Spacer(),
+          // Make Public Button for private habits
+          if (!_habit.isPublic && !_habit.isFromCommunity)
+            IconButton(
+              icon: Icon(
+                Platform.isIOS ? CupertinoIcons.globe : Icons.public,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              onPressed: _showMakePublicDialog,
+            ),
           IconButton(
             icon: Icon(
               Platform.isIOS ? CupertinoIcons.pencil : Icons.edit,
@@ -190,11 +268,62 @@ class _HabitDetailScreenNewState extends State<HabitDetailScreen>
             ),
           ),
           const SizedBox(height: 16),
-          Text(
-            _habit.name,
-            style: Theme.of(
-              context,
-            ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w500),
+          Column(
+            children: [
+              Text(
+                _habit.name,
+                style: Theme.of(
+                  context,
+                ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w500),
+              ),
+              if (_habit.isFromCommunity) ...[  
+                const SizedBox(height: 8),
+                GestureDetector(
+                  onTap: () {
+                    if (_habit.communityId != null) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => CommunityDetailScreen(
+                            communityId: _habit.communityId!,
+                            communityName: _habit.communityName ?? _habit.name,
+                          ),
+                        ),
+                      );
+                    }
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Platform.isIOS ? CupertinoIcons.person_2_fill : Icons.people,
+                          size: 16,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          _habit.communityName ?? 'Community',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Theme.of(context).colorScheme.primary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ],
           ),
         ],
       ),

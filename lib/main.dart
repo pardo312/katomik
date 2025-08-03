@@ -6,6 +6,7 @@ import 'providers/theme_provider.dart';
 import 'providers/platform_provider.dart';
 import 'providers/navigation_provider.dart';
 import 'providers/auth_provider.dart';
+import 'providers/community_provider.dart';
 import 'app.dart';
 
 void main() async {
@@ -22,6 +23,7 @@ void main() async {
         ChangeNotifierProvider(create: (context) => ThemeProvider()),
         ChangeNotifierProvider(create: (context) => PlatformProvider()),
         ChangeNotifierProvider(create: (context) => NavigationProvider()),
+        ChangeNotifierProvider(create: (context) => CommunityProvider()),
       ],
       builder: (context, child) => const MyApp(),
     ),

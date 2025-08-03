@@ -21,7 +21,7 @@ class DatabaseService {
     
     return await openDatabase(
       path,
-      version: 4,
+      version: 5,
       onCreate: (db, version) async {
         await db.execute('''
           CREATE TABLE habits(
@@ -32,7 +32,11 @@ class DatabaseService {
             created_date TEXT NOT NULL,
             color TEXT NOT NULL,
             icon TEXT NOT NULL DEFAULT 'science',
-            is_active INTEGER NOT NULL DEFAULT 1
+            is_active INTEGER NOT NULL DEFAULT 1,
+            is_from_community INTEGER NOT NULL DEFAULT 0,
+            is_public INTEGER NOT NULL DEFAULT 0,
+            community_id TEXT,
+            community_name TEXT
           )
         ''');
 
@@ -72,6 +76,13 @@ class DatabaseService {
         if (oldVersion < 4) {
           // Add images column for storing image paths
           await db.execute('ALTER TABLE habits ADD COLUMN images TEXT NOT NULL DEFAULT ""');
+        }
+        if (oldVersion < 5) {
+          // Add community-related columns
+          await db.execute('ALTER TABLE habits ADD COLUMN is_from_community INTEGER NOT NULL DEFAULT 0');
+          await db.execute('ALTER TABLE habits ADD COLUMN is_public INTEGER NOT NULL DEFAULT 0');
+          await db.execute('ALTER TABLE habits ADD COLUMN community_id TEXT');
+          await db.execute('ALTER TABLE habits ADD COLUMN community_name TEXT');
         }
       },
     );

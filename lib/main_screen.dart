@@ -8,6 +8,7 @@ import 'package:katomik/features/home/screens/home_screen.dart';
 import 'package:katomik/features/statistics/screens/statistics_screen.dart';
 import 'package:katomik/features/profile/screens/profile_screen.dart';
 import 'package:katomik/features/habit/add_habit/add_habit_screen.dart';
+import 'package:katomik/features/community/screens/discover_communities_screen.dart';
 import 'package:katomik/providers/navigation_provider.dart';
 import 'package:katomik/shared/widgets/profile_tab_icon.dart';
 
@@ -39,8 +40,8 @@ class _MainScreenState extends State<MainScreen> {
       AdaptiveTabItem(
         icon: Icon(PlatformIcons.globe),
         activeIcon: Icon(PlatformIcons.globeActive),
-        label: 'Network',
-        page: const Center(child: Text('Network - Coming Soon')),
+        label: 'Community',
+        page: const DiscoverCommunitiesScreen(),
       ),
       AdaptiveTabItem(
         icon: const ProfileTabIcon(isActive: false),
