@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:katomik/features/habit/screens/habit_detail_screen_new.dart';
+import 'package:katomik/features/habit/habit_detail/habit_detail_screen.dart';
 import 'package:provider/provider.dart';
 import 'providers/theme_provider.dart';
 import 'providers/platform_provider.dart';
@@ -8,7 +8,7 @@ import 'core/theme/app_theme.dart';
 import 'features/auth/widgets/auth_wrapper.dart';
 import 'features/auth/screens/login_screen.dart';
 import 'features/auth/screens/register_screen.dart';
-import 'features/habit/screens/add_habit_screen.dart';
+import 'features/habit/add_habit/add_habit_screen.dart';
 import 'features/settings/screens/theme_settings_screen.dart';
 import 'data/models/habit.dart';
 

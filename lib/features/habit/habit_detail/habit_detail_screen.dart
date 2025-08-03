@@ -8,10 +8,11 @@ import 'package:katomik/providers/habit_provider.dart';
 import 'package:katomik/core/utils/date_utils.dart';
 import 'package:katomik/features/home/widgets/date_header.dart';
 import 'package:katomik/features/home/widgets/habit_row.dart';
-import 'package:katomik/features/habit/screens/add_habit_screen.dart';
+import 'package:katomik/features/habit/add_habit/add_habit_screen.dart';
 import 'package:katomik/features/habit/widgets/habit_icon.dart';
 import 'dart:io';
 import 'dart:math' as math;
+import 'package:katomik/features/habit/habit_detail/widgets/floating_phrase.dart';
 
 class HabitDetailScreen extends StatefulWidget {
   final Habit habit;
@@ -654,7 +655,7 @@ class _HabitDetailScreenNewState extends State<HabitDetailScreen>
       final textColor = bgColor == Colors.white ? Colors.black : Colors.white;
 
       floatingElements.add(
-        _FloatingPhrase(
+        FloatingPhrase(
           animation: _floatingAnimationController,
           startPosition: positions[posIndex][0],
           endPosition: positions[posIndex][1],
@@ -693,7 +694,7 @@ class _HabitDetailScreenNewState extends State<HabitDetailScreen>
       final posIndex = positionIndex % positions.length;
 
       floatingElements.add(
-        _FloatingPhrase(
+        FloatingPhrase(
           animation: _floatingAnimationController,
           startPosition: positions[posIndex][0],
           endPosition: positions[posIndex][1],
@@ -743,7 +744,7 @@ class _HabitDetailScreenNewState extends State<HabitDetailScreen>
       final index = entry.key;
       final phrase = entry.value;
 
-      return _FloatingPhrase(
+      return FloatingPhrase(
         animation: _floatingAnimationController,
         startPosition: Offset(0.1 + index * 0.3, 0.5 + index * 0.1),
         endPosition: Offset(0.2 + index * 0.3, 0.6 + index * 0.1),
@@ -835,44 +836,5 @@ class _HabitDetailScreenNewState extends State<HabitDetailScreen>
       'DICIEMBRE',
     ];
     return months[date.month - 1];
-  }
-}
-
-class _FloatingPhrase extends StatelessWidget {
-  final Animation<double> animation;
-  final Widget child;
-  final Offset startPosition;
-  final Offset endPosition;
-
-  const _FloatingPhrase({
-    required this.animation,
-    required this.child,
-    required this.startPosition,
-    required this.endPosition,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: animation,
-      builder: (context, child) {
-        final value = animation.value;
-        final x =
-            startPosition.dx +
-            (endPosition.dx - startPosition.dx) * math.sin(value * 2 * math.pi);
-        final y =
-            startPosition.dy +
-            (endPosition.dy - startPosition.dy) * math.cos(value * 2 * math.pi);
-
-        return Positioned(
-          left: x * MediaQuery.of(context).size.width * 0.8,
-          top: y * 400,
-          child: Transform.scale(
-            scale: 0.9 + 0.1 * math.sin(value * 4 * math.pi),
-            child: this.child,
-          ),
-        );
-      },
-    );
   }
 }

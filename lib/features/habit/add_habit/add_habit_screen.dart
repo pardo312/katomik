@@ -4,18 +4,17 @@ import 'package:provider/provider.dart';
 import 'package:katomik/data/models/habit.dart';
 import 'package:katomik/providers/habit_provider.dart';
 import 'package:katomik/shared/widgets/adaptive_widgets.dart';
-import 'package:katomik/features/habit/widgets/habit_icon.dart';
-import 'package:katomik/features/habit/widgets/color_picker.dart';
-import 'package:katomik/features/habit/widgets/icon_picker.dart';
-import 'package:katomik/features/habit/widgets/phrases_section.dart';
-import 'package:katomik/features/habit/widgets/images_section.dart';
+import 'package:katomik/features/habit/add_habit/widgets/color_picker.dart';
+import 'package:katomik/features/habit/add_habit/widgets/icon_picker.dart';
+import 'package:katomik/features/habit/add_habit/widgets/phrases_section.dart';
+import 'package:katomik/features/habit/add_habit/widgets/images_section.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:katomik/core/utils/platform_messages.dart';
 
 class AddHabitScreen extends StatefulWidget {
   final Habit? habitToEdit;
-  
+
   const AddHabitScreen({super.key, this.habitToEdit});
 
   @override
@@ -28,7 +27,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
   final List<TextEditingController> _phraseControllers = [];
   final List<String> _imagePaths = [];
   final ImagePicker _picker = ImagePicker();
-  
+
   Color _selectedColor = Colors.blue;
   String _selectedIcon = 'science';
 
@@ -71,13 +70,15 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
           .map((controller) => controller.text.trim())
           .where((phrase) => phrase.isNotEmpty)
           .toList();
-      
+
       if (_nameController.text.trim().isEmpty || phrases.isEmpty) {
         if (Platform.isIOS) {
           AdaptiveDialog.show(
             context: context,
             title: 'Missing Information',
-            content: const Text('Please provide a habit name and at least one phrase.'),
+            content: const Text(
+              'Please provide a habit name and at least one phrase.',
+            ),
             actions: [
               AdaptiveDialogAction(
                 text: 'OK',
@@ -88,20 +89,22 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
           return;
         }
       }
-      
+
       final habit = Habit(
         id: widget.habitToEdit?.id,
         name: _nameController.text.trim(),
         phrases: phrases,
         images: _imagePaths,
         createdDate: widget.habitToEdit?.createdDate ?? DateTime.now(),
-        color: '0x${((_selectedColor.a * 255.0).round() & 0xff).toRadixString(16).padLeft(2, '0')}${((_selectedColor.r * 255.0).round() & 0xff).toRadixString(16).padLeft(2, '0')}${((_selectedColor.g * 255.0).round() & 0xff).toRadixString(16).padLeft(2, '0')}${((_selectedColor.b * 255.0).round() & 0xff).toRadixString(16).padLeft(2, '0')}'.toUpperCase(),
+        color:
+            '0x${((_selectedColor.a * 255.0).round() & 0xff).toRadixString(16).padLeft(2, '0')}${((_selectedColor.r * 255.0).round() & 0xff).toRadixString(16).padLeft(2, '0')}${((_selectedColor.g * 255.0).round() & 0xff).toRadixString(16).padLeft(2, '0')}${((_selectedColor.b * 255.0).round() & 0xff).toRadixString(16).padLeft(2, '0')}'
+                .toUpperCase(),
         icon: _selectedIcon,
         isActive: true,
       );
 
       final provider = Provider.of<HabitProvider>(context, listen: false);
-      
+
       if (widget.habitToEdit != null) {
         provider.updateHabit(habit);
       } else {
@@ -115,7 +118,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
   @override
   Widget build(BuildContext context) {
     final isEditing = widget.habitToEdit != null;
-    
+
     return AdaptiveScaffold(
       title: Text(isEditing ? 'Edit Habit' : 'New Habit'),
       actions: Platform.isIOS
@@ -216,7 +219,6 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
       ),
     );
   }
-
 
   Future<void> _pickImage() async {
     ImagePickerHelper.showImagePicker(
