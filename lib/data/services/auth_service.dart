@@ -247,11 +247,16 @@ class AuthService {
   }
 
   // Get current user
-  Future<User?> getCurrentUser() async {
+  Future<User?> getCurrentUser({bool skipCache = false}) async {
     try {
       final client = await GraphQLConfig.getClient();
 
-      final result = await client.query(QueryOptions(document: gql(_meQuery)));
+      final result = await client.query(
+        QueryOptions(
+          document: gql(_meQuery),
+          fetchPolicy: FetchPolicy.networkOnly,
+        ),
+      );
 
       if (result.hasException) {
         throw _handleException(result.exception!);

@@ -7,7 +7,7 @@ class ProfileAvatar extends StatelessWidget {
   final String? avatarUrl;
   final bool isUploading;
   final VoidCallback? onTap;
-  
+
   const ProfileAvatar({
     super.key,
     this.avatarUrl,
@@ -39,15 +39,13 @@ class ProfileAvatar extends StatelessWidget {
                           child: CircularProgressIndicator(
                             value: loadingProgress.expectedTotalBytes != null
                                 ? loadingProgress.cumulativeBytesLoaded /
-                                    loadingProgress.expectedTotalBytes!
+                                      loadingProgress.expectedTotalBytes!
                                 : null,
                             strokeWidth: 2,
                           ),
                         );
                       },
                       errorBuilder: (context, error, stackTrace) {
-                        print('Error loading avatar: $error');
-                        print('Avatar URL: $avatarUrl');
                         return Icon(
                           PlatformIcons.person,
                           size: 40,
