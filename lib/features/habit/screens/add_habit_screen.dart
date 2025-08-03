@@ -5,6 +5,10 @@ import 'package:katomik/data/models/habit.dart';
 import 'package:katomik/providers/habit_provider.dart';
 import 'package:katomik/shared/widgets/adaptive_widgets.dart';
 import 'package:katomik/features/habit/widgets/habit_icon.dart';
+import 'package:katomik/features/habit/widgets/color_picker.dart';
+import 'package:katomik/features/habit/widgets/icon_picker.dart';
+import 'package:katomik/features/habit/widgets/phrases_section.dart';
+import 'package:katomik/features/habit/widgets/images_section.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:katomik/core/utils/platform_messages.dart';
@@ -27,19 +31,6 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
   
   Color _selectedColor = Colors.blue;
   String _selectedIcon = 'science';
-  
-  final List<Color> _availableColors = [
-    Colors.blue,
-    Colors.green,
-    Colors.red,
-    Colors.purple,
-    Colors.orange,
-    Colors.pink,
-    Colors.teal,
-    Colors.amber,
-    Colors.indigo,
-    Colors.brown,
-  ];
 
   @override
   void initState() {
@@ -155,114 +146,49 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
               onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: 16),
-            _buildPhrasesSection(),
-            const SizedBox(height: 24),
-            _buildImagesSection(),
-            const SizedBox(height: 24),
-            Text(
-              'Choose a Color',
-              style: Platform.isIOS
-                  ? CupertinoTheme.of(context).textTheme.textStyle.copyWith(
-                      fontSize: 17,
-                      fontWeight: FontWeight.w600,
-                    )
-                  : Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(height: 12),
-            Wrap(
-              spacing: 12,
-              runSpacing: 12,
-              children: _availableColors.map((color) {
-                final isSelected = _selectedColor == color;
-                return GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      _selectedColor = color;
-                    });
-                  },
-                  child: Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color: color,
-                      borderRadius: BorderRadius.circular(Platform.isIOS ? 10 : 12),
-                      border: isSelected
-                          ? Border.all(
-                              color: Platform.isIOS
-                                  ? CupertinoColors.activeBlue
-                                  : Theme.of(context).colorScheme.primary,
-                              width: 3,
-                            )
-                          : null,
-                    ),
-                    child: isSelected
-                        ? Icon(
-                            Platform.isIOS ? CupertinoIcons.checkmark : Icons.check,
-                            color: Colors.white,
-                            size: 20,
-                          )
-                        : null,
-                  ),
-                );
-              }).toList(),
+            PhrasesSection(
+              phraseControllers: _phraseControllers,
+              onAddPhrase: () {
+                setState(() {
+                  _phraseControllers.add(TextEditingController());
+                });
+              },
+              onRemovePhrase: (index) {
+                setState(() {
+                  _phraseControllers[index].dispose();
+                  _phraseControllers.removeAt(index);
+                });
+              },
+              onChanged: () => setState(() {}),
             ),
             const SizedBox(height: 24),
-            Text(
-              'Choose an Icon',
-              style: Platform.isIOS
-                  ? CupertinoTheme.of(context).textTheme.textStyle.copyWith(
-                      fontSize: 17,
-                      fontWeight: FontWeight.w600,
-                    )
-                  : Theme.of(context).textTheme.titleMedium,
+            ImagesSection(
+              imagePaths: _imagePaths,
+              onAddImage: _pickImage,
+              onRemoveImage: (index) {
+                setState(() {
+                  _imagePaths.removeAt(index);
+                });
+              },
             ),
-            const SizedBox(height: 12),
-            SizedBox(
-              height: 60,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: HabitIcon.availableIcons.length,
-                itemBuilder: (context, index) {
-                  final iconName = HabitIcon.availableIcons[index];
-                  final isSelected = _selectedIcon == iconName;
-                  
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 12),
-                    child: GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          _selectedIcon = iconName;
-                        });
-                      },
-                      child: Container(
-                        width: 60,
-                        height: 60,
-                        decoration: BoxDecoration(
-                          color: isSelected
-                              ? _selectedColor.withValues(alpha: 0.2)
-                              : Theme.of(context).colorScheme.surfaceContainer,
-                          borderRadius: BorderRadius.circular(Platform.isIOS ? 10 : 12),
-                          border: Border.all(
-                            color: isSelected
-                                ? _selectedColor
-                                : Theme.of(context).colorScheme.surfaceContainerHighest,
-                            width: isSelected ? 3 : 1,
-                          ),
-                        ),
-                        child: Center(
-                          child: HabitIcon(
-                            iconName: iconName,
-                            size: 28,
-                            color: isSelected
-                                ? _selectedColor
-                                : Theme.of(context).colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
+            const SizedBox(height: 24),
+            ColorPicker(
+              selectedColor: _selectedColor,
+              onColorSelected: (color) {
+                setState(() {
+                  _selectedColor = color;
+                });
+              },
+            ),
+            const SizedBox(height: 24),
+            IconPicker(
+              selectedIcon: _selectedIcon,
+              selectedColor: _selectedColor,
+              onIconSelected: (icon) {
+                setState(() {
+                  _selectedIcon = icon;
+                });
+              },
             ),
             const SizedBox(height: 32),
             if (!Platform.isIOS)
@@ -291,247 +217,12 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
     );
   }
 
-  Widget _buildPhrasesSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              'Why do you want to build this habit?',
-              style: Platform.isIOS
-                  ? CupertinoTheme.of(context).textTheme.textStyle.copyWith(
-                      fontSize: 17,
-                      fontWeight: FontWeight.w600,
-                    )
-                  : Theme.of(context).textTheme.titleMedium,
-            ),
-            IconButton(
-              icon: Icon(
-                Platform.isIOS ? CupertinoIcons.add : Icons.add,
-                color: Theme.of(context).colorScheme.primary,
-              ),
-              onPressed: () {
-                setState(() {
-                  _phraseControllers.add(TextEditingController());
-                });
-              },
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        Text(
-          'Add phrases that motivate you',
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-          ),
-        ),
-        const SizedBox(height: 12),
-        ..._phraseControllers.asMap().entries.map((entry) {
-          final index = entry.key;
-          final controller = entry.value;
-          
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: Row(
-              children: [
-                Expanded(
-                  child: AdaptiveTextField(
-                    controller: controller,
-                    label: 'Phrase ${index + 1}',
-                    placeholder: 'Enter a motivating phrase',
-                    prefix: Icon(
-                      Platform.isIOS ? CupertinoIcons.quote_bubble : Icons.format_quote,
-                      size: 20,
-                    ),
-                    onChanged: (_) => setState(() {}),
-                  ),
-                ),
-                if (_phraseControllers.length > 1)
-                  IconButton(
-                    icon: Icon(
-                      Platform.isIOS ? CupertinoIcons.minus_circle : Icons.remove_circle_outline,
-                      color: Colors.red,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        controller.dispose();
-                        _phraseControllers.removeAt(index);
-                      });
-                    },
-                  ),
-              ],
-            ),
-          );
-        }).toList(),
-      ],
-    );
-  }
-
-  Widget _buildImagesSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Add Images',
-          style: Platform.isIOS
-              ? CupertinoTheme.of(context).textTheme.textStyle.copyWith(
-                  fontSize: 17,
-                  fontWeight: FontWeight.w600,
-                )
-              : Theme.of(context).textTheme.titleMedium,
-        ),
-        const SizedBox(height: 8),
-        Text(
-          'Add images that inspire you',
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-          ),
-        ),
-        const SizedBox(height: 12),
-        SizedBox(
-          height: 120,
-          child: ListView(
-            scrollDirection: Axis.horizontal,
-            children: [
-              ..._imagePaths.asMap().entries.map((entry) {
-                final index = entry.key;
-                final imagePath = entry.value;
-                
-                return Padding(
-                  padding: const EdgeInsets.only(right: 12),
-                  child: Stack(
-                    children: [
-                      Container(
-                        width: 120,
-                        height: 120,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(Platform.isIOS ? 10 : 12),
-                          image: DecorationImage(
-                            image: FileImage(File(imagePath)),
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        top: 4,
-                        right: 4,
-                        child: GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              _imagePaths.removeAt(index);
-                            });
-                          },
-                          child: Container(
-                            width: 28,
-                            height: 28,
-                            decoration: BoxDecoration(
-                              color: Colors.black.withValues(alpha: 0.6),
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              Icons.close,
-                              color: Colors.white,
-                              size: 18,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }).toList(),
-              GestureDetector(
-                onTap: _pickImage,
-                child: Container(
-                  width: 120,
-                  height: 120,
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surfaceContainer,
-                    borderRadius: BorderRadius.circular(Platform.isIOS ? 10 : 12),
-                    border: Border.all(
-                      color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                      width: 2,
-                      style: BorderStyle.solid,
-                    ),
-                  ),
-                  child: Center(
-                    child: Icon(
-                      Platform.isIOS ? CupertinoIcons.camera : Icons.camera_alt,
-                      size: 32,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
 
   Future<void> _pickImage() async {
-    if (Platform.isIOS) {
-      showCupertinoModalPopup(
-        context: context,
-        builder: (BuildContext context) => CupertinoActionSheet(
-          title: const Text('Select Image Source'),
-          actions: [
-            CupertinoActionSheetAction(
-              child: const Text('Camera'),
-              onPressed: () {
-                Navigator.pop(context);
-                _getImage(ImageSource.camera);
-              },
-            ),
-            CupertinoActionSheetAction(
-              child: const Text('Photo Library'),
-              onPressed: () {
-                Navigator.pop(context);
-                _getImage(ImageSource.gallery);
-              },
-            ),
-          ],
-          cancelButton: CupertinoActionSheetAction(
-            isDefaultAction: true,
-            child: const Text('Cancel'),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          ),
-        ),
-      );
-    } else {
-      showModalBottomSheet(
-        context: context,
-        builder: (BuildContext context) {
-          return SafeArea(
-            child: Wrap(
-              children: [
-                ListTile(
-                  leading: const Icon(Icons.camera_alt),
-                  title: const Text('Camera'),
-                  onTap: () {
-                    Navigator.pop(context);
-                    _getImage(ImageSource.camera);
-                  },
-                ),
-                ListTile(
-                  leading: const Icon(Icons.photo_library),
-                  title: const Text('Photo Library'),
-                  onTap: () {
-                    Navigator.pop(context);
-                    _getImage(ImageSource.gallery);
-                  },
-                ),
-              ],
-            ),
-          );
-        },
-      );
-    }
+    ImagePickerHelper.showImagePicker(
+      context: context,
+      onSourceSelected: _getImage,
+    );
   }
 
   Future<void> _getImage(ImageSource source) async {

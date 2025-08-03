@@ -227,12 +227,8 @@ class HabitRow extends StatelessWidget {
     Navigator.push(
       context,
       Platform.isIOS
-          ? CupertinoPageRoute(
-              builder: (_) => HabitDetailScreenNew(habit: habit),
-            )
-          : MaterialPageRoute(
-              builder: (_) => HabitDetailScreenNew(habit: habit),
-            ),
+          ? CupertinoPageRoute(builder: (_) => HabitDetailScreen(habit: habit))
+          : MaterialPageRoute(builder: (_) => HabitDetailScreen(habit: habit)),
     ).then((_) {
       // Show FAB again when returning
       if (context.mounted) {

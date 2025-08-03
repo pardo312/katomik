@@ -13,16 +13,16 @@ import 'package:katomik/features/habit/widgets/habit_icon.dart';
 import 'dart:io';
 import 'dart:math' as math;
 
-class HabitDetailScreenNew extends StatefulWidget {
+class HabitDetailScreen extends StatefulWidget {
   final Habit habit;
 
-  const HabitDetailScreenNew({super.key, required this.habit});
+  const HabitDetailScreen({super.key, required this.habit});
 
   @override
-  State<HabitDetailScreenNew> createState() => _HabitDetailScreenNewState();
+  State<HabitDetailScreen> createState() => _HabitDetailScreenNewState();
 }
 
-class _HabitDetailScreenNewState extends State<HabitDetailScreenNew>
+class _HabitDetailScreenNewState extends State<HabitDetailScreen>
     with TickerProviderStateMixin {
   late Habit _habit;
   final DateTime _focusedMonth = DateTime.now();
@@ -142,7 +142,10 @@ class _HabitDetailScreenNewState extends State<HabitDetailScreenNew>
               color: Theme.of(context).colorScheme.primary,
             ),
             onPressed: () async {
-              final provider = Provider.of<HabitProvider>(context, listen: false);
+              final provider = Provider.of<HabitProvider>(
+                context,
+                listen: false,
+              );
               await Navigator.push(
                 context,
                 Platform.isIOS
@@ -155,7 +158,9 @@ class _HabitDetailScreenNewState extends State<HabitDetailScreenNew>
               );
               if (!mounted) return;
               // Refresh habit data
-              final updatedHabit = provider.habits.firstWhere((h) => h.id == _habit.id);
+              final updatedHabit = provider.habits.firstWhere(
+                (h) => h.id == _habit.id,
+              );
               setState(() {
                 _habit = updatedHabit;
               });
@@ -181,19 +186,15 @@ class _HabitDetailScreenNewState extends State<HabitDetailScreenNew>
               shape: BoxShape.circle,
             ),
             child: Center(
-              child: HabitIcon(
-                iconName: _habit.icon,
-                size: 40,
-                color: color,
-              ),
+              child: HabitIcon(iconName: _habit.icon, size: 40, color: color),
             ),
           ),
           const SizedBox(height: 16),
           Text(
             _habit.name,
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w500,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w500),
           ),
         ],
       ),
@@ -240,7 +241,6 @@ class _HabitDetailScreenNewState extends State<HabitDetailScreenNew>
       ),
     );
   }
-
 
   Widget _buildCalendar(Color color) {
     return Container(
@@ -563,27 +563,37 @@ class _HabitDetailScreenNewState extends State<HabitDetailScreenNew>
                   Center(
                     child: GestureDetector(
                       onTap: () async {
-                        final provider = Provider.of<HabitProvider>(context, listen: false);
+                        final provider = Provider.of<HabitProvider>(
+                          context,
+                          listen: false,
+                        );
                         await Navigator.push(
                           context,
                           Platform.isIOS
                               ? CupertinoPageRoute(
-                                  builder: (_) => AddHabitScreen(habitToEdit: _habit),
+                                  builder: (_) =>
+                                      AddHabitScreen(habitToEdit: _habit),
                                 )
                               : MaterialPageRoute(
-                                  builder: (_) => AddHabitScreen(habitToEdit: _habit),
+                                  builder: (_) =>
+                                      AddHabitScreen(habitToEdit: _habit),
                                 ),
                         );
                         if (!mounted) return;
                         // Refresh habit data
-                        final updatedHabit = provider.habits.firstWhere((h) => h.id == _habit.id);
+                        final updatedHabit = provider.habits.firstWhere(
+                          (h) => h.id == _habit.id,
+                        );
                         setState(() {
                           _habit = updatedHabit;
                         });
                         _loadCompletions();
                       },
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 12,
+                        ),
                         decoration: BoxDecoration(
                           color: Theme.of(context).colorScheme.surface,
                           borderRadius: BorderRadius.circular(20),
@@ -615,7 +625,7 @@ class _HabitDetailScreenNewState extends State<HabitDetailScreenNew>
 
   List<Widget> _buildFloatingUserPhrases() {
     final List<Widget> floatingElements = [];
-    
+
     // Create different positions for floating elements
     final positions = [
       [const Offset(0.1, 0.1), const Offset(0.3, 0.2)],
@@ -626,7 +636,7 @@ class _HabitDetailScreenNewState extends State<HabitDetailScreenNew>
       [const Offset(0.7, 0.35), const Offset(0.8, 0.45)],
       [const Offset(0.15, 0.25), const Offset(0.25, 0.35)],
     ];
-    
+
     final colors = [
       Colors.white,
       Colors.black,
@@ -634,9 +644,9 @@ class _HabitDetailScreenNewState extends State<HabitDetailScreenNew>
       Theme.of(context).colorScheme.secondary,
       Theme.of(context).colorScheme.tertiary,
     ];
-    
+
     int positionIndex = 0;
-    
+
     // Add phrases
     for (final phrase in _habit.phrases) {
       final posIndex = positionIndex % positions.length;
@@ -677,11 +687,11 @@ class _HabitDetailScreenNewState extends State<HabitDetailScreenNew>
       );
       positionIndex++;
     }
-    
+
     // Add images
     for (final imagePath in _habit.images) {
       final posIndex = positionIndex % positions.length;
-      
+
       floatingElements.add(
         _FloatingPhrase(
           animation: _floatingAnimationController,
@@ -707,7 +717,9 @@ class _HabitDetailScreenNewState extends State<HabitDetailScreenNew>
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
                   return Container(
-                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.surfaceContainerHighest,
                     child: Icon(
                       Platform.isIOS ? CupertinoIcons.photo : Icons.image,
                       size: 40,
@@ -722,7 +734,7 @@ class _HabitDetailScreenNewState extends State<HabitDetailScreenNew>
       );
       positionIndex++;
     }
-    
+
     return floatingElements;
   }
 

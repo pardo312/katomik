@@ -369,7 +369,6 @@ class AuthService {
     } else {
       return 'Network error: Please check your connection';
     }
-    return 'An unexpected error occurred';
   }
 }
 
