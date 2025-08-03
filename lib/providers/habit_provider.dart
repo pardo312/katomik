@@ -1,18 +1,20 @@
 import 'package:flutter/foundation.dart';
-import 'package:katomik/data/models/habit.dart';
-import 'package:katomik/data/models/habit_completion.dart';
-import 'package:katomik/data/services/database_service.dart';
+import '../data/models/habit.dart';
+import '../data/models/habit_completion.dart';
+import '../data/services/habit_service.dart';
 
 class HabitProvider extends ChangeNotifier {
-  final DatabaseService _databaseService = DatabaseService();
+  final HabitService _habitService = HabitService();
   
   List<Habit> _habits = [];
-  final Map<int, Map<String, HabitCompletion>> _completions = {};
-  final Map<int, int> _streaks = {};
+  final Map<String, Map<String, HabitCompletion>> _completions = {}; // habitId -> dateStr -> completion
+  final Map<String, int> _streaks = {}; // habitId -> streak count
   bool _isLoading = false;
+  String? _error;
 
   List<Habit> get habits => _habits;
   bool get isLoading => _isLoading;
+  String? get error => _error;
 
   HabitProvider() {
     loadHabits();
@@ -20,27 +22,29 @@ class HabitProvider extends ChangeNotifier {
 
   Future<void> loadHabits() async {
     _isLoading = true;
+    _error = null;
     notifyListeners();
 
     try {
-      _habits = await _databaseService.getAllHabits();
+      debugPrint('Loading habits from server...');
+      _habits = await _habitService.getUserHabits();
+      debugPrint('Loaded ${_habits.length} habits from server');
       
       // Load today's completions for all habits
       final today = DateTime.now();
-      await loadCompletionsForDate(today);
+      await loadCompletionsForDateRange(
+        DateTime(today.year, today.month, today.day - 7),
+        today,
+      );
       
-      // Load past week's completions
-      for (int i = 1; i <= 4; i++) {
-        await loadCompletionsForDate(today.subtract(Duration(days: i)));
-      }
-      
-      // Load streaks for all habits
+      // Calculate streaks for all habits
       for (final habit in _habits) {
         if (habit.id != null) {
-          _streaks[habit.id!] = await _databaseService.getStreakForHabit(habit.id!);
+          _streaks[habit.id!] = _calculateStreak(habit.id!);
         }
       }
     } catch (e) {
+      _error = 'Failed to load habits: $e';
       debugPrint('Error loading habits: $e');
     } finally {
       _isLoading = false;
@@ -48,181 +52,282 @@ class HabitProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> loadCompletionsForDate(DateTime date) async {
-    final dateStr = date.toIso8601String().split('T')[0];
-    final completions = await _databaseService.getCompletionsForDate(date);
-    
-    for (final completion in completions) {
-      if (!_completions.containsKey(completion.habitId)) {
-        _completions[completion.habitId] = {};
+  Future<void> loadCompletionsForDateRange(DateTime startDate, DateTime endDate) async {
+    try {
+      for (final habit in _habits) {
+        if (habit.id == null) continue;
+        
+        final completions = await _habitService.getCompletions(
+          habitId: habit.id!,
+          startDate: startDate,
+          endDate: endDate,
+        );
+        
+        for (final completionData in completions) {
+          final completion = HabitCompletion.fromServerJson(completionData);
+          final dateStr = completion.date.toIso8601String().split('T')[0];
+          
+          if (!_completions.containsKey(habit.id!)) {
+            _completions[habit.id!] = {};
+          }
+          _completions[habit.id!]![dateStr] = completion;
+        }
       }
-      _completions[completion.habitId]![dateStr] = completion;
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Error loading completions: $e');
     }
-    notifyListeners();
   }
 
   Future<void> addHabit(Habit habit) async {
     try {
-      final id = await _databaseService.insertHabit(habit);
-      final newHabit = habit.copyWith(id: id);
+      debugPrint('Creating habit: ${habit.name}');
+      final newHabit = await _habitService.createHabit(
+        name: habit.name,
+        phrases: habit.phrases,
+        color: habit.color,
+        icon: habit.icon,
+        reminderTime: habit.reminderTime,
+        reminderDays: habit.reminderDays,
+      );
+      
+      debugPrint('Created habit with ID: ${newHabit.id}');
       _habits.insert(0, newHabit);
-      _streaks[id] = 0;
+      _streaks[newHabit.id!] = 0;
       notifyListeners();
     } catch (e) {
+      _error = 'Failed to create habit: $e';
       debugPrint('Error adding habit: $e');
+      notifyListeners();
     }
   }
 
   Future<void> updateHabit(Habit habit) async {
+    if (habit.id == null) return;
+    
     try {
-      await _databaseService.updateHabit(habit);
+      final updatedHabit = await _habitService.updateHabit(
+        id: habit.id!,
+        name: habit.name,
+        phrases: habit.phrases,
+        color: habit.color,
+        icon: habit.icon,
+        isActive: habit.isActive,
+        reminderTime: habit.reminderTime,
+        reminderDays: habit.reminderDays,
+      );
+      
       final index = _habits.indexWhere((h) => h.id == habit.id);
       if (index != -1) {
-        _habits[index] = habit;
+        _habits[index] = updatedHabit;
         notifyListeners();
       }
     } catch (e) {
+      _error = 'Failed to update habit: $e';
       debugPrint('Error updating habit: $e');
+      notifyListeners();
     }
   }
 
-  Future<void> deleteHabit(int id) async {
+  Future<void> deleteHabit(String id) async {
     try {
-      await _databaseService.deactivateHabit(id);
+      await _habitService.deleteHabit(id);
       _habits.removeWhere((habit) => habit.id == id);
       _completions.remove(id);
       _streaks.remove(id);
       notifyListeners();
     } catch (e) {
+      _error = 'Failed to delete habit: $e';
       debugPrint('Error deleting habit: $e');
+      notifyListeners();
     }
   }
 
-  Future<void> toggleHabitCompletion(int habitId, DateTime date) async {
+  Future<void> toggleHabitCompletion(String habitId, DateTime date) async {
+    final dateStr = date.toIso8601String().split('T')[0];
+    
+    if (!_completions.containsKey(habitId)) {
+      _completions[habitId] = {};
+    }
+    
+    final existingCompletion = _completions[habitId]![dateStr];
+    
     try {
-      final dateStr = date.toIso8601String().split('T')[0];
-      final existingCompletion = await _databaseService.getCompletionForHabitAndDate(habitId, date);
-      
-      final completion = HabitCompletion(
-        id: existingCompletion?.id,
-        habitId: habitId,
-        date: date,
-        isCompleted: existingCompletion?.isCompleted == true ? false : true,
-      );
-      
-      await _databaseService.insertOrUpdateCompletion(completion);
-      
-      if (!_completions.containsKey(habitId)) {
-        _completions[habitId] = {};
+      if (existingCompletion == null || !existingCompletion.isCompleted) {
+        // Mark as completed
+        final completionData = await _habitService.recordCompletion(
+          habitId: habitId,
+          date: date,
+          isCompleted: true,
+        );
+        
+        _completions[habitId]![dateStr] = HabitCompletion.fromServerJson(completionData);
+      } else {
+        // Mark as not completed
+        final completionData = await _habitService.recordCompletion(
+          habitId: habitId,
+          date: date,
+          isCompleted: false,
+        );
+        
+        _completions[habitId]![dateStr] = HabitCompletion.fromServerJson(completionData);
       }
-      _completions[habitId]![dateStr] = completion;
       
-      // Update streak
-      _streaks[habitId] = await _databaseService.getStreakForHabit(habitId);
-      
+      // Recalculate streak
+      _streaks[habitId] = _calculateStreak(habitId);
       notifyListeners();
     } catch (e) {
-      debugPrint('Error toggling habit completion: $e');
+      _error = 'Failed to update completion: $e';
+      debugPrint('Error toggling completion: $e');
+      notifyListeners();
     }
   }
 
-  bool isHabitCompletedForDate(int habitId, DateTime date) {
+  bool isHabitCompletedOnDate(String habitId, DateTime date) {
     final dateStr = date.toIso8601String().split('T')[0];
     return _completions[habitId]?[dateStr]?.isCompleted ?? false;
   }
 
-  int getStreakForHabit(int habitId) {
+  // Alias for backward compatibility
+  bool isHabitCompletedForDate(String habitId, DateTime date) {
+    return isHabitCompletedOnDate(habitId, date);
+  }
+
+  int getStreakForHabit(String habitId) {
     return _streaks[habitId] ?? 0;
   }
 
+  Future<List<HabitCompletion>> getCompletionsForHabit(String habitId) async {
+    if (!_completions.containsKey(habitId)) {
+      return [];
+    }
+    
+    return _completions[habitId]!.values.toList()
+      ..sort((a, b) => b.date.compareTo(a.date));
+  }
+
+  int _calculateStreak(String habitId) {
+    if (!_completions.containsKey(habitId)) return 0;
+    
+    final completions = _completions[habitId]!;
+    final today = DateTime.now();
+    final todayStr = today.toIso8601String().split('T')[0];
+    
+    // Check if completed today
+    if (!completions.containsKey(todayStr) || !completions[todayStr]!.isCompleted) {
+      // If not completed today, check yesterday
+      final yesterday = today.subtract(const Duration(days: 1));
+      final yesterdayStr = yesterday.toIso8601String().split('T')[0];
+      if (!completions.containsKey(yesterdayStr) || !completions[yesterdayStr]!.isCompleted) {
+        return 0;
+      }
+    }
+    
+    int streak = 0;
+    DateTime checkDate = today;
+    
+    while (true) {
+      final dateStr = checkDate.toIso8601String().split('T')[0];
+      if (completions.containsKey(dateStr) && completions[dateStr]!.isCompleted) {
+        streak++;
+        checkDate = checkDate.subtract(const Duration(days: 1));
+      } else {
+        break;
+      }
+    }
+    
+    return streak;
+  }
+
+  double getTotalCompletionRate() {
+    if (_habits.isEmpty || _completions.isEmpty) return 0;
+    
+    int totalPossible = 0;
+    int totalCompleted = 0;
+    
+    for (final habit in _habits) {
+      if (habit.id == null || !_completions.containsKey(habit.id!)) continue;
+      
+      final habitCompletions = _completions[habit.id!]!;
+      totalPossible += habitCompletions.length;
+      totalCompleted += habitCompletions.values
+          .where((c) => c.isCompleted)
+          .length;
+    }
+    
+    return totalPossible > 0 ? totalCompleted / totalPossible : 0;
+  }
+
+  void clearError() {
+    _error = null;
+    notifyListeners();
+  }
+
+  // Additional methods for backward compatibility
   int getTotalStreak() {
     if (_habits.isEmpty) return 0;
     
-    int totalStreak = 0;
+    // Return the highest streak among all habits
+    int maxStreak = 0;
     for (final habit in _habits) {
       if (habit.id != null) {
-        final streak = _streaks[habit.id!] ?? 0;
-        if (totalStreak == 0 || streak < totalStreak) {
-          totalStreak = streak;
+        final streak = getStreakForHabit(habit.id!);
+        if (streak > maxStreak) {
+          maxStreak = streak;
         }
       }
     }
-    return totalStreak;
+    return maxStreak;
   }
 
-  double getTodayProgress() {
-    if (_habits.isEmpty) return 0.0;
-    
+  Map<String, double> getTodayProgress() {
     final today = DateTime.now();
-    int completedCount = 0;
+    int totalHabits = _habits.length;
+    int completedHabits = 0;
     
     for (final habit in _habits) {
-      if (habit.id != null && isHabitCompletedForDate(habit.id!, today)) {
-        completedCount++;
+      if (habit.id != null && habit.isActive) {
+        if (isHabitCompletedOnDate(habit.id!, today)) {
+          completedHabits++;
+        }
       }
     }
     
-    return completedCount / _habits.length;
+    return {
+      'completed': completedHabits.toDouble(),
+      'total': totalHabits.toDouble(),
+      'percentage': totalHabits > 0 ? completedHabits / totalHabits : 0.0,
+    };
   }
 
   bool areAllHabitsCompletedToday() {
-    if (_habits.isEmpty) return false;
+    if (_habits.isEmpty) return true;
     
     final today = DateTime.now();
     for (final habit in _habits) {
-      if (habit.id != null && !isHabitCompletedForDate(habit.id!, today)) {
-        return false;
+      if (habit.id != null && habit.isActive) {
+        if (!isHabitCompletedOnDate(habit.id!, today)) {
+          return false;
+        }
       }
     }
-    
     return true;
   }
 
-  Map<DateTime, double> getWeekProgress() {
-    final Map<DateTime, double> weekProgress = {};
+  double getCompletionRateForHabit(String habitId, int days) {
+    if (!_completions.containsKey(habitId)) return 0.0;
+    
     final today = DateTime.now();
+    final startDate = today.subtract(Duration(days: days - 1));
+    int completedDays = 0;
     
-    for (int i = 4; i >= 0; i--) {
-      final date = today.subtract(Duration(days: i));
-      int completedCount = 0;
-      
-      for (final habit in _habits) {
-        if (habit.id != null && isHabitCompletedForDate(habit.id!, date)) {
-          completedCount++;
-        }
+    for (int i = 0; i < days; i++) {
+      final checkDate = startDate.add(Duration(days: i));
+      if (isHabitCompletedOnDate(habitId, checkDate)) {
+        completedDays++;
       }
-      
-      weekProgress[date] = _habits.isEmpty ? 0.0 : completedCount / _habits.length;
     }
     
-    return weekProgress;
-  }
-
-  Future<Map<String, double>> getCompletionRateForHabit(int habitId, int days) async {
-    try {
-      return await _databaseService.getCompletionRateForHabit(habitId, days);
-    } catch (e) {
-      debugPrint('Error getting completion rate: $e');
-      return {
-        'completedDays': 0.0,
-        'totalDays': days.toDouble(),
-        'completionRate': 0.0,
-      };
-    }
-  }
-
-  Future<List<HabitCompletion>> getCompletionsForHabit(int habitId) async {
-    try {
-      return await _databaseService.getCompletionsForHabit(habitId);
-    } catch (e) {
-      debugPrint('Error getting completions: $e');
-      return [];
-    }
-  }
-
-  @override
-  void dispose() {
-    _databaseService.close();
-    super.dispose();
+    return completedDays / days;
   }
 }

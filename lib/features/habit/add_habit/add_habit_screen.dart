@@ -47,7 +47,16 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
       }
       // Initialize images
       _imagePaths.addAll(widget.habitToEdit!.images);
-      _selectedColor = Color(int.parse(widget.habitToEdit!.color));
+      // Parse color from either #RRGGBB or 0xAARRGGBB format
+      final colorStr = widget.habitToEdit!.color;
+      if (colorStr.startsWith('#')) {
+        // Handle #RRGGBB format
+        final hex = colorStr.substring(1);
+        _selectedColor = Color(int.parse('FF$hex', radix: 16));
+      } else {
+        // Handle 0xAARRGGBB format (legacy)
+        _selectedColor = Color(int.parse(colorStr));
+      }
       _selectedIcon = widget.habitToEdit!.icon;
     } else {
       // Add one empty controller for new habits
@@ -97,7 +106,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
         images: _imagePaths,
         createdDate: widget.habitToEdit?.createdDate ?? DateTime.now(),
         color:
-            '0x${((_selectedColor.a * 255.0).round() & 0xff).toRadixString(16).padLeft(2, '0')}${((_selectedColor.r * 255.0).round() & 0xff).toRadixString(16).padLeft(2, '0')}${((_selectedColor.g * 255.0).round() & 0xff).toRadixString(16).padLeft(2, '0')}${((_selectedColor.b * 255.0).round() & 0xff).toRadixString(16).padLeft(2, '0')}'
+            '#${((_selectedColor.r * 255.0).round() & 0xff).toRadixString(16).padLeft(2, '0')}${((_selectedColor.g * 255.0).round() & 0xff).toRadixString(16).padLeft(2, '0')}${((_selectedColor.b * 255.0).round() & 0xff).toRadixString(16).padLeft(2, '0')}'
                 .toUpperCase(),
         icon: _selectedIcon,
         isActive: true,

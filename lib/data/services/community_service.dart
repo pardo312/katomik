@@ -17,22 +17,26 @@ class CommunityService {
         offset: $offset
       ) {
         id
-        name
-        description
-        category
-        difficulty
-        memberCount
-        averageStreak
-        isPublic
-        createdByUser {
+        habitId
+        habit {
           id
           name
-        }
-        habitTemplate {
-          name
-          description
           icon
           color
+        }
+        template {
+          id
+          name
+          description
+          category
+          difficultyLevel
+        }
+        memberCount
+        isPublic
+        totalCompletions
+        originalCreator {
+          id
+          name
         }
       }
     }
@@ -42,19 +46,23 @@ class CommunityService {
     query PopularCommunities($limit: Int) {
       popularCommunities(limit: $limit) {
         id
-        name
-        description
-        category
-        difficulty
-        memberCount
-        averageStreak
-        isPublic
-        habitTemplate {
+        habitId
+        habit {
+          id
           name
-          description
           icon
           color
         }
+        template {
+          id
+          name
+          description
+          category
+          difficultyLevel
+        }
+        memberCount
+        isPublic
+        totalCompletions
       }
     }
   ''';
@@ -64,30 +72,26 @@ class CommunityService {
       communityDetails(communityId: $communityId) {
         id
         habitId
-        name
-        description
-        category
-        difficulty
-        memberCount
-        averageStreak
-        totalCompletions
-        successRate
-        isPublic
-        createdAt
-        createdByUser {
+        habit {
           id
           name
-        }
-        habitTemplate {
-          name
-          description
           icon
           color
         }
-        settings {
-          minStreakToJoin
-          allowDiscovery
-          requireApproval
+        template {
+          id
+          name
+          description
+          category
+          difficultyLevel
+        }
+        memberCount
+        totalCompletions
+        isPublic
+        createdAt
+        originalCreator {
+          id
+          name
         }
         memberStatus {
           isMember
@@ -124,13 +128,15 @@ class CommunityService {
       userCommunities {
         community {
           id
-          name
-          description
-          memberCount
-          habitTemplate {
+          habitId
+          habit {
+            id
+            name
             icon
             color
           }
+          memberCount
+          isPublic
         }
         currentStreak
         totalCompletions
@@ -142,11 +148,14 @@ class CommunityService {
 
   // Mutations
   static const String makeHabitPublicMutation = r'''
-    mutation MakeHabitPublic($habitId: ID!, $settings: CommunitySettingsInput!) {
+    mutation MakeHabitPublic($habitId: ID!, $settings: CommunitySettings!) {
       makeHabitPublic(habitId: $habitId, settings: $settings) {
         id
-        name
-        description
+        habitId
+        habit {
+          id
+          name
+        }
         memberCount
         isPublic
       }
@@ -159,7 +168,11 @@ class CommunityService {
         habitId
         community {
           id
-          name
+          habitId
+          habit {
+            id
+            name
+          }
         }
         joinedAt
       }
@@ -458,24 +471,37 @@ class CommunityHabit {
   });
 
   factory CommunityHabit.fromJson(Map<String, dynamic> json) {
+    // Handle both direct fields and nested habit/template objects
+    final habit = json['habit'];
+    final template = json['template'] ?? json['habitTemplate'];
+    
     return CommunityHabit(
       id: json['id'],
       habitId: json['habitId'],
-      name: json['name'],
-      description: json['description'],
-      category: json['category'],
-      difficulty: json['difficulty'],
-      memberCount: json['memberCount'],
-      averageStreak: json['averageStreak'].toDouble(),
+      name: json['name'] ?? template?['name'] ?? habit?['name'] ?? '',
+      description: json['description'] ?? template?['description'] ?? '',
+      category: json['category'] ?? template?['category'] ?? 'general',
+      difficulty: json['difficulty'] ?? template?['difficultyLevel']?.toString().toLowerCase() ?? 'medium',
+      memberCount: json['memberCount'] ?? 0,
+      averageStreak: (json['averageStreak'] ?? 0).toDouble(),
       totalCompletions: json['totalCompletions'] ?? 0,
       successRate: (json['successRate'] ?? 0).toDouble(),
-      isPublic: json['isPublic'],
-      habitTemplate: json['habitTemplate'] != null
-          ? HabitTemplate.fromJson(json['habitTemplate'])
-          : null,
+      isPublic: json['isPublic'] ?? false,
+      habitTemplate: template != null
+          ? HabitTemplate.fromJson(template)
+          : habit != null
+              ? HabitTemplate(
+                  name: habit['name'] ?? '',
+                  description: '',
+                  icon: habit['icon'] ?? '🎯',
+                  color: habit['color'] ?? '#FF6B6B',
+                )
+              : null,
       createdByUser: json['createdByUser'] != null
           ? User.fromJson(json['createdByUser'])
-          : null,
+          : json['originalCreator'] != null
+              ? User.fromJson(json['originalCreator'])
+              : null,
     );
   }
 }
@@ -495,10 +521,10 @@ class HabitTemplate {
 
   factory HabitTemplate.fromJson(Map<String, dynamic> json) {
     return HabitTemplate(
-      name: json['name'],
-      description: json['description'],
-      icon: json['icon'],
-      color: json['color'],
+      name: json['name'] ?? '',
+      description: json['description'] ?? '',
+      icon: json['icon'] ?? '🎯',
+      color: json['color'] ?? '#FF6B6B',
     );
   }
 }
@@ -573,30 +599,38 @@ class CommunityDetails extends CommunityHabit {
 }
 
 class CommunitySettings {
-  final int minStreakToJoin;
-  final bool allowDiscovery;
-  final bool requireApproval;
+  final String? description;
+  final String? category;
+  final String? difficultyLevel;
+  final Map<String, dynamic>? suggestedFrequency;
+  final List<String>? tags;
 
   CommunitySettings({
-    required this.minStreakToJoin,
-    required this.allowDiscovery,
-    required this.requireApproval,
+    this.description,
+    this.category,
+    this.difficultyLevel,
+    this.suggestedFrequency,
+    this.tags,
   });
 
   factory CommunitySettings.fromJson(Map<String, dynamic> json) {
     return CommunitySettings(
-      minStreakToJoin: json['minStreakToJoin'],
-      allowDiscovery: json['allowDiscovery'],
-      requireApproval: json['requireApproval'],
+      description: json['description'],
+      category: json['category'],
+      difficultyLevel: json['difficultyLevel'],
+      suggestedFrequency: json['suggestedFrequency'],
+      tags: json['tags'] != null ? List<String>.from(json['tags']) : null,
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'minStreakToJoin': minStreakToJoin,
-      'allowDiscovery': allowDiscovery,
-      'requireApproval': requireApproval,
-    };
+    final Map<String, dynamic> data = {};
+    if (description != null) data['description'] = description;
+    if (category != null) data['category'] = category;
+    if (difficultyLevel != null) data['difficultyLevel'] = difficultyLevel;
+    if (suggestedFrequency != null) data['suggestedFrequency'] = suggestedFrequency;
+    if (tags != null) data['tags'] = tags;
+    return data;
   }
 }
 

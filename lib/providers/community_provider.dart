@@ -128,8 +128,16 @@ class CommunityProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
+      // Ensure habit has a server ID
+      if (habit.id == null) {
+        _error = 'Habit must be saved to server first';
+        _isLoading = false;
+        notifyListeners();
+        return false;
+      }
+
       final community = await _communityService.makeHabitPublic(
-        habit.id.toString(),
+        habit.id!,
         settings,
       );
 
@@ -206,7 +214,7 @@ class CommunityProvider extends ChangeNotifier {
   // Retire from Community
   Future<bool> retireFromCommunity(
     String communityId,
-    int habitId,
+    String habitId,
     HabitProvider habitProvider,
   ) async {
     _isLoading = true;
@@ -216,11 +224,8 @@ class CommunityProvider extends ChangeNotifier {
     try {
       await _communityService.retireFromCommunity(communityId);
       
-      // Delete the local habit
-      await _databaseService.deleteHabit(habitId);
-      
-      // Reload habits
-      await habitProvider.loadHabits();
+      // Delete the habit from server
+      await habitProvider.deleteHabit(habitId);
       
       // Reload user communities
       await loadUserCommunities();

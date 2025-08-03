@@ -69,13 +69,7 @@ class _DiscoverCommunitiesScreenState extends State<DiscoverCommunitiesScreen> {
               padding: const EdgeInsets.all(16.0),
               child: Row(
                 children: [
-                  IconButton(
-                    icon: Icon(
-                      CupertinoIcons.arrow_left, 
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                    onPressed: () => Navigator.pop(context),
-                  ),
+                  const SizedBox(width: 48), // Spacer to balance the layout
                   Expanded(
                     child: Text(
                       'Discover Communities',

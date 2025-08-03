@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'dart:io';
 import '../../../core/constants/app_colors.dart';
 import '../../../data/services/community_service.dart';
 
@@ -18,16 +19,52 @@ class MakeHabitPublicDialog extends StatefulWidget {
 }
 
 class _MakeHabitPublicDialogState extends State<MakeHabitPublicDialog> {
-  int _minStreakToJoin = 0;
-  bool _allowDiscovery = true;
-  bool _requireApproval = false;
+  final TextEditingController _descriptionController = TextEditingController();
+  String? _selectedCategory;
+  String _selectedDifficulty = 'MEDIUM';
+  final List<String> _tags = [];
+
+  final List<String> _categories = ['health', 'productivity', 'learning', 'fitness', 'mindfulness', 'creativity'];
+
+  @override
+  void dispose() {
+    _descriptionController.dispose();
+    super.dispose();
+  }
+
+  void _showCategoryPicker(BuildContext context) {
+    showCupertinoModalPopup(
+      context: context,
+      builder: (context) => Container(
+        height: 250,
+        color: CupertinoColors.systemBackground,
+        child: CupertinoPicker(
+          itemExtent: 32,
+          onSelectedItemChanged: (index) {
+            setState(() {
+              _selectedCategory = _categories[index];
+            });
+          },
+          children: _categories
+              .map((category) => Center(
+                    child: Text(
+                      category[0].toUpperCase() + category.substring(1),
+                    ),
+                  ))
+              .toList(),
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    final content = Container(
       margin: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
+        color: Platform.isIOS 
+            ? CupertinoTheme.of(context).barBackgroundColor 
+            : Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(24),
       ),
       child: SingleChildScrollView(
@@ -118,7 +155,7 @@ class _MakeHabitPublicDialogState extends State<MakeHabitPublicDialog> {
             ),
             const SizedBox(height: 16),
             
-            // Minimum Streak Setting
+            // Description
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -129,144 +166,176 @@ class _MakeHabitPublicDialogState extends State<MakeHabitPublicDialog> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    'Minimum Streak to Join',
+                    'Description',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                   const SizedBox(height: 8),
-                  Text(
-                    'Set a minimum streak requirement for new members',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey.shade600,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      IconButton(
-                        onPressed: _minStreakToJoin > 0
-                            ? () => setState(() => _minStreakToJoin--)
-                            : null,
-                        icon: const Icon(CupertinoIcons.minus_circle),
-                      ),
-                      Container(
-                        width: 60,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.surface,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Theme.of(context).colorScheme.outline),
-                        ),
-                        child: Center(
-                          child: Text(
-                            '$_minStreakToJoin',
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
+                  Platform.isIOS
+                      ? CupertinoTextField(
+                          controller: _descriptionController,
+                          maxLines: 3,
+                          placeholder: 'Describe your habit and community goals...',
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: CupertinoColors.systemGrey4,
+                            ),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        )
+                      : TextField(
+                          controller: _descriptionController,
+                          maxLines: 3,
+                          decoration: InputDecoration(
+                            hintText: 'Describe your habit and community goals...',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
                             ),
                           ),
                         ),
-                      ),
-                      IconButton(
-                        onPressed: () => setState(() => _minStreakToJoin++),
-                        icon: const Icon(CupertinoIcons.plus_circle),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        'days',
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                    ],
-                  ),
                 ],
               ),
             ),
             
             const SizedBox(height: 16),
             
-            // Discovery Setting
+            // Category
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Row(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Allow Discovery',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Show in community search results',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                      ],
+                  const Text(
+                    'Category',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
-                  CupertinoSwitch(
-                    value: _allowDiscovery,
-                    onChanged: (value) => setState(() => _allowDiscovery = value),
-                    activeTrackColor: AppColors.primary,
-                  ),
+                  const SizedBox(height: 8),
+                  Platform.isIOS
+                      ? GestureDetector(
+                          onTap: () => _showCategoryPicker(context),
+                          child: Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color: CupertinoColors.systemGrey4,
+                              ),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  _selectedCategory != null
+                                      ? _selectedCategory![0].toUpperCase() + _selectedCategory!.substring(1)
+                                      : 'Select a category',
+                                  style: TextStyle(
+                                    color: _selectedCategory != null
+                                        ? CupertinoColors.label
+                                        : CupertinoColors.placeholderText,
+                                  ),
+                                ),
+                                Icon(
+                                  CupertinoIcons.chevron_down,
+                                  size: 16,
+                                  color: CupertinoColors.systemGrey,
+                                ),
+                              ],
+                            ),
+                          ),
+                        )
+                      : DropdownButtonFormField<String>(
+                          value: _selectedCategory,
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          hint: const Text('Select a category'),
+                          items: _categories
+                              .map((category) => DropdownMenuItem(
+                                    value: category,
+                                    child: Text(category[0].toUpperCase() + category.substring(1)),
+                                  ))
+                              .toList(),
+                          onChanged: (value) => setState(() => _selectedCategory = value),
+                        ),
                 ],
               ),
             ),
             
             const SizedBox(height: 16),
             
-            // Approval Setting
+            // Difficulty
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Row(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Require Approval',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Manually approve new members',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                      ],
+                  const Text(
+                    'Difficulty Level',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
-                  CupertinoSwitch(
-                    value: _requireApproval,
-                    onChanged: (value) => setState(() => _requireApproval = value),
-                    activeTrackColor: AppColors.primary,
-                  ),
+                  const SizedBox(height: 8),
+                  Platform.isIOS
+                      ? CupertinoSegmentedControl<String>(
+                          groupValue: _selectedDifficulty,
+                          onValueChanged: (String? value) {
+                            if (value != null) {
+                              setState(() => _selectedDifficulty = value);
+                            }
+                          },
+                          children: const {
+                            'EASY': Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 16),
+                              child: Text('Easy'),
+                            ),
+                            'MEDIUM': Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 16),
+                              child: Text('Medium'),
+                            ),
+                            'HARD': Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 16),
+                              child: Text('Hard'),
+                            ),
+                          },
+                        )
+                      : SegmentedButton<String>(
+                          selected: {_selectedDifficulty},
+                          onSelectionChanged: (Set<String> selection) {
+                            setState(() => _selectedDifficulty = selection.first);
+                          },
+                          segments: const [
+                            ButtonSegment(
+                              value: 'EASY',
+                              label: Text('Easy'),
+                            ),
+                            ButtonSegment(
+                              value: 'MEDIUM',
+                              label: Text('Medium'),
+                            ),
+                            ButtonSegment(
+                              value: 'HARD',
+                              label: Text('Hard'),
+                            ),
+                          ],
+                        ),
                 ],
               ),
             ),
@@ -294,9 +363,10 @@ class _MakeHabitPublicDialogState extends State<MakeHabitPublicDialog> {
                     onPressed: () {
                       widget.onMakePublic(
                         CommunitySettings(
-                          minStreakToJoin: _minStreakToJoin,
-                          allowDiscovery: _allowDiscovery,
-                          requireApproval: _requireApproval,
+                          description: _descriptionController.text.trim(),
+                          category: _selectedCategory,
+                          difficultyLevel: _selectedDifficulty,
+                          tags: _tags,
                         ),
                       );
                     },
@@ -322,5 +392,15 @@ class _MakeHabitPublicDialogState extends State<MakeHabitPublicDialog> {
         ),
       ),
     );
+
+    // Wrap with Material for Android to support Material widgets
+    if (Platform.isAndroid) {
+      return Material(
+        type: MaterialType.transparency,
+        child: content,
+      );
+    }
+    
+    return content;
   }
 }

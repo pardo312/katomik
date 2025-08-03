@@ -6,13 +6,14 @@ import 'package:katomik/data/models/habit.dart';
 import 'package:katomik/features/habit/widgets/habit_icon.dart';
 import 'package:katomik/features/habit/habit_detail/habit_detail_screen.dart';
 import 'package:katomik/core/utils/date_utils.dart';
+import 'package:katomik/core/utils/color_utils.dart';
 import 'package:katomik/providers/navigation_provider.dart';
 
 class HabitRow extends StatelessWidget {
   final Habit habit;
   final List<DateTime> dates;
-  final Function(int habitId, DateTime date) onToggleCompletion;
-  final Function(int habitId, DateTime date) isCompleted;
+  final Function(String habitId, DateTime date) onToggleCompletion;
+  final Function(String habitId, DateTime date) isCompleted;
   final bool showIcon;
 
   const HabitRow({
@@ -26,7 +27,7 @@ class HabitRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = Color(int.parse(habit.color));
+    final color = ColorUtils.parseColor(habit.color);
     final today = DateTime.now();
 
     return Container(

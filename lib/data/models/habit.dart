@@ -1,9 +1,10 @@
 class Habit {
-  final int? id;
+  final String? id; // UUID from server
   final String name;
   final List<String> phrases;
   final List<String> images;
   final DateTime createdDate;
+  final DateTime? updatedDate;
   final String color;
   final String icon;
   final bool isActive;
@@ -11,6 +12,8 @@ class Habit {
   final bool isPublic;
   final String? communityId;
   final String? communityName;
+  final String? reminderTime;
+  final List<int>? reminderDays;
 
   Habit({
     this.id,
@@ -18,6 +21,7 @@ class Habit {
     required this.phrases,
     List<String>? images,
     required this.createdDate,
+    this.updatedDate,
     required this.color,
     required this.icon,
     this.isActive = true,
@@ -25,8 +29,11 @@ class Habit {
     this.isPublic = false,
     this.communityId,
     this.communityName,
+    this.reminderTime,
+    this.reminderDays,
   }) : images = images ?? [];
 
+  // For local SQLite storage (legacy - will be removed)
   Map<String, dynamic> toMap() {
     return {
       'id': id,
@@ -44,6 +51,7 @@ class Habit {
     };
   }
 
+  // From local SQLite (legacy - will be removed)
   factory Habit.fromMap(Map<String, dynamic> map) {
     final phrasesString = map['phrases'] as String? ?? '';
     final phrases = phrasesString.isEmpty ? <String>[] : phrasesString.split('|||');
@@ -52,13 +60,13 @@ class Habit {
     final images = imagesString.isEmpty ? <String>[] : imagesString.split('|||');
     
     return Habit(
-      id: map['id'] as int?,
+      id: map['id']?.toString(), // Convert int to string for compatibility
       name: map['name'] as String,
       phrases: phrases,
       images: images,
       createdDate: DateTime.parse(map['created_date'] as String),
       color: map['color'] as String,
-      icon: map['icon'] as String? ?? 'science', // Default to atom/science icon
+      icon: map['icon'] as String? ?? 'science',
       isActive: (map['is_active'] as int) == 1,
       isFromCommunity: (map['is_from_community'] as int? ?? 0) == 1,
       isPublic: (map['is_public'] as int? ?? 0) == 1,
@@ -67,12 +75,52 @@ class Habit {
     );
   }
 
+  // From server GraphQL response
+  factory Habit.fromServerJson(Map<String, dynamic> json) {
+    return Habit(
+      id: json['id'],
+      name: json['name'],
+      phrases: json['phrases'] != null 
+          ? List<String>.from(json['phrases']) 
+          : [],
+      createdDate: DateTime.parse(json['createdAt']),
+      updatedDate: json['updatedAt'] != null 
+          ? DateTime.parse(json['updatedAt']) 
+          : null,
+      color: json['color'] ?? '#FF6B6B',
+      icon: json['icon'] ?? 'fitness_center',
+      isActive: json['isActive'] ?? true,
+      isPublic: json['isPublic'] ?? false,
+      isFromCommunity: json['isFromCommunity'] ?? false,
+      communityId: json['communityId'],
+      communityName: json['community']?['habit']?['name'],
+      reminderTime: json['reminderTime'],
+      reminderDays: json['reminderDays'] != null
+          ? List<int>.from(json['reminderDays'])
+          : null,
+    );
+  }
+
+  // To server format for mutations
+  Map<String, dynamic> toServerInput() {
+    return {
+      'name': name,
+      'color': color,
+      'icon': icon,
+      'phrases': phrases,
+      'isActive': isActive,
+      if (reminderTime != null) 'reminderTime': reminderTime,
+      if (reminderDays != null) 'reminderDays': reminderDays,
+    };
+  }
+
   Habit copyWith({
-    int? id,
+    String? id,
     String? name,
     List<String>? phrases,
     List<String>? images,
     DateTime? createdDate,
+    DateTime? updatedDate,
     String? color,
     String? icon,
     bool? isActive,
@@ -80,6 +128,8 @@ class Habit {
     bool? isPublic,
     String? communityId,
     String? communityName,
+    String? reminderTime,
+    List<int>? reminderDays,
   }) {
     return Habit(
       id: id ?? this.id,
@@ -87,6 +137,7 @@ class Habit {
       phrases: phrases ?? this.phrases,
       images: images ?? this.images,
       createdDate: createdDate ?? this.createdDate,
+      updatedDate: updatedDate ?? this.updatedDate,
       color: color ?? this.color,
       icon: icon ?? this.icon,
       isActive: isActive ?? this.isActive,
@@ -94,6 +145,8 @@ class Habit {
       isPublic: isPublic ?? this.isPublic,
       communityId: communityId ?? this.communityId,
       communityName: communityName ?? this.communityName,
+      reminderTime: reminderTime ?? this.reminderTime,
+      reminderDays: reminderDays ?? this.reminderDays,
     );
   }
 

@@ -31,7 +31,7 @@ class HomeScreen extends StatelessWidget {
         children: [
           StreakHeader(
             totalStreak: habitProvider.getTotalStreak(),
-            progress: habitProvider.getTodayProgress(),
+            progress: habitProvider.getTodayProgress()['percentage'] ?? 0.0,
             allCompleted: habitProvider.areAllHabitsCompletedToday(),
           ),
           const SizedBox(height: 20),

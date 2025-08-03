@@ -7,6 +7,7 @@ import 'package:katomik/data/models/habit_completion.dart';
 import 'package:katomik/providers/habit_provider.dart';
 import 'package:katomik/providers/community_provider.dart';
 import 'package:katomik/core/utils/date_utils.dart';
+import 'package:katomik/core/utils/color_utils.dart';
 import 'package:katomik/features/home/widgets/date_header.dart';
 import 'package:katomik/features/home/widgets/habit_row.dart';
 import 'package:katomik/features/habit/add_habit/add_habit_screen.dart';
@@ -69,19 +70,56 @@ class _HabitDetailScreenNewState extends State<HabitDetailScreen>
     });
   }
 
+  void _showPlatformSnackBar(String message, {Color? backgroundColor, VoidCallback? onActionPressed, String? actionLabel}) {
+    if (Platform.isIOS) {
+      // For iOS, we can show a simple dialog or use a different approach
+      showCupertinoDialog(
+        context: context,
+        builder: (context) => CupertinoAlertDialog(
+          content: Text(message),
+          actions: [
+            if (onActionPressed != null && actionLabel != null)
+              CupertinoDialogAction(
+                onPressed: () {
+                  Navigator.pop(context);
+                  onActionPressed();
+                },
+                child: Text(actionLabel),
+              ),
+            CupertinoDialogAction(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: backgroundColor,
+          action: actionLabel != null && onActionPressed != null
+              ? SnackBarAction(
+                  label: actionLabel,
+                  textColor: Colors.white,
+                  onPressed: onActionPressed,
+                )
+              : null,
+        ),
+      );
+    }
+  }
+
   bool _isDateCompleted(DateTime date) {
-    final dateStr = date.toIso8601String().split('T')[0];
-    return _completions.any(
-      (c) => c.date.toIso8601String().split('T')[0] == dateStr && c.isCompleted,
-    );
+    final habitProvider = Provider.of<HabitProvider>(context, listen: false);
+    return habitProvider.isHabitCompletedOnDate(_habit.id!, date);
   }
 
   void _showMakePublicDialog() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => MakeHabitPublicDialog(
+    if (Platform.isIOS) {
+      showCupertinoModalPopup(
+        context: context,
+        builder: (context) => MakeHabitPublicDialog(
         habitName: _habit.name,
         onMakePublic: (settings) async {
           Navigator.pop(context);
@@ -105,46 +143,97 @@ class _HabitDetailScreenNewState extends State<HabitDetailScreen>
                 _habit = updatedHabit;
               });
               
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('${_habit.name} is now public!'),
-                  backgroundColor: Colors.green,
-                  action: SnackBarAction(
-                    label: 'View Community',
-                    textColor: Colors.white,
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => CommunityDetailScreen(
-                            communityId: updatedHabit.communityId!,
-                            communityName: updatedHabit.name,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
+              _showPlatformSnackBar(
+                '${_habit.name} is now public!',
+                backgroundColor: Colors.green,
+                actionLabel: 'View Community',
+                onActionPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => CommunityDetailScreen(
+                        communityId: updatedHabit.communityId!,
+                        communityName: updatedHabit.name,
+                      ),
+                    ),
+                  );
+                },
               );
             }
           } else {
             if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Failed to make habit public'),
-                  backgroundColor: Colors.red,
-                ),
+              _showPlatformSnackBar(
+                'Failed to make habit public',
+                backgroundColor: Colors.red,
               );
             }
           }
         },
       ),
     );
+    } else {
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: Colors.transparent,
+        builder: (context) => MakeHabitPublicDialog(
+          habitName: _habit.name,
+          onMakePublic: (settings) async {
+            Navigator.pop(context);
+            
+            final communityProvider = context.read<CommunityProvider>();
+            final habitProvider = context.read<HabitProvider>();
+            
+            final success = await communityProvider.makeHabitPublic(
+              _habit,
+              settings,
+              habitProvider,
+            );
+            
+            if (success) {
+              if (mounted) {
+                // Refresh habit data
+                final updatedHabit = habitProvider.habits.firstWhere(
+                  (h) => h.id == _habit.id,
+                );
+                setState(() {
+                  _habit = updatedHabit;
+                });
+                
+                _showPlatformSnackBar(
+                  '${_habit.name} is now public!',
+                  backgroundColor: Colors.green,
+                  actionLabel: 'View Community',
+                  onActionPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => CommunityDetailScreen(
+                          communityId: updatedHabit.communityId!,
+                          communityName: updatedHabit.name,
+                        ),
+                      ),
+                    );
+                  },
+                );
+              }
+            } else {
+              if (mounted) {
+                _showPlatformSnackBar(
+                  'Failed to make habit public',
+                  backgroundColor: Colors.red,
+                );
+              }
+            }
+          },
+        ),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final color = Color(int.parse(_habit.color));
+    final color = ColorUtils.parseColor(_habit.color);
 
     if (Platform.isIOS) {
       return CupertinoPageScaffold(
@@ -352,18 +441,20 @@ class _HabitDetailScreenNewState extends State<HabitDetailScreen>
                 width: 1,
               ),
             ),
-            child: HabitRow(
-              habit: _habit,
-              dates: dates,
-              onToggleCompletion: (habitId, date) {
-                Provider.of<HabitProvider>(
-                  context,
-                  listen: false,
-                ).toggleHabitCompletion(habitId, date);
-                _loadCompletions();
-              },
-              isCompleted: (habitId, date) => _isDateCompleted(date),
-              showIcon: false,
+            child: Consumer<HabitProvider>(
+              builder: (context, habitProvider, _) => HabitRow(
+                habit: _habit,
+                dates: dates,
+                onToggleCompletion: (habitId, date) async {
+                  await habitProvider.toggleHabitCompletion(habitId, date);
+                  // Reload completions to update the local state
+                  _loadCompletions();
+                },
+                isCompleted: (habitId, date) {
+                  return habitProvider.isHabitCompletedOnDate(habitId, date);
+                },
+                showIcon: false,
+              ),
             ),
           ),
         ],
@@ -396,7 +487,9 @@ class _HabitDetailScreenNewState extends State<HabitDetailScreen>
                   ),
                 ),
                 const SizedBox(height: 16),
-                _buildCalendarGrid(color),
+                Consumer<HabitProvider>(
+                  builder: (context, habitProvider, _) => _buildCalendarGrid(color),
+                ),
               ],
             ),
           ),
@@ -564,12 +657,13 @@ class _HabitDetailScreenNewState extends State<HabitDetailScreen>
             final isToday = HomeDateUtils.isSameDay(date, DateTime.now());
             return Expanded(
               child: GestureDetector(
-                onTap: () {
+                onTap: () async {
                   if (!date.isAfter(DateTime.now())) {
-                    Provider.of<HabitProvider>(
+                    final habitProvider = Provider.of<HabitProvider>(
                       context,
                       listen: false,
-                    ).toggleHabitCompletion(_habit.id!, date);
+                    );
+                    await habitProvider.toggleHabitCompletion(_habit.id!, date);
                     _loadCompletions();
                   }
                 },
@@ -628,12 +722,13 @@ class _HabitDetailScreenNewState extends State<HabitDetailScreen>
 
     return Expanded(
       child: GestureDetector(
-        onTap: () {
+        onTap: () async {
           if (!date.isAfter(DateTime.now())) {
-            Provider.of<HabitProvider>(
+            final habitProvider = Provider.of<HabitProvider>(
               context,
               listen: false,
-            ).toggleHabitCompletion(_habit.id!, date);
+            );
+            await habitProvider.toggleHabitCompletion(_habit.id!, date);
             _loadCompletions();
           }
         },

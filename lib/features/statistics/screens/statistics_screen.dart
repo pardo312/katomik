@@ -4,6 +4,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:katomik/providers/habit_provider.dart';
 import 'package:katomik/data/models/habit.dart';
 import 'package:katomik/shared/widgets/adaptive_widgets.dart';
+import 'package:katomik/core/utils/color_utils.dart';
 
 class StatisticsScreen extends StatefulWidget {
   const StatisticsScreen({super.key});
@@ -29,8 +30,11 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     
     for (final habit in habits) {
       if (habit.id != null) {
-        final habitStats = await provider.getCompletionRateForHabit(habit.id!, 30);
-        stats[habit] = habitStats;
+        final completionRate = provider.getCompletionRateForHabit(habit.id!, 30);
+        stats[habit] = {
+          'completionRate': completionRate,
+          'streak': provider.getStreakForHabit(habit.id!).toDouble(),
+        };
       }
     }
     
@@ -167,7 +171,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           barRods: [
             BarChartRodData(
               toY: completionRate,
-              color: Color(int.parse(habit.color)),
+              color: ColorUtils.parseColor(habit.color),
               width: 20,
               borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
             ),
@@ -262,7 +266,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               final stats = entry.value;
               final completionRate = stats['completionRate'] ?? 0;
               final completedDays = stats['completedDays']?.toInt() ?? 0;
-              final color = Color(int.parse(habit.color));
+              final color = ColorUtils.parseColor(habit.color);
               
               return Container(
                 margin: const EdgeInsets.only(bottom: 12),

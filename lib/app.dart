@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:katomik/features/habit/habit_detail/habit_detail_screen.dart';
 import 'package:provider/provider.dart';
 import 'providers/theme_provider.dart';
@@ -30,6 +31,15 @@ class MyApp extends StatelessWidget {
             ),
             home: const AuthWrapper(),
             debugShowCheckedModeBanner: false,
+            localizationsDelegates: const [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: const [
+              Locale('en', 'US'),
+              Locale('es', 'ES'),
+            ],
             routes: {
               '/login': (context) => const LoginScreen(),
               '/register': (context) => const RegisterScreen(),
