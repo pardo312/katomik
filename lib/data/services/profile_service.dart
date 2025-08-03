@@ -26,6 +26,7 @@ class ProfileService {
         avatarUrl
         bio
         timezone
+        googleId
         isActive
         emailVerified
         createdAt
@@ -93,7 +94,7 @@ class ProfileService {
   Future<User> uploadAvatar(File imageFile) async {
     try {
       final client = await GraphQLConfig.getClient();
-      
+
       // Get file info
       final filename = imageFile.path.split('/').last;
       final bytes = await imageFile.readAsBytes();
@@ -119,7 +120,9 @@ class ProfileService {
       );
 
       if (generateResult.hasException) {
-        throw Exception('Failed to generate upload URL: ${generateResult.exception}');
+        throw Exception(
+          'Failed to generate upload URL: ${generateResult.exception}',
+        );
       }
 
       final uploadData = generateResult.data?['generateAvatarUploadUrl'];
@@ -141,21 +144,23 @@ class ProfileService {
       );
 
       if (uploadResponse.statusCode != 200) {
-        throw Exception('Failed to upload file to S3: ${uploadResponse.statusCode}');
+        throw Exception(
+          'Failed to upload file to S3: ${uploadResponse.statusCode}',
+        );
       }
 
       // Step 3: Confirm upload and update user profile
       final confirmResult = await client.mutate(
         MutationOptions(
           document: gql(_confirmAvatarUploadMutation),
-          variables: {
-            'fileUrl': fileUrl,
-          },
+          variables: {'fileUrl': fileUrl},
         ),
       );
 
       if (confirmResult.hasException) {
-        throw Exception('Failed to confirm avatar upload: ${confirmResult.exception}');
+        throw Exception(
+          'Failed to confirm avatar upload: ${confirmResult.exception}',
+        );
       }
 
       final userData = confirmResult.data?['confirmAvatarUpload'];
@@ -172,11 +177,9 @@ class ProfileService {
   Future<User> syncGoogleAvatar() async {
     try {
       final client = await GraphQLConfig.getClient();
-      
+
       final result = await client.mutate(
-        MutationOptions(
-          document: gql(_syncGoogleAvatarMutation),
-        ),
+        MutationOptions(document: gql(_syncGoogleAvatarMutation)),
       );
 
       if (result.hasException) {
@@ -201,7 +204,7 @@ class ProfileService {
   }) async {
     try {
       final client = await GraphQLConfig.getClient();
-      
+
       final variables = <String, dynamic>{};
       if (displayName != null) variables['displayName'] = displayName;
       if (bio != null) variables['bio'] = bio;
@@ -210,9 +213,7 @@ class ProfileService {
       final result = await client.mutate(
         MutationOptions(
           document: gql(_updateProfileMutation),
-          variables: {
-            'input': variables,
-          },
+          variables: {'input': variables},
         ),
       );
 

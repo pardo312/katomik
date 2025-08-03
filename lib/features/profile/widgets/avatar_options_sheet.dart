@@ -11,8 +11,9 @@ class AvatarOptionsSheet {
     required Function(ImageSource) onImageSourceSelected,
     required VoidCallback onGoogleSync,
   }) {
-    final hasGoogleAccount = context.read<AuthProvider>().user?.googleId != null;
-    
+    final user = context.read<AuthProvider>().user;
+    final hasGoogleAccount = user?.googleId != null;
+
     if (context.isIOS) {
       _showIOSOptions(
         context: context,
