@@ -76,6 +76,9 @@ dependencies:
   
   # Image picker for habit images
   image_picker: ^1.1.2
+  
+  # Path provider for file logging
+  path_provider: ^2.1.2
 
 dev_dependencies:
   flutter_test:

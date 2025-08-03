@@ -1,11 +1,14 @@
 import 'package:graphql_flutter/graphql_flutter.dart';
 import '../models/habit.dart';
 import '../../config/graphql_config.dart';
+import '../../core/logging/logging.dart';
 
 class HabitService {
   static final HabitService _instance = HabitService._internal();
   factory HabitService() => _instance;
   HabitService._internal();
+  
+  static final _logger = Logger.forModule('HabitService');
 
   // Queries
   static const String myHabitsQuery = r'''
@@ -135,7 +138,7 @@ class HabitService {
 
   // Service Methods
   Future<List<Habit>> getUserHabits() async {
-    print('HabitService: Getting user habits...');
+    _logger.info('Getting user habits');
     final client = await GraphQLConfig.getClient();
     
     final result = await client.query(
@@ -146,13 +149,21 @@ class HabitService {
     );
 
     if (result.hasException) {
-      print('HabitService: GraphQL Exception: ${result.exception}');
+      NetworkLogger.logGraphQLOperation(
+        operation: 'query',
+        operationName: 'MyHabits',
+        error: result.exception,
+      );
       throw Exception('Failed to fetch habits: ${result.exception}');
     }
 
-    print('HabitService: Query result data: ${result.data}');
+    NetworkLogger.logGraphQLOperation(
+      operation: 'query',
+      operationName: 'MyHabits',
+      result: result.data,
+    );
     final List<dynamic> habitsData = result.data?['myHabits'] ?? [];
-    print('HabitService: Found ${habitsData.length} habits');
+    _logger.info('Found ${habitsData.length} habits');
     return habitsData.map((h) => Habit.fromServerJson(h)).toList();
   }
 
@@ -182,7 +193,11 @@ class HabitService {
     List<int>? reminderDays,
     bool isPrivate = true,
   }) async {
-    print('HabitService: Creating habit "$name"...');
+    _logger.info('Creating habit', metadata: {
+      'name': name,
+      'phrasesCount': phrases.length,
+      'isPrivate': isPrivate,
+    });
     final client = await GraphQLConfig.getClient();
     
     final variables = {
@@ -191,11 +206,12 @@ class HabitService {
         'color': color,
         'icon': icon,
         'isPrivate': isPrivate,
+        'phrases': phrases,
         if (reminderTime != null) 'reminderTime': reminderTime,
         if (reminderDays != null) 'reminderDays': reminderDays,
       },
     };
-    print('HabitService: Create variables: $variables');
+    _logger.debug('Create variables: $variables');
     
     final result = await client.mutate(
       MutationOptions(
@@ -205,17 +221,28 @@ class HabitService {
     );
 
     if (result.hasException) {
-      print('HabitService: Create habit exception: ${result.exception}');
+      NetworkLogger.logGraphQLOperation(
+        operation: 'mutation',
+        operationName: 'CreateHabit',
+        variables: variables,
+        error: result.exception,
+      );
       throw Exception('Failed to create habit: ${result.exception}');
     }
 
-    print('HabitService: Create result: ${result.data}');
+    NetworkLogger.logGraphQLOperation(
+      operation: 'mutation',
+      operationName: 'CreateHabit',
+      variables: variables,
+      result: result.data,
+    );
     final createdHabit = Habit.fromServerJson(result.data!['createHabit']);
     
-    // For now, return the created habit with phrases included locally
-    // The backend's CreateHabitInput doesn't support phrases yet
-    // TODO: Update backend to support phrases in CreateHabitInput
-    return createdHabit.copyWith(phrases: phrases);
+    _logger.info('Habit created successfully', metadata: {
+      'habitId': createdHabit.id,
+    });
+    
+    return createdHabit;
   }
 
   Future<Habit> updateHabit({

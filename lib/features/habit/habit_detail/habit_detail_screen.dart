@@ -3,7 +3,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:katomik/data/models/habit.dart';
-import 'package:katomik/data/models/habit_completion.dart';
 import 'package:katomik/providers/habit_provider.dart';
 import 'package:katomik/providers/community_provider.dart';
 import 'package:katomik/core/utils/date_utils.dart';
@@ -30,7 +29,6 @@ class _HabitDetailScreenNewState extends State<HabitDetailScreen>
     with TickerProviderStateMixin {
   late Habit _habit;
   final DateTime _focusedMonth = DateTime.now();
-  List<HabitCompletion> _completions = [];
   late AnimationController _floatingAnimationController;
 
   final List<Map<String, dynamic>> _communityPhrases = [
@@ -64,13 +62,19 @@ class _HabitDetailScreenNewState extends State<HabitDetailScreen>
 
   Future<void> _loadCompletions() async {
     final provider = Provider.of<HabitProvider>(context, listen: false);
-    final completions = await provider.getCompletionsForHabit(_habit.id!);
-    setState(() {
-      _completions = completions;
-    });
+    await provider.getCompletionsForHabit(_habit.id!);
+    // Force a rebuild to update the calendar
+    if (mounted) {
+      setState(() {});
+    }
   }
 
-  void _showPlatformSnackBar(String message, {Color? backgroundColor, VoidCallback? onActionPressed, String? actionLabel}) {
+  void _showPlatformSnackBar(
+    String message, {
+    Color? backgroundColor,
+    VoidCallback? onActionPressed,
+    String? actionLabel,
+  }) {
     if (Platform.isIOS) {
       // For iOS, we can show a simple dialog or use a different approach
       showCupertinoDialog(
@@ -120,76 +124,19 @@ class _HabitDetailScreenNewState extends State<HabitDetailScreen>
       showCupertinoModalPopup(
         context: context,
         builder: (context) => MakeHabitPublicDialog(
-        habitName: _habit.name,
-        onMakePublic: (settings) async {
-          Navigator.pop(context);
-          
-          final communityProvider = context.read<CommunityProvider>();
-          final habitProvider = context.read<HabitProvider>();
-          
-          final success = await communityProvider.makeHabitPublic(
-            _habit,
-            settings,
-            habitProvider,
-          );
-          
-          if (success) {
-            if (mounted) {
-              // Refresh habit data
-              final updatedHabit = habitProvider.habits.firstWhere(
-                (h) => h.id == _habit.id,
-              );
-              setState(() {
-                _habit = updatedHabit;
-              });
-              
-              _showPlatformSnackBar(
-                '${_habit.name} is now public!',
-                backgroundColor: Colors.green,
-                actionLabel: 'View Community',
-                onActionPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => CommunityDetailScreen(
-                        communityId: updatedHabit.communityId!,
-                        communityName: updatedHabit.name,
-                      ),
-                    ),
-                  );
-                },
-              );
-            }
-          } else {
-            if (mounted) {
-              _showPlatformSnackBar(
-                'Failed to make habit public',
-                backgroundColor: Colors.red,
-              );
-            }
-          }
-        },
-      ),
-    );
-    } else {
-      showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        backgroundColor: Colors.transparent,
-        builder: (context) => MakeHabitPublicDialog(
           habitName: _habit.name,
           onMakePublic: (settings) async {
             Navigator.pop(context);
-            
+
             final communityProvider = context.read<CommunityProvider>();
             final habitProvider = context.read<HabitProvider>();
-            
+
             final success = await communityProvider.makeHabitPublic(
               _habit,
               settings,
               habitProvider,
             );
-            
+
             if (success) {
               if (mounted) {
                 // Refresh habit data
@@ -199,7 +146,64 @@ class _HabitDetailScreenNewState extends State<HabitDetailScreen>
                 setState(() {
                   _habit = updatedHabit;
                 });
-                
+
+                _showPlatformSnackBar(
+                  '${_habit.name} is now public!',
+                  backgroundColor: Colors.green,
+                  actionLabel: 'View Community',
+                  onActionPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => CommunityDetailScreen(
+                          communityId: updatedHabit.communityId!,
+                          communityName: updatedHabit.name,
+                        ),
+                      ),
+                    );
+                  },
+                );
+              }
+            } else {
+              if (mounted) {
+                _showPlatformSnackBar(
+                  'Failed to make habit public',
+                  backgroundColor: Colors.red,
+                );
+              }
+            }
+          },
+        ),
+      );
+    } else {
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: Colors.transparent,
+        builder: (context) => MakeHabitPublicDialog(
+          habitName: _habit.name,
+          onMakePublic: (settings) async {
+            Navigator.pop(context);
+
+            final communityProvider = context.read<CommunityProvider>();
+            final habitProvider = context.read<HabitProvider>();
+
+            final success = await communityProvider.makeHabitPublic(
+              _habit,
+              settings,
+              habitProvider,
+            );
+
+            if (success) {
+              if (mounted) {
+                // Refresh habit data
+                final updatedHabit = habitProvider.habits.firstWhere(
+                  (h) => h.id == _habit.id,
+                );
+                setState(() {
+                  _habit = updatedHabit;
+                });
+
                 _showPlatformSnackBar(
                   '${_habit.name} is now public!',
                   backgroundColor: Colors.green,
@@ -361,11 +365,11 @@ class _HabitDetailScreenNewState extends State<HabitDetailScreen>
             children: [
               Text(
                 _habit.name,
-                style: Theme.of(
-                  context,
-                ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w500),
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.w500,
+                ),
               ),
-              if (_habit.isFromCommunity) ...[  
+              if (_habit.isFromCommunity) ...[
                 const SizedBox(height: 8),
                 GestureDetector(
                   onTap: () {
@@ -387,14 +391,18 @@ class _HabitDetailScreenNewState extends State<HabitDetailScreen>
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(
-                          Platform.isIOS ? CupertinoIcons.person_2_fill : Icons.people,
+                          Platform.isIOS
+                              ? CupertinoIcons.person_2_fill
+                              : Icons.people,
                           size: 16,
                           color: Theme.of(context).colorScheme.primary,
                         ),
@@ -488,7 +496,8 @@ class _HabitDetailScreenNewState extends State<HabitDetailScreen>
                 ),
                 const SizedBox(height: 16),
                 Consumer<HabitProvider>(
-                  builder: (context, habitProvider, _) => _buildCalendarGrid(color),
+                  builder: (context, habitProvider, _) =>
+                      _buildCalendarGrid(color),
                 ),
               ],
             ),

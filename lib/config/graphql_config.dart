@@ -1,9 +1,10 @@
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import '../core/logging/logging.dart';
 
 class GraphQLConfig {
-  static GraphQLClient? _client;
   static const FlutterSecureStorage _secureStorage = FlutterSecureStorage();
+  static final _logger = Logger.forModule('GraphQLConfig');
 
   static Future<GraphQLClient> getClient() async {
     // Don't cache the client to ensure fresh tokens
@@ -16,10 +17,10 @@ class GraphQLConfig {
         // Fetch token dynamically on each request
         final token = await _secureStorage.read(key: 'access_token');
         if (token != null) {
-          print('GraphQL Client - Adding auth header');
+          _logger.debug('Adding auth header to GraphQL request');
           return 'Bearer $token';
         }
-        print('GraphQL Client - No auth token available');
+        _logger.debug('No auth token available for GraphQL request');
         return null;
       },
     );
@@ -33,6 +34,6 @@ class GraphQLConfig {
   }
 
   static void clearClient() {
-    _client = null;
+    // Client is no longer cached, so nothing to clear
   }
 }
