@@ -54,7 +54,7 @@ class PhrasesSection extends StatelessWidget {
         ...phraseControllers.asMap().entries.map((entry) {
           final index = entry.key;
           final controller = entry.value;
-          
+
           return Padding(
             padding: const EdgeInsets.only(bottom: 12),
             child: Row(
@@ -65,7 +65,9 @@ class PhrasesSection extends StatelessWidget {
                     label: 'Phrase ${index + 1}',
                     placeholder: 'Enter a motivating phrase',
                     prefix: Icon(
-                      Platform.isIOS ? CupertinoIcons.quote_bubble : Icons.format_quote,
+                      Platform.isIOS
+                          ? CupertinoIcons.quote_bubble
+                          : Icons.format_quote,
                       size: 20,
                     ),
                     onChanged: (_) => onChanged(),
@@ -74,7 +76,9 @@ class PhrasesSection extends StatelessWidget {
                 if (phraseControllers.length > 1)
                   IconButton(
                     icon: Icon(
-                      Platform.isIOS ? CupertinoIcons.minus_circle : Icons.remove_circle_outline,
+                      Platform.isIOS
+                          ? CupertinoIcons.minus_circle
+                          : Icons.remove_circle_outline,
                       color: Colors.red,
                     ),
                     onPressed: () => onRemovePhrase(index),
@@ -82,7 +86,7 @@ class PhrasesSection extends StatelessWidget {
               ],
             ),
           );
-        }).toList(),
+        }),
       ],
     );
   }

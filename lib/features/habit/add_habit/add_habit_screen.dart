@@ -236,7 +236,10 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
         });
       }
     } catch (e) {
+      if (!mounted) return;
+      
       if (Platform.isIOS) {
+        if (!mounted) return;
         showCupertinoDialog(
           context: context,
           builder: (context) => CupertinoAlertDialog(
@@ -251,6 +254,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
           ),
         );
       } else {
+        if (!mounted) return;
         PlatformMessages.showError(context, 'Failed to pick image: $e');
       }
     }

@@ -45,7 +45,7 @@ class ImagesSection extends StatelessWidget {
               ...imagePaths.asMap().entries.map((entry) {
                 final index = entry.key;
                 final imagePath = entry.value;
-                
+
                 return Padding(
                   padding: const EdgeInsets.only(right: 12),
                   child: Stack(
@@ -54,7 +54,9 @@ class ImagesSection extends StatelessWidget {
                         width: 120,
                         height: 120,
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(Platform.isIOS ? 10 : 12),
+                          borderRadius: BorderRadius.circular(
+                            Platform.isIOS ? 10 : 12,
+                          ),
                           image: DecorationImage(
                             image: FileImage(File(imagePath)),
                             fit: BoxFit.cover,
@@ -84,7 +86,7 @@ class ImagesSection extends StatelessWidget {
                     ],
                   ),
                 );
-              }).toList(),
+              }),
               GestureDetector(
                 onTap: onAddImage,
                 child: Container(
@@ -92,9 +94,13 @@ class ImagesSection extends StatelessWidget {
                   height: 120,
                   decoration: BoxDecoration(
                     color: Theme.of(context).colorScheme.surfaceContainer,
-                    borderRadius: BorderRadius.circular(Platform.isIOS ? 10 : 12),
+                    borderRadius: BorderRadius.circular(
+                      Platform.isIOS ? 10 : 12,
+                    ),
                     border: Border.all(
-                      color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.surfaceContainerHighest,
                       width: 2,
                       style: BorderStyle.solid,
                     ),

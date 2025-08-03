@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import '../../core/platform/platform_icons.dart';
 import '../../data/models/user.dart';
 
@@ -32,17 +31,15 @@ class UserAvatar extends StatelessWidget {
             ? Image.network(
                 url,
                 fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => _buildPlaceholder(context),
+                errorBuilder: (context, error, stackTrace) =>
+                    _buildPlaceholder(context),
               )
             : _buildPlaceholder(context),
       ),
     );
 
     if (onTap != null) {
-      return GestureDetector(
-        onTap: onTap,
-        child: content,
-      );
+      return GestureDetector(onTap: onTap, child: content);
     }
 
     return content;

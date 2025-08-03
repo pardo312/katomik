@@ -11,7 +11,6 @@ import 'package:katomik/features/home/widgets/habit_row.dart';
 import 'package:katomik/features/habit/add_habit/add_habit_screen.dart';
 import 'package:katomik/features/habit/widgets/habit_icon.dart';
 import 'dart:io';
-import 'dart:math' as math;
 import 'package:katomik/features/habit/habit_detail/widgets/floating_phrase.dart';
 
 class HabitDetailScreen extends StatefulWidget {
