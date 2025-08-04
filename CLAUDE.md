@@ -9,7 +9,7 @@ Katomik is a cross-platform habit tracking application built with Flutter. It ha
 ### Frontend
 - **Flutter SDK**: ^3.8.1
 - **State Management**: Provider (^6.1.2)
-- **Local Database**: SQLite (sqflite: ^2.3.3+2) - for offline caching
+- **Cache**: GraphQL InMemoryStore (no persistent offline cache currently)
 - **Charts**: fl_chart (^0.69.0)
 - **Calendars**: table_calendar (^3.1.2)
 - **Design System**: Material Design 3 with adaptive iOS/Android UI
@@ -52,7 +52,6 @@ lib/
 │   └── services/                  # Services
 │       ├── auth_service.dart      # Authentication service
 │       ├── community_service.dart # Community features service
-│       ├── database_service.dart  # SQLite database service (legacy)
 │       ├── graphql_client.dart    # GraphQL client wrapper
 │       ├── habit_service.dart     # Habit management service
 │       └── profile_service.dart   # User profile service
@@ -155,7 +154,7 @@ lib/
 
 ### 1. Backend-First Architecture
 - **Pattern**: GraphQL-first with local caching
-- **Implementation**: All data flows through GraphQL services, with SQLite for offline support
+- **Implementation**: All data flows through GraphQL services with InMemoryStore caching
 - **Authentication**: JWT-based auth with refresh tokens stored in secure storage
 - **Benefits**: Real-time sync, multi-device support, social features
 
@@ -185,7 +184,6 @@ lib/
   - `HabitService`: Manages habits via GraphQL
   - `CommunityService`: Community features and governance
   - `ProfileService`: User profile management
-  - `DatabaseService`: Legacy local storage (being phased out)
 
 ### 5. Provider State Management
 - **Pattern**: ChangeNotifier with Provider
@@ -263,7 +261,7 @@ class HabitCompletion {
 
 ### Data Synchronization
 1. **Real-time Sync**: All habit operations sync with backend
-2. **Offline Support**: Local SQLite cache (being implemented)
+2. **Cache**: InMemoryStore for GraphQL responses
 3. **Conflict Resolution**: Server-authoritative model
 
 ### Community Features
@@ -404,7 +402,7 @@ MainScreen (Bottom Navigation - 4 tabs)
 
 ## Future Enhancements
 
-1. **Offline Mode**: Complete offline support with sync queue
+1. **Offline Mode**: Future enhancement - complete offline support with sync queue
 2. **Push Notifications**: Habit reminders and community updates
 3. **Advanced Analytics**: ML-powered insights and predictions
 4. **Challenges**: Time-based community challenges
@@ -416,11 +414,11 @@ MainScreen (Bottom Navigation - 4 tabs)
 
 ## Migration Notes
 
-The app is transitioning from local-only to cloud-first:
-- SQLite is being phased out for primary storage
-- All new features use GraphQL
-- Legacy code marked for removal
-- Backward compatibility maintained during transition
+The app has completed transition to cloud-first architecture:
+- SQLite has been removed, all data is cloud-based
+- All features use GraphQL
+- Users must be authenticated to use the app
+- No local data persistence (requires internet connection)
 
 ## Environment Configuration
 

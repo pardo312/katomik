@@ -80,7 +80,7 @@ class GraphQLConfig {
       },
     );
 
-    final Link link = authLink.concat(errorLink).concat(httpLink);
+    final Link link = errorLink.concat(authLink).concat(httpLink);
 
     return GraphQLClient(
       cache: GraphQLCache(store: InMemoryStore()),

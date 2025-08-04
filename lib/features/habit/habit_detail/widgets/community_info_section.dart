@@ -6,20 +6,18 @@ import '../../../../core/constants/app_colors.dart';
 class CommunityInfoSection extends StatelessWidget {
   final String? communityId;
   final String? communityName;
-  final bool isCommunityHabit;
   final VoidCallback? onMakePublic;
 
   const CommunityInfoSection({
     super.key,
     this.communityId,
     this.communityName,
-    required this.isCommunityHabit,
     this.onMakePublic,
   });
 
   @override
   Widget build(BuildContext context) {
-    if (isCommunityHabit && communityId != null) {
+    if (communityId != null) {
       // This habit is associated with a community
       return _buildCommunityInfo(context);
     } else {

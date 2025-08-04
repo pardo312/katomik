@@ -5,9 +5,10 @@ import '../data/services/habit_service.dart';
 
 class HabitProvider extends ChangeNotifier {
   final HabitService _habitService = HabitService();
-  
+
   List<Habit> _habits = [];
-  final Map<String, Map<String, HabitCompletion>> _completions = {}; // habitId -> dateStr -> completion
+  final Map<String, Map<String, HabitCompletion>> _completions =
+      {}; // habitId -> dateStr -> completion
   final Map<String, int> _streaks = {}; // habitId -> streak count
   bool _isLoading = false;
   String? _error;
@@ -29,14 +30,14 @@ class HabitProvider extends ChangeNotifier {
       debugPrint('Loading habits from server...');
       _habits = await _habitService.getUserHabits();
       debugPrint('Loaded ${_habits.length} habits from server');
-      
+
       // Load today's completions for all habits
       final today = DateTime.now();
       await loadCompletionsForDateRange(
         DateTime(today.year, today.month, today.day - 7),
         today,
       );
-      
+
       // Calculate streaks for all habits
       for (final habit in _habits) {
         if (habit.id != null) {
@@ -52,21 +53,24 @@ class HabitProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> loadCompletionsForDateRange(DateTime startDate, DateTime endDate) async {
+  Future<void> loadCompletionsForDateRange(
+    DateTime startDate,
+    DateTime endDate,
+  ) async {
     try {
       for (final habit in _habits) {
         if (habit.id == null) continue;
-        
+
         final completions = await _habitService.getCompletions(
           habitId: habit.id!,
           startDate: startDate,
           endDate: endDate,
         );
-        
+
         for (final completionData in completions) {
           final completion = HabitCompletion.fromServerJson(completionData);
           final dateStr = completion.date.toIso8601String().split('T')[0];
-          
+
           if (!_completions.containsKey(habit.id!)) {
             _completions[habit.id!] = {};
           }
@@ -90,7 +94,7 @@ class HabitProvider extends ChangeNotifier {
         reminderTime: habit.reminderTime,
         reminderDays: habit.reminderDays,
       );
-      
+
       debugPrint('Created habit with ID: ${newHabit.id}');
       _habits.insert(0, newHabit);
       _streaks[newHabit.id!] = 0;
@@ -104,7 +108,7 @@ class HabitProvider extends ChangeNotifier {
 
   Future<void> updateHabit(Habit habit) async {
     if (habit.id == null) return;
-    
+
     try {
       final updatedHabit = await _habitService.updateHabit(
         id: habit.id!,
@@ -113,10 +117,11 @@ class HabitProvider extends ChangeNotifier {
         color: habit.color,
         icon: habit.icon,
         isActive: habit.isActive,
+        communityId: habit.communityId,
         reminderTime: habit.reminderTime,
         reminderDays: habit.reminderDays,
       );
-      
+
       final index = _habits.indexWhere((h) => h.id == habit.id);
       if (index != -1) {
         _habits[index] = updatedHabit;
@@ -145,13 +150,13 @@ class HabitProvider extends ChangeNotifier {
 
   Future<void> toggleHabitCompletion(String habitId, DateTime date) async {
     final dateStr = date.toIso8601String().split('T')[0];
-    
+
     if (!_completions.containsKey(habitId)) {
       _completions[habitId] = {};
     }
-    
+
     final existingCompletion = _completions[habitId]![dateStr];
-    
+
     try {
       if (existingCompletion == null || !existingCompletion.isCompleted) {
         // Mark as completed
@@ -160,8 +165,10 @@ class HabitProvider extends ChangeNotifier {
           date: date,
           isCompleted: true,
         );
-        
-        _completions[habitId]![dateStr] = HabitCompletion.fromServerJson(completionData);
+
+        _completions[habitId]![dateStr] = HabitCompletion.fromServerJson(
+          completionData,
+        );
       } else {
         // Mark as not completed
         final completionData = await _habitService.recordCompletion(
@@ -169,10 +176,12 @@ class HabitProvider extends ChangeNotifier {
           date: date,
           isCompleted: false,
         );
-        
-        _completions[habitId]![dateStr] = HabitCompletion.fromServerJson(completionData);
+
+        _completions[habitId]![dateStr] = HabitCompletion.fromServerJson(
+          completionData,
+        );
       }
-      
+
       // Recalculate streak
       _streaks[habitId] = _calculateStreak(habitId);
       notifyListeners();
@@ -201,60 +210,63 @@ class HabitProvider extends ChangeNotifier {
     if (!_completions.containsKey(habitId)) {
       return [];
     }
-    
+
     return _completions[habitId]!.values.toList()
       ..sort((a, b) => b.date.compareTo(a.date));
   }
 
   int _calculateStreak(String habitId) {
     if (!_completions.containsKey(habitId)) return 0;
-    
+
     final completions = _completions[habitId]!;
     final today = DateTime.now();
     final todayStr = today.toIso8601String().split('T')[0];
-    
+
     // Check if completed today
-    if (!completions.containsKey(todayStr) || !completions[todayStr]!.isCompleted) {
+    if (!completions.containsKey(todayStr) ||
+        !completions[todayStr]!.isCompleted) {
       // If not completed today, check yesterday
       final yesterday = today.subtract(const Duration(days: 1));
       final yesterdayStr = yesterday.toIso8601String().split('T')[0];
-      if (!completions.containsKey(yesterdayStr) || !completions[yesterdayStr]!.isCompleted) {
+      if (!completions.containsKey(yesterdayStr) ||
+          !completions[yesterdayStr]!.isCompleted) {
         return 0;
       }
     }
-    
+
     int streak = 0;
     DateTime checkDate = today;
-    
+
     while (true) {
       final dateStr = checkDate.toIso8601String().split('T')[0];
-      if (completions.containsKey(dateStr) && completions[dateStr]!.isCompleted) {
+      if (completions.containsKey(dateStr) &&
+          completions[dateStr]!.isCompleted) {
         streak++;
         checkDate = checkDate.subtract(const Duration(days: 1));
       } else {
         break;
       }
     }
-    
+
     return streak;
   }
 
   double getTotalCompletionRate() {
     if (_habits.isEmpty || _completions.isEmpty) return 0;
-    
+
     int totalPossible = 0;
     int totalCompleted = 0;
-    
+
     for (final habit in _habits) {
       if (habit.id == null || !_completions.containsKey(habit.id!)) continue;
-      
+
       final habitCompletions = _completions[habit.id!]!;
       totalPossible += habitCompletions.length;
       totalCompleted += habitCompletions.values
           .where((c) => c.isCompleted)
           .length;
     }
-    
+
     return totalPossible > 0 ? totalCompleted / totalPossible : 0;
   }
 
@@ -266,7 +278,7 @@ class HabitProvider extends ChangeNotifier {
   // Additional methods for backward compatibility
   int getTotalStreak() {
     if (_habits.isEmpty) return 0;
-    
+
     // Return the highest streak among all habits
     int maxStreak = 0;
     for (final habit in _habits) {
@@ -284,7 +296,7 @@ class HabitProvider extends ChangeNotifier {
     final today = DateTime.now();
     int totalHabits = _habits.length;
     int completedHabits = 0;
-    
+
     for (final habit in _habits) {
       if (habit.id != null && habit.isActive) {
         if (isHabitCompletedOnDate(habit.id!, today)) {
@@ -292,7 +304,7 @@ class HabitProvider extends ChangeNotifier {
         }
       }
     }
-    
+
     return {
       'completed': completedHabits.toDouble(),
       'total': totalHabits.toDouble(),
@@ -302,7 +314,7 @@ class HabitProvider extends ChangeNotifier {
 
   bool areAllHabitsCompletedToday() {
     if (_habits.isEmpty) return true;
-    
+
     final today = DateTime.now();
     for (final habit in _habits) {
       if (habit.id != null && habit.isActive) {
@@ -316,18 +328,18 @@ class HabitProvider extends ChangeNotifier {
 
   double getCompletionRateForHabit(String habitId, int days) {
     if (!_completions.containsKey(habitId)) return 0.0;
-    
+
     final today = DateTime.now();
     final startDate = today.subtract(Duration(days: days - 1));
     int completedDays = 0;
-    
+
     for (int i = 0; i < days; i++) {
       final checkDate = startDate.add(Duration(days: i));
       if (isHabitCompletedOnDate(habitId, checkDate)) {
         completedDays++;
       }
     }
-    
+
     return completedDays / days;
   }
 }

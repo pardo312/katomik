@@ -20,7 +20,6 @@ class HabitService {
         color
         icon
         isActive
-        isCommunityHabit
         reminderTime
         reminderDays
         createdAt
@@ -45,7 +44,6 @@ class HabitService {
         color
         icon
         isActive
-        isCommunityHabit
         reminderTime
         reminderDays
         createdAt
@@ -86,7 +84,6 @@ class HabitService {
         color
         icon
         isActive
-        isCommunityHabit
         communityId
         reminderTime
         reminderDays
@@ -105,7 +102,6 @@ class HabitService {
         color
         icon
         isActive
-        isCommunityHabit
         communityId
         reminderTime
         reminderDays
@@ -188,24 +184,18 @@ class HabitService {
     required String icon,
     String? reminderTime,
     List<int>? reminderDays,
-    bool isCommunityHabit = false,  // Default to private habits
   }) async {
     _logger.info(
       'Creating habit',
-      metadata: {
-        'name': name,
-        'phrasesCount': phrases.length,
-        'isCommunityHabit': isCommunityHabit,
-      },
+      metadata: {'name': name, 'phrasesCount': phrases.length},
     );
     final client = await GraphQLConfig.getClient();
-    
+
     final variables = {
       'input': {
         'name': name,
         'color': color,
         'icon': icon,
-        'isCommunityHabit': isCommunityHabit,
         'phrases': phrases,
         if (reminderTime != null) 'reminderTime': reminderTime,
         if (reminderDays != null) 'reminderDays': reminderDays,
@@ -250,6 +240,7 @@ class HabitService {
     String? color,
     String? icon,
     bool? isActive,
+    String? communityId,
     String? reminderTime,
     List<int>? reminderDays,
   }) async {
@@ -261,6 +252,7 @@ class HabitService {
     if (color != null) input['color'] = color;
     if (icon != null) input['icon'] = icon;
     if (isActive != null) input['isActive'] = isActive;
+    if (communityId != null) input['communityId'] = communityId;
     if (reminderTime != null) input['reminderTime'] = reminderTime;
     if (reminderDays != null) input['reminderDays'] = reminderDays;
 

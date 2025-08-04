@@ -32,7 +32,6 @@ class CommunityService {
           difficultyLevel
         }
         memberCount
-        isPublic
         totalCompletions
         originalCreator {
           id
@@ -61,7 +60,6 @@ class CommunityService {
           difficultyLevel
         }
         memberCount
-        isPublic
         totalCompletions
       }
     }
@@ -87,7 +85,6 @@ class CommunityService {
         }
         memberCount
         totalCompletions
-        isPublic
         createdAt
         originalCreator {
           id
@@ -136,8 +133,7 @@ class CommunityService {
             color
           }
           memberCount
-          isPublic
-        }
+          }
         currentStreak
         totalCompletions
         joinedAt
@@ -157,7 +153,6 @@ class CommunityService {
           name
         }
         memberCount
-        isPublic
       }
     }
   ''';
@@ -450,7 +445,6 @@ class CommunityHabit {
   final double averageStreak;
   final int totalCompletions;
   final double successRate;
-  final bool isPublic;
   final HabitTemplate? habitTemplate;
   final User? createdByUser;
 
@@ -465,7 +459,6 @@ class CommunityHabit {
     required this.averageStreak,
     required this.totalCompletions,
     required this.successRate,
-    required this.isPublic,
     this.habitTemplate,
     this.createdByUser,
   });
@@ -486,7 +479,6 @@ class CommunityHabit {
       averageStreak: (json['averageStreak'] ?? 0).toDouble(),
       totalCompletions: json['totalCompletions'] ?? 0,
       successRate: (json['successRate'] ?? 0).toDouble(),
-      isPublic: json['isPublic'] ?? false,
       habitTemplate: template != null
           ? HabitTemplate.fromJson(template)
           : habit != null
@@ -565,7 +557,6 @@ class CommunityDetails extends CommunityHabit {
     required super.averageStreak,
     required super.totalCompletions,
     required super.successRate,
-    required super.isPublic,
     super.habitTemplate,
     super.createdByUser,
     required this.createdAt,
@@ -586,7 +577,6 @@ class CommunityDetails extends CommunityHabit {
       averageStreak: base.averageStreak,
       totalCompletions: base.totalCompletions,
       successRate: base.successRate,
-      isPublic: base.isPublic,
       habitTemplate: base.habitTemplate,
       createdByUser: base.createdByUser,
       createdAt: DateTime.parse(json['createdAt']),

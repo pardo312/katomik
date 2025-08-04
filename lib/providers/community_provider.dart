@@ -1,12 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:katomik/data/services/community_service.dart';
 import 'package:katomik/data/models/habit.dart';
-import 'package:katomik/data/services/database_service.dart';
 import 'package:katomik/providers/habit_provider.dart';
 
 class CommunityProvider extends ChangeNotifier {
   final CommunityService _communityService = CommunityService();
-  final DatabaseService _databaseService = DatabaseService();
   
   // State
   List<CommunityHabit> _popularCommunities = [];
@@ -143,13 +141,11 @@ class CommunityProvider extends ChangeNotifier {
 
       // Update local habit to reflect it's now a community habit
       final updatedHabit = habit.copyWith(
-        isCommunityHabit: true,
         communityId: community.id,
         communityName: community.name,
       );
       
-      await _databaseService.updateHabit(updatedHabit);
-      await habitProvider.loadHabits();
+      await habitProvider.updateHabit(updatedHabit);
       
       return true;
     } catch (e) {
