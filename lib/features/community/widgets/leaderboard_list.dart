@@ -27,12 +27,12 @@ class LeaderboardList extends StatelessWidget {
             Icon(
               CupertinoIcons.chart_bar_alt_fill,
               size: 64,
-              color: Colors.grey.shade400,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
             const SizedBox(height: 16),
             Text(
               'No leaderboard data yet',
-              style: TextStyle(fontSize: 18, color: Colors.grey.shade600),
+              style: TextStyle(fontSize: 18, color: Theme.of(context).colorScheme.onSurfaceVariant),
             ),
           ],
         ),
@@ -47,7 +47,7 @@ class LeaderboardList extends StatelessWidget {
       itemBuilder: (context, index) {
         if (index < leaderboard.length) {
           final entry = leaderboard[index];
-          return _buildLeaderboardEntry(entry, false);
+          return _buildLeaderboardEntry(context, entry, false);
         } else if (currentUserRank != null && currentUserRank! > 5) {
           // Show current user position if not in top 5
           return Column(
@@ -57,27 +57,27 @@ class LeaderboardList extends StatelessWidget {
                 child: Row(
                   children: [
                     Expanded(
-                      child: Container(height: 1, color: Colors.grey.shade300),
+                      child: Container(height: 1, color: Theme.of(context).dividerColor),
                     ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Text(
                         '...',
                         style: TextStyle(
-                          color: Colors.grey.shade500,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                           fontSize: 20,
                         ),
                       ),
                     ),
                     Expanded(
-                      child: Container(height: 1, color: Colors.grey.shade300),
+                      child: Container(height: 1, color: Theme.of(context).dividerColor),
                     ),
                   ],
                 ),
               ),
               // Show actual current user data
               if (currentUserEntry != null)
-                _buildLeaderboardEntry(currentUserEntry!, true)
+                _buildLeaderboardEntry(context, currentUserEntry!, true)
               else
                 Container(
                   margin: const EdgeInsets.only(bottom: 12),
@@ -130,7 +130,7 @@ class LeaderboardList extends StatelessWidget {
     );
   }
 
-  Widget _buildLeaderboardEntry(LeaderboardEntry entry, bool isCurrentUser) {
+  Widget _buildLeaderboardEntry(BuildContext context, LeaderboardEntry entry, bool isCurrentUser) {
     final bool isTopThree = entry.rank <= 3;
     final member = entry.member;
 
@@ -139,12 +139,12 @@ class LeaderboardList extends StatelessWidget {
       decoration: BoxDecoration(
         color: isCurrentUser
             ? AppColors.primary.withValues(alpha: 0.1)
-            : Colors.white,
+            : Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: isCurrentUser
               ? AppColors.primary.withValues(alpha: 0.3)
-              : Colors.grey.shade200,
+              : Theme.of(context).dividerColor,
           width: isCurrentUser ? 2 : 1,
         ),
         boxShadow: isTopThree
@@ -167,7 +167,7 @@ class LeaderboardList extends StatelessWidget {
             decoration: BoxDecoration(
               color: isTopThree
                   ? _getMedalColor(entry.rank).withValues(alpha: 0.2)
-                  : Colors.grey.shade100,
+                  : Theme.of(context).colorScheme.surfaceContainerHighest,
               shape: BoxShape.circle,
             ),
             child: Center(
@@ -182,7 +182,7 @@ class LeaderboardList extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                         color: isCurrentUser
                             ? AppColors.primary
-                            : Colors.grey.shade700,
+                            : Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
             ),
@@ -224,13 +224,13 @@ class LeaderboardList extends StatelessWidget {
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
-                    color: isCurrentUser ? AppColors.primary : Colors.black,
+                    color: isCurrentUser ? AppColors.primary : Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  '${member.completionRate.toStringAsFixed(1)}% completion',
-                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                  '${member.totalCompletions} completions',
+                  style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
                 ),
               ],
             ),
@@ -259,7 +259,7 @@ class LeaderboardList extends StatelessWidget {
               ),
               Text(
                 'days',
-                style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
               ),
             ],
           ),

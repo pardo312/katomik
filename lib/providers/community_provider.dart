@@ -97,7 +97,7 @@ class CommunityProvider extends ChangeNotifier {
   }
 
   // Leaderboard
-  Future<void> loadLeaderboard(String communityId, {String timeframe = 'all'}) async {
+  Future<void> loadLeaderboard(String communityId, {String timeframe = 'ALL_TIME'}) async {
     // Don't set global loading state for leaderboard
     // to avoid interfering with community details loading
 
@@ -110,7 +110,7 @@ class CommunityProvider extends ChangeNotifier {
     } catch (e) {
       // Log error but don't set global error state
       // Leaderboard is optional - community can still be displayed
-      print('Failed to load leaderboard: $e');
+      debugPrint('Failed to load leaderboard: $e');
       _currentLeaderboard = [];
       notifyListeners();
     }

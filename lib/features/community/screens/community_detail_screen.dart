@@ -29,7 +29,7 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   bool _isInitialized = false;
-  String _selectedTimeframe = 'all';
+  String _selectedTimeframe = 'ALL_TIME';
 
   @override
   void initState() {
@@ -398,11 +398,11 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen>
                             padding: const EdgeInsets.all(16),
                             child: Row(
                               children: [
-                                _buildTimeframeButton('Week', 'week'),
+                                _buildTimeframeButton('Week', 'WEEKLY'),
                                 const SizedBox(width: 8),
-                                _buildTimeframeButton('Month', 'month'),
+                                _buildTimeframeButton('Month', 'MONTHLY'),
                                 const SizedBox(width: 8),
-                                _buildTimeframeButton('All Time', 'all'),
+                                _buildTimeframeButton('All Time', 'ALL_TIME'),
                               ],
                             ),
                           ),
@@ -553,6 +553,7 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen>
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
+                            color: Colors.white,
                           ),
                         ),
                       ),

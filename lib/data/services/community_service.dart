@@ -104,8 +104,8 @@ class CommunityService {
   ''';
 
   static const String communityLeaderboardQuery = r'''
-    query CommunityLeaderboard($communityId: ID!, $timeframe: String, $limit: Int) {
-      communityLeaderboard(communityId: $communityId, timeframe: $timeframe, limit: $limit) {
+    query CommunityLeaderboard($communityId: ID!, $timeframe: TimeFrame) {
+      communityLeaderboard(communityId: $communityId, timeframe: $timeframe) {
         rank
         member {
           user {
@@ -116,7 +116,6 @@ class CommunityService {
           currentStreak
           longestStreak
           totalCompletions
-          completionRate
           joinedAt
         }
       }
@@ -396,8 +395,7 @@ class CommunityService {
 
   Future<List<LeaderboardEntry>> getCommunityLeaderboard(
     String communityId, {
-    String timeframe = 'all',
-    int limit = 50,
+    String timeframe = 'ALL_TIME',
   }) async {
     final client = await GraphQLConfig.getClient();
     
@@ -407,7 +405,6 @@ class CommunityService {
         variables: {
           'communityId': communityId,
           'timeframe': timeframe,
-          'limit': limit,
         },
       ),
     );
@@ -950,7 +947,6 @@ class CommunityMember {
   final int currentStreak;
   final int longestStreak;
   final int totalCompletions;
-  final double completionRate;
   final DateTime joinedAt;
 
   CommunityMember({
@@ -958,7 +954,6 @@ class CommunityMember {
     required this.currentStreak,
     required this.longestStreak,
     required this.totalCompletions,
-    required this.completionRate,
     required this.joinedAt,
   });
 
@@ -968,7 +963,6 @@ class CommunityMember {
       currentStreak: json['currentStreak'],
       longestStreak: json['longestStreak'],
       totalCompletions: json['totalCompletions'],
-      completionRate: json['completionRate'].toDouble(),
       joinedAt: DateTime.parse(json['joinedAt']),
     );
   }
