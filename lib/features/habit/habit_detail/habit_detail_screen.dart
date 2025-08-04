@@ -299,16 +299,8 @@ class _HabitDetailScreenNewState extends State<HabitDetailScreen>
   }
 
   Widget _buildCustomHeader() {
-    // Debug logging to understand why Make Public button might not show
-    debugPrint('Habit Detail - Name: ${_habit.name}');
-    debugPrint('Habit Detail - ID: ${_habit.id}');
-    debugPrint('Habit Detail - isPublic: ${_habit.isPublic}');
-    debugPrint('Habit Detail - isFromCommunity: ${_habit.isFromCommunity}');
-    debugPrint('Habit Detail - communityId: ${_habit.communityId}');
-    
-    // Simplified logic: Show Make Public button only if habit has no community association
-    final bool canMakePublic = _habit.communityId == null;
-    debugPrint('Habit Detail - Can Make Public: $canMakePublic');
+    // Show Make Public button only if habit is not a community habit
+    final bool canMakePublic = !_habit.isCommunityHabit;
     
     return Container(
       height: 56,
@@ -394,7 +386,7 @@ class _HabitDetailScreenNewState extends State<HabitDetailScreen>
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              if (_habit.isFromCommunity) ...[
+              if (_habit.isCommunityHabit && _habit.communityId != null) ...[
                 const SizedBox(height: 8),
                 GestureDetector(
                   onTap: () {

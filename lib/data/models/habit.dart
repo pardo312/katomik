@@ -8,8 +8,7 @@ class Habit {
   final String color;
   final String icon;
   final bool isActive;
-  final bool isFromCommunity;
-  final bool isPublic;
+  final bool isCommunityHabit;
   final String? communityId;
   final String? communityName;
   final String? reminderTime;
@@ -25,8 +24,7 @@ class Habit {
     required this.color,
     required this.icon,
     this.isActive = true,
-    this.isFromCommunity = false,
-    this.isPublic = false,
+    this.isCommunityHabit = false,
     this.communityId,
     this.communityName,
     this.reminderTime,
@@ -44,8 +42,7 @@ class Habit {
       'color': color,
       'icon': icon,
       'is_active': isActive ? 1 : 0,
-      'is_from_community': isFromCommunity ? 1 : 0,
-      'is_public': isPublic ? 1 : 0,
+      'is_community_habit': isCommunityHabit ? 1 : 0,
       'community_id': communityId,
       'community_name': communityName,
     };
@@ -68,8 +65,7 @@ class Habit {
       color: map['color'] as String,
       icon: map['icon'] as String? ?? 'science',
       isActive: (map['is_active'] as int) == 1,
-      isFromCommunity: (map['is_from_community'] as int? ?? 0) == 1,
-      isPublic: (map['is_public'] as int? ?? 0) == 1,
+      isCommunityHabit: (map['is_community_habit'] as int? ?? 0) == 1,
       communityId: map['community_id'] as String?,
       communityName: map['community_name'] as String?,
     );
@@ -90,8 +86,7 @@ class Habit {
       color: json['color'] ?? '#FF6B6B',
       icon: json['icon'] ?? 'fitness_center',
       isActive: json['isActive'] ?? true,
-      isPublic: json['isPublic'] ?? false,
-      isFromCommunity: json['isFromCommunity'] ?? false,
+      isCommunityHabit: json['isCommunityHabit'] ?? false,
       communityId: json['communityId'],
       communityName: json['community']?['habit']?['name'],
       reminderTime: json['reminderTime'],
@@ -124,8 +119,7 @@ class Habit {
     String? color,
     String? icon,
     bool? isActive,
-    bool? isFromCommunity,
-    bool? isPublic,
+    bool? isCommunityHabit,
     String? communityId,
     String? communityName,
     String? reminderTime,
@@ -141,8 +135,7 @@ class Habit {
       color: color ?? this.color,
       icon: icon ?? this.icon,
       isActive: isActive ?? this.isActive,
-      isFromCommunity: isFromCommunity ?? this.isFromCommunity,
-      isPublic: isPublic ?? this.isPublic,
+      isCommunityHabit: isCommunityHabit ?? this.isCommunityHabit,
       communityId: communityId ?? this.communityId,
       communityName: communityName ?? this.communityName,
       reminderTime: reminderTime ?? this.reminderTime,

@@ -20,12 +20,11 @@ class HabitService {
         color
         icon
         isActive
-        isPublic
+        isCommunityHabit
         reminderTime
         reminderDays
         createdAt
         updatedAt
-        isFromCommunity
         communityId
         community {
           id
@@ -46,12 +45,11 @@ class HabitService {
         color
         icon
         isActive
-        isPublic
+        isCommunityHabit
         reminderTime
         reminderDays
         createdAt
         updatedAt
-        isFromCommunity
         communityId
         community {
           id
@@ -88,8 +86,7 @@ class HabitService {
         color
         icon
         isActive
-        isPublic
-        isFromCommunity
+        isCommunityHabit
         communityId
         reminderTime
         reminderDays
@@ -108,8 +105,7 @@ class HabitService {
         color
         icon
         isActive
-        isPublic
-        isFromCommunity
+        isCommunityHabit
         communityId
         reminderTime
         reminderDays
@@ -192,14 +188,14 @@ class HabitService {
     required String icon,
     String? reminderTime,
     List<int>? reminderDays,
-    bool isPublic = false,  // Default to private habits (isPublic: false)
+    bool isCommunityHabit = false,  // Default to private habits
   }) async {
     _logger.info(
       'Creating habit',
       metadata: {
         'name': name,
         'phrasesCount': phrases.length,
-        'isPublic': isPublic,
+        'isCommunityHabit': isCommunityHabit,
       },
     );
     final client = await GraphQLConfig.getClient();
@@ -209,7 +205,7 @@ class HabitService {
         'name': name,
         'color': color,
         'icon': icon,
-        'isPublic': isPublic,
+        'isCommunityHabit': isCommunityHabit,
         'phrases': phrases,
         if (reminderTime != null) 'reminderTime': reminderTime,
         if (reminderDays != null) 'reminderDays': reminderDays,

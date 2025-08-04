@@ -141,9 +141,9 @@ class CommunityProvider extends ChangeNotifier {
         settings,
       );
 
-      // Update local habit to reflect it's now public
+      // Update local habit to reflect it's now a community habit
       final updatedHabit = habit.copyWith(
-        isPublic: true,
+        isCommunityHabit: true,
         communityId: community.id,
         communityName: community.name,
       );

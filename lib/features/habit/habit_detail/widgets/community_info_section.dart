@@ -6,34 +6,29 @@ import '../../../../core/constants/app_colors.dart';
 class CommunityInfoSection extends StatelessWidget {
   final String? communityId;
   final String? communityName;
-  final bool isFromCommunity;
-  final bool isPublic;
+  final bool isCommunityHabit;
   final VoidCallback? onMakePublic;
 
   const CommunityInfoSection({
     super.key,
     this.communityId,
     this.communityName,
-    required this.isFromCommunity,
-    required this.isPublic,
+    required this.isCommunityHabit,
     this.onMakePublic,
   });
 
   @override
   Widget build(BuildContext context) {
-    if (isFromCommunity && communityId != null) {
-      // This habit is from a community
-      return _buildCommunityMemberInfo(context);
-    } else if (isPublic && communityId != null) {
-      // This is a public habit (user created the community)
-      return _buildCommunityOwnerInfo(context);
+    if (isCommunityHabit && communityId != null) {
+      // This habit is associated with a community
+      return _buildCommunityInfo(context);
     } else {
       // This is a private habit
       return _buildMakePublicOption(context);
     }
   }
 
-  Widget _buildCommunityMemberInfo(BuildContext context) {
+  Widget _buildCommunityInfo(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(top: 8),
       padding: const EdgeInsets.all(16),
@@ -52,10 +47,10 @@ class CommunityInfoSection extends StatelessWidget {
                 size: 24,
               ),
               const SizedBox(width: 12),
-              const Expanded(
+              Expanded(
                 child: Text(
-                  'Community Habit',
-                  style: TextStyle(
+                  communityName ?? 'Community Habit',
+                  style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
@@ -65,7 +60,7 @@ class CommunityInfoSection extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            'You joined this habit from the "$communityName" community.',
+            'This habit is part of a community where members support each other.',
             style: TextStyle(
               color: Theme.of(context).colorScheme.onSurfaceVariant,
               fontSize: 14,
@@ -107,113 +102,9 @@ class CommunityInfoSection extends StatelessWidget {
     );
   }
 
-  Widget _buildCommunityOwnerInfo(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(top: 8),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  CupertinoIcons.star_fill,
-                  color: Theme.of(context).colorScheme.primary,
-                  size: 20,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Public Community',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      'You created this community',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: _buildStat(
-                  context: context,
-                  icon: CupertinoIcons.person_2_fill,
-                  value: '2,341',
-                  label: 'Members',
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _buildStat(
-                  context: context,
-                  icon: CupertinoIcons.flame_fill,
-                  value: '21',
-                  label: 'Avg Streak',
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => CommunityDetailScreen(
-                      communityId: communityId!,
-                      communityName: communityName ?? 'Community',
-                    ),
-                  ),
-                );
-              },
-              icon: const Icon(CupertinoIcons.chart_bar_square_fill),
-              label: const Text('Manage Community'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 12,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildMakePublicOption(BuildContext context) {
+    if (onMakePublic == null) return const SizedBox.shrink();
+    
     return GestureDetector(
       onTap: onMakePublic,
       child: Container(
@@ -271,47 +162,6 @@ class CommunityInfoSection extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildStat({
-    required BuildContext context,
-    required IconData icon,
-    required String value,
-    required String label,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Column(
-        children: [
-          Icon(
-            icon,
-            color: icon == CupertinoIcons.flame_fill 
-              ? AppColors.warning 
-              : Theme.of(context).colorScheme.onSurface,
-            size: 20,
-          ),
-          const SizedBox(height: 4),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-          ),
-        ],
       ),
     );
   }
