@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'dart:io';
 import '../../../core/constants/app_colors.dart';
+import '../../../core/utils/platform_messages.dart';
 import '../../../data/services/community_service.dart';
 
 class MakeHabitPublicDialog extends StatefulWidget {
@@ -23,8 +24,19 @@ class _MakeHabitPublicDialogState extends State<MakeHabitPublicDialog> {
   String? _selectedCategory;
   String _selectedDifficulty = 'MEDIUM';
   final List<String> _tags = [];
+  int _descriptionLength = 0;
 
   final List<String> _categories = ['health', 'productivity', 'learning', 'fitness', 'mindfulness', 'creativity'];
+
+  @override
+  void initState() {
+    super.initState();
+    _descriptionController.addListener(() {
+      setState(() {
+        _descriptionLength = _descriptionController.text.length;
+      });
+    });
+  }
 
   @override
   void dispose() {
@@ -196,6 +208,30 @@ class _MakeHabitPublicDialogState extends State<MakeHabitPublicDialog> {
                             ),
                           ),
                         ),
+                const SizedBox(height: 4),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      '10-500 characters required',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: _descriptionLength >= 10 && _descriptionLength <= 500
+                            ? Theme.of(context).colorScheme.onSurfaceVariant
+                            : Colors.red,
+                      ),
+                    ),
+                    Text(
+                      '$_descriptionLength/500',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: _descriptionLength > 500
+                            ? Colors.red
+                            : Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
                 ],
               ),
             ),
@@ -361,9 +397,31 @@ class _MakeHabitPublicDialogState extends State<MakeHabitPublicDialog> {
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () {
+                      final description = _descriptionController.text.trim();
+                      if (description.isEmpty) {
+                        PlatformMessages.showError(
+                          context,
+                          'Please provide a description for your habit',
+                        );
+                        return;
+                      }
+                      if (description.length < 10) {
+                        PlatformMessages.showError(
+                          context,
+                          'Description must be at least 10 characters long',
+                        );
+                        return;
+                      }
+                      if (description.length > 500) {
+                        PlatformMessages.showError(
+                          context,
+                          'Description must be 500 characters or less',
+                        );
+                        return;
+                      }
                       widget.onMakePublic(
                         CommunitySettings(
-                          description: _descriptionController.text.trim(),
+                          description: description,
                           category: _selectedCategory,
                           difficultyLevel: _selectedDifficulty,
                           tags: _tags,

@@ -83,7 +83,7 @@ class Habit {
       icon: json['icon'] ?? 'fitness_center',
       isActive: json['isActive'] ?? true,
       communityId: json['communityId'],
-      communityName: json['community']?['habit']?['name'],
+      communityName: json['community']?['name'],
       reminderTime: json['reminderTime'],
       reminderDays: json['reminderDays'] != null
           ? List<int>.from(json['reminderDays'])

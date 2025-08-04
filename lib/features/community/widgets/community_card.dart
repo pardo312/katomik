@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../habit/widgets/habit_icon.dart';
 
 class CommunityCard extends StatelessWidget {
   final String id;
@@ -81,9 +82,10 @@ class CommunityCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Center(
-                    child: Text(
-                      icon,
-                      style: const TextStyle(fontSize: 24),
+                    child: HabitIcon(
+                      iconName: icon,
+                      size: 24,
+                      color: AppColors.primary,
                     ),
                   ),
                 ),

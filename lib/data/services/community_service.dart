@@ -759,7 +759,7 @@ class CommunityHabit {
               ? HabitTemplate(
                   name: habit['name'] ?? '',
                   description: '',
-                  icon: habit['icon'] ?? '🎯',
+                  icon: habit['icon'] ?? 'flag',
                   color: habit['color'] ?? '#FF6B6B',
                 )
               : null,
@@ -789,7 +789,7 @@ class HabitTemplate {
     return HabitTemplate(
       name: json['name'] ?? '',
       description: json['description'] ?? '',
-      icon: json['icon'] ?? '🎯',
+      icon: json['icon'] ?? 'flag',
       color: json['color'] ?? '#FF6B6B',
     );
   }

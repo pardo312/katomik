@@ -220,7 +220,7 @@ class _DiscoverCommunitiesScreenState extends State<DiscoverCommunitiesScreen> {
                         child: CommunityCard(
                           id: community.id,
                           name: community.name,
-                          icon: template?.icon ?? '🎯',
+                          icon: template?.icon ?? 'flag',
                           memberCount: community.memberCount,
                           averageStreak: community.averageStreak.toInt(),
                           description: community.description,

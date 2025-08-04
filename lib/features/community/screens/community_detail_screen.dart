@@ -10,6 +10,7 @@ import '../widgets/leaderboard_list.dart';
 import '../widgets/community_stats_card.dart';
 import '../widgets/join_community_dialog.dart';
 import 'governance_screen.dart';
+import '../../habit/widgets/habit_icon.dart';
 
 class CommunityDetailScreen extends StatefulWidget {
   final String communityId;
@@ -255,9 +256,10 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen>
                           Expanded(
                             child: Column(
                               children: [
-                                Text(
-                                  community.habitTemplate?.icon ?? '🎯',
-                                  style: const TextStyle(fontSize: 32),
+                                HabitIcon(
+                                  iconName: community.habitTemplate?.icon ?? 'flag',
+                                  size: 32,
+                                  color: Theme.of(context).colorScheme.primary,
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
