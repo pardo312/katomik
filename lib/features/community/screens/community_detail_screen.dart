@@ -256,12 +256,26 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen>
                           Expanded(
                             child: Column(
                               children: [
-                                HabitIcon(
-                                  iconName: community.habitTemplate?.icon ?? 'flag',
-                                  size: 32,
-                                  color: Theme.of(context).colorScheme.primary,
+                                Container(
+                                  width: 56,
+                                  height: 56,
+                                  decoration: BoxDecoration(
+                                    color: community.habitTemplate?.color != null
+                                        ? Color(int.parse(community.habitTemplate!.color.replaceAll('#', '0xFF'))).withValues(alpha: 0.15)
+                                        : Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  child: Center(
+                                    child: HabitIcon(
+                                      iconName: community.habitTemplate?.icon ?? 'flag',
+                                      size: 32,
+                                      color: community.habitTemplate?.color != null
+                                          ? Color(int.parse(community.habitTemplate!.color.replaceAll('#', '0xFF')))
+                                          : Theme.of(context).colorScheme.primary,
+                                    ),
+                                  ),
                                 ),
-                                const SizedBox(height: 4),
+                                const SizedBox(height: 8),
                                 Text(
                                   community.name,
                                   style: const TextStyle(
@@ -303,7 +317,9 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen>
                         vertical: 8,
                       ),
                       decoration: BoxDecoration(
-                        color: AppColors.primary.withValues(alpha: 0.1),
+                        color: (community.habitTemplate?.color != null
+                            ? Color(int.parse(community.habitTemplate!.color.replaceAll('#', '0xFF')))
+                            : AppColors.primary).withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Row(
@@ -312,13 +328,17 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen>
                           Icon(
                             CupertinoIcons.person_crop_circle_badge_checkmark,
                             size: 20,
-                            color: AppColors.primary,
+                            color: community.habitTemplate?.color != null
+                                ? Color(int.parse(community.habitTemplate!.color.replaceAll('#', '0xFF')))
+                                : AppColors.primary,
                           ),
                           const SizedBox(width: 8),
                           Text(
                             'Member',
                             style: TextStyle(
-                              color: AppColors.primary,
+                              color: community.habitTemplate?.color != null
+                                  ? Color(int.parse(community.habitTemplate!.color.replaceAll('#', '0xFF')))
+                                  : AppColors.primary,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -326,14 +346,18 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen>
                           Container(
                             width: 1,
                             height: 16,
-                            color: AppColors.primary.withValues(alpha: 0.3),
+                            color: (community.habitTemplate?.color != null
+                                ? Color(int.parse(community.habitTemplate!.color.replaceAll('#', '0xFF')))
+                                : AppColors.primary).withValues(alpha: 0.3),
                           ),
                           const SizedBox(width: 16),
                           if (userRank > 0) ...[  
                             Text(
                               'Rank #$userRank',
                               style: TextStyle(
-                                color: AppColors.primary,
+                                color: community.habitTemplate?.color != null
+                                    ? Color(int.parse(community.habitTemplate!.color.replaceAll('#', '0xFF')))
+                                    : AppColors.primary,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -341,7 +365,9 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen>
                             Text(
                               '•',
                               style: TextStyle(
-                                color: AppColors.primary,
+                                color: community.habitTemplate?.color != null
+                                    ? Color(int.parse(community.habitTemplate!.color.replaceAll('#', '0xFF')))
+                                    : AppColors.primary,
                               ),
                             ),
                             const SizedBox(width: 8),
@@ -355,7 +381,9 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen>
                           Text(
                             '$userStreak days',
                             style: TextStyle(
-                              color: AppColors.primary,
+                              color: community.habitTemplate?.color != null
+                                  ? Color(int.parse(community.habitTemplate!.color.replaceAll('#', '0xFF')))
+                                  : AppColors.primary,
                               fontWeight: FontWeight.w600,
                             ),
                           ),

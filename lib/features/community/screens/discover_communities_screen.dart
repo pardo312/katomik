@@ -221,6 +221,7 @@ class _DiscoverCommunitiesScreenState extends State<DiscoverCommunitiesScreen> {
                           id: community.id,
                           name: community.name,
                           icon: template?.icon ?? 'flag',
+                          iconColor: template?.color,
                           memberCount: community.memberCount,
                           averageStreak: community.averageStreak.toInt(),
                           description: community.description,

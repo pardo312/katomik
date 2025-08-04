@@ -7,6 +7,7 @@ class CommunityCard extends StatelessWidget {
   final String id;
   final String name;
   final String icon;
+  final String? iconColor;
   final int memberCount;
   final int averageStreak;
   final String description;
@@ -20,6 +21,7 @@ class CommunityCard extends StatelessWidget {
     required this.id,
     required this.name,
     required this.icon,
+    this.iconColor,
     required this.memberCount,
     required this.averageStreak,
     required this.description,
@@ -98,14 +100,18 @@ class CommunityCard extends StatelessWidget {
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha:0.1),
+                    color: iconColor != null 
+                        ? Color(int.parse(iconColor!.replaceAll('#', '0xFF'))).withValues(alpha:0.15)
+                        : AppColors.primary.withValues(alpha:0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Center(
                     child: HabitIcon(
                       iconName: icon,
                       size: 24,
-                      color: AppColors.primary,
+                      color: iconColor != null 
+                          ? Color(int.parse(iconColor!.replaceAll('#', '0xFF')))
+                          : AppColors.primary,
                     ),
                   ),
                 ),
@@ -128,18 +134,29 @@ class CommunityCard extends StatelessWidget {
                         children: [
                           Container(
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 2,
+                              horizontal: 10,
+                              vertical: 4,
                             ),
                             decoration: BoxDecoration(
-                              color: AppColors.primary.withValues(alpha:0.1),
+                              color: Theme.of(context).brightness == Brightness.dark
+                                  ? Colors.grey.shade800
+                                  : Colors.grey.shade200,
                               borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: Theme.of(context).brightness == Brightness.dark
+                                    ? Colors.grey.shade700
+                                    : Colors.grey.shade300,
+                                width: 0.5,
+                              ),
                             ),
                             child: Text(
                               category,
                               style: TextStyle(
                                 fontSize: 12,
-                                color: AppColors.primary,
+                                fontWeight: FontWeight.w500,
+                                color: Theme.of(context).brightness == Brightness.dark
+                                    ? Colors.grey.shade300
+                                    : Colors.grey.shade700,
                               ),
                             ),
                           ),
