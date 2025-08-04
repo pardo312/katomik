@@ -1,10 +1,19 @@
+import 'dart:async';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:katomik/data/services/graphql_client.dart';
+import 'package:katomik/core/logging/logger_service.dart';
+import 'package:katomik/core/network/retry_service.dart';
 
 class CommunityService {
   static final CommunityService _instance = CommunityService._internal();
   factory CommunityService() => _instance;
-  CommunityService._internal();
+  
+  final _logger = LoggerService();
+  final _retryService = RetryService();
+  
+  CommunityService._internal() {
+    _logger.setContext('CommunityService');
+  }
 
   // Queries
   static const String searchCommunitiesQuery = r'''
@@ -217,62 +226,178 @@ class CommunityService {
     int limit = 20,
     int offset = 0,
   }) async {
-    final client = await GraphQLConfig.getClient();
-    
-    final result = await client.query(
-      QueryOptions(
-        document: gql(searchCommunitiesQuery),
-        variables: {
-          'searchTerm': searchTerm,
-          'category': category,
-          'difficulty': difficulty,
-          'limit': limit,
-          'offset': offset,
-        },
-      ),
-    );
+    final startTime = DateTime.now();
+    _logger.info('Searching communities', data: {
+      'searchTerm': searchTerm,
+      'category': category,
+      'difficulty': difficulty,
+      'limit': limit,
+      'offset': offset,
+    });
 
-    if (result.hasException) {
-      throw Exception('Failed to search communities: ${result.exception}');
+    try {
+      // Validate inputs
+      if (limit < 1 || limit > 100) {
+        throw ArgumentError('Limit must be between 1 and 100');
+      }
+      if (offset < 0) {
+        throw ArgumentError('Offset must be non-negative');
+      }
+
+      final client = await GraphQLConfig.getClient();
+      
+      final result = await _retryService.executeWithTimeout(
+        () => client.query(
+          QueryOptions(
+            document: gql(searchCommunitiesQuery),
+            variables: {
+              'searchTerm': searchTerm,
+              'category': category,
+              'difficulty': difficulty,
+              'limit': limit,
+              'offset': offset,
+            },
+          ),
+        ),
+        operationName: 'searchCommunities',
+        timeout: const Duration(seconds: 10),
+        options: RetryOptions(
+          maxAttempts: 3,
+          shouldRetry: (error) => _isRetryableError(error),
+        ),
+      );
+
+      if (result.hasException) {
+        _logger.error(
+          'GraphQL error in searchCommunities',
+          error: result.exception,
+          data: {'query': 'searchCommunitiesQuery'},
+        );
+        _handleGraphQLException(result.exception!);
+      }
+
+      final List<dynamic> communities = result.data?['searchCommunityHabits'] ?? [];
+      final results = communities.map((c) => CommunityHabit.fromJson(c)).toList();
+      
+      final duration = DateTime.now().difference(startTime).inMilliseconds;
+      _logger.logPerformance('searchCommunities', duration, data: {
+        'resultCount': results.length,
+        'hasSearchTerm': searchTerm != null,
+      });
+      
+      return results;
+    } catch (e, stackTrace) {
+      _logger.error(
+        'Failed to search communities',
+        error: e,
+        stackTrace: stackTrace,
+      );
+      throw _mapException(e);
     }
-
-    final List<dynamic> communities = result.data?['searchCommunityHabits'] ?? [];
-    return communities.map((c) => CommunityHabit.fromJson(c)).toList();
   }
 
   Future<List<CommunityHabit>> getPopularCommunities({int limit = 10}) async {
-    final client = await GraphQLConfig.getClient();
-    
-    final result = await client.query(
-      QueryOptions(
-        document: gql(popularCommunitiesQuery),
-        variables: {'limit': limit},
-      ),
-    );
+    final startTime = DateTime.now();
+    _logger.info('Fetching popular communities', data: {'limit': limit});
 
-    if (result.hasException) {
-      throw Exception('Failed to fetch popular communities: ${result.exception}');
+    try {
+      // Validate input
+      if (limit < 1 || limit > 100) {
+        throw ArgumentError('Limit must be between 1 and 100');
+      }
+
+      final client = await GraphQLConfig.getClient();
+      
+      final result = await client.query(
+        QueryOptions(
+          document: gql(popularCommunitiesQuery),
+          variables: {'limit': limit},
+          fetchPolicy: FetchPolicy.networkOnly,
+        ),
+      );
+
+      if (result.hasException) {
+        _logger.error(
+          'GraphQL error in getPopularCommunities',
+          error: result.exception,
+          data: {'query': 'popularCommunitiesQuery'},
+        );
+        _handleGraphQLException(result.exception!);
+      }
+
+      final List<dynamic> communities = result.data?['popularCommunities'] ?? [];
+      final results = communities.map((c) => CommunityHabit.fromJson(c)).toList();
+      
+      final duration = DateTime.now().difference(startTime).inMilliseconds;
+      _logger.logPerformance('getPopularCommunities', duration, data: {
+        'resultCount': results.length,
+      });
+      
+      return results;
+    } catch (e, stackTrace) {
+      _logger.error(
+        'Failed to fetch popular communities',
+        error: e,
+        stackTrace: stackTrace,
+      );
+      throw _mapException(e);
     }
-
-    final List<dynamic> communities = result.data?['popularCommunities'] ?? [];
-    return communities.map((c) => CommunityHabit.fromJson(c)).toList();
   }
 
   Future<CommunityDetails> getCommunityDetails(String communityId) async {
-    final client = await GraphQLConfig.getClient();
-    
-    final result = await client.query(
-      QueryOptions(
-        document: gql(communityDetailsQuery),
-        variables: {'communityId': communityId},
-      ),
-    );
+    final startTime = DateTime.now();
+    _logger.info('Fetching community details', data: {'communityId': communityId});
 
-    if (result.hasException) {
-      throw Exception('Failed to fetch community details: ${result.exception}');
+    try {
+      // Validate input
+      if (communityId.isEmpty) {
+        throw ArgumentError('Community ID cannot be empty');
+      }
+
+      final client = await GraphQLConfig.getClient();
+      
+      final result = await client.query(
+        QueryOptions(
+          document: gql(communityDetailsQuery),
+          variables: {'communityId': communityId},
+          fetchPolicy: FetchPolicy.networkOnly,
+        ),
+      );
+
+      if (result.hasException) {
+        _logger.error(
+          'GraphQL error in getCommunityDetails',
+          error: result.exception,
+          data: {'communityId': communityId},
+        );
+        _handleGraphQLException(result.exception!);
+      }
+
+      if (result.data?['communityDetails'] == null) {
+        throw CommunityServiceException(
+          'Community not found',
+          type: CommunityErrorType.notFound,
+        );
+      }
+
+      final details = CommunityDetails.fromJson(result.data!['communityDetails']);
+      
+      final duration = DateTime.now().difference(startTime).inMilliseconds;
+      _logger.logPerformance('getCommunityDetails', duration, data: {
+        'communityId': communityId,
+        'memberCount': details.memberCount,
+      });
+      
+      return details;
+    } catch (e, stackTrace) {
+      _logger.error(
+        'Failed to fetch community details',
+        error: e,
+        stackTrace: stackTrace,
+        data: {'communityId': communityId},
+      );
+      throw _mapException(e);
     }
-
-    return CommunityDetails.fromJson(result.data!['communityDetails']);
   }
 
   Future<List<LeaderboardEntry>> getCommunityLeaderboard(
@@ -302,77 +427,235 @@ class CommunityService {
   }
 
   Future<List<UserCommunity>> getUserCommunities() async {
-    final client = await GraphQLConfig.getClient();
-    
-    final result = await client.query(
-      QueryOptions(
-        document: gql(userCommunitiesQuery),
-      ),
-    );
+    final startTime = DateTime.now();
+    _logger.info('Fetching user communities');
 
-    if (result.hasException) {
-      throw Exception('Failed to fetch user communities: ${result.exception}');
+    try {
+      final client = await GraphQLConfig.getClient();
+      
+      final result = await client.query(
+        QueryOptions(
+          document: gql(userCommunitiesQuery),
+          fetchPolicy: FetchPolicy.networkOnly,
+        ),
+      );
+
+      if (result.hasException) {
+        _logger.error(
+          'GraphQL error in getUserCommunities',
+          error: result.exception,
+        );
+        _handleGraphQLException(result.exception!);
+      }
+
+      final List<dynamic> communities = result.data?['userCommunities'] ?? [];
+      final results = communities.map((c) => UserCommunity.fromJson(c)).toList();
+      
+      final duration = DateTime.now().difference(startTime).inMilliseconds;
+      _logger.logPerformance('getUserCommunities', duration, data: {
+        'count': results.length,
+        'activeCount': results.where((c) => c.isActive).length,
+      });
+      
+      return results;
+    } catch (e, stackTrace) {
+      _logger.error(
+        'Failed to fetch user communities',
+        error: e,
+        stackTrace: stackTrace,
+      );
+      throw _mapException(e);
     }
-
-    final List<dynamic> communities = result.data?['userCommunities'] ?? [];
-    return communities.map((c) => UserCommunity.fromJson(c)).toList();
   }
 
   Future<CommunityHabit> makeHabitPublic(
     String habitId,
     CommunitySettings settings,
   ) async {
-    final client = await GraphQLConfig.getClient();
-    
-    final result = await client.mutate(
-      MutationOptions(
-        document: gql(makeHabitPublicMutation),
-        variables: {
-          'habitId': habitId,
-          'settings': settings.toJson(),
-        },
-      ),
-    );
+    final startTime = DateTime.now();
+    _logger.info('Making habit public', data: {
+      'habitId': habitId,
+      'settings': settings.toJson(),
+    });
 
-    if (result.hasException) {
-      throw Exception('Failed to make habit public: ${result.exception}');
+    try {
+      // Validate inputs
+      if (habitId.isEmpty) {
+        throw ArgumentError('Habit ID cannot be empty');
+      }
+      if (settings.description == null || settings.description!.isEmpty) {
+        throw ArgumentError('Community description is required');
+      }
+      if (settings.category == null || settings.category!.isEmpty) {
+        throw ArgumentError('Category is required');
+      }
+
+      final client = await GraphQLConfig.getClient();
+      
+      final result = await client.mutate(
+        MutationOptions(
+          document: gql(makeHabitPublicMutation),
+          variables: {
+            'habitId': habitId,
+            'settings': settings.toJson(),
+          },
+        ),
+      );
+
+      if (result.hasException) {
+        _logger.error(
+          'GraphQL error in makeHabitPublic',
+          error: result.exception,
+          data: {'habitId': habitId},
+        );
+        _handleGraphQLException(result.exception!);
+      }
+
+      if (result.data?['makeHabitPublic'] == null) {
+        throw CommunityServiceException(
+          'Failed to make habit public - no data returned',
+          type: CommunityErrorType.unknown,
+        );
+      }
+
+      final community = CommunityHabit.fromJson(result.data!['makeHabitPublic']);
+      
+      final duration = DateTime.now().difference(startTime).inMilliseconds;
+      _logger.logPerformance('makeHabitPublic', duration, data: {
+        'habitId': habitId,
+        'communityId': community.id,
+      });
+      
+      _logger.info('Successfully made habit public', data: {
+        'habitId': habitId,
+        'communityId': community.id,
+        'memberCount': community.memberCount,
+      });
+      
+      return community;
+    } catch (e, stackTrace) {
+      _logger.error(
+        'Failed to make habit public',
+        error: e,
+        stackTrace: stackTrace,
+        data: {'habitId': habitId},
+      );
+      throw _mapException(e);
     }
-
-    return CommunityHabit.fromJson(result.data!['makeHabitPublic']);
   }
 
   Future<CommunityMembership> joinCommunity(String communityId) async {
-    final client = await GraphQLConfig.getClient();
-    
-    final result = await client.mutate(
-      MutationOptions(
-        document: gql(joinCommunityMutation),
-        variables: {'communityId': communityId},
-      ),
-    );
+    final startTime = DateTime.now();
+    _logger.info('Joining community', data: {'communityId': communityId});
 
-    if (result.hasException) {
-      throw Exception('Failed to join community: ${result.exception}');
+    try {
+      // Validate input
+      if (communityId.isEmpty) {
+        throw ArgumentError('Community ID cannot be empty');
+      }
+
+      final client = await GraphQLConfig.getClient();
+      
+      final result = await client.mutate(
+        MutationOptions(
+          document: gql(joinCommunityMutation),
+          variables: {'communityId': communityId},
+        ),
+      );
+
+      if (result.hasException) {
+        _logger.error(
+          'GraphQL error in joinCommunity',
+          error: result.exception,
+          data: {'communityId': communityId},
+        );
+        _handleGraphQLException(result.exception!);
+      }
+
+      if (result.data?['joinCommunityHabit'] == null) {
+        throw CommunityServiceException(
+          'Failed to join community - no data returned',
+          type: CommunityErrorType.unknown,
+        );
+      }
+
+      final membership = CommunityMembership.fromJson(result.data!['joinCommunityHabit']);
+      
+      final duration = DateTime.now().difference(startTime).inMilliseconds;
+      _logger.logPerformance('joinCommunity', duration, data: {
+        'communityId': communityId,
+        'habitId': membership.habitId,
+      });
+      
+      _logger.info('Successfully joined community', data: {
+        'communityId': communityId,
+        'habitId': membership.habitId,
+      });
+      
+      return membership;
+    } catch (e, stackTrace) {
+      _logger.error(
+        'Failed to join community',
+        error: e,
+        stackTrace: stackTrace,
+        data: {'communityId': communityId},
+      );
+      throw _mapException(e);
     }
-
-    return CommunityMembership.fromJson(result.data!['joinCommunityHabit']);
   }
 
   Future<bool> leaveCommunity(String communityId) async {
-    final client = await GraphQLConfig.getClient();
-    
-    final result = await client.mutate(
-      MutationOptions(
-        document: gql(leaveCommunityMutation),
-        variables: {'communityId': communityId},
-      ),
-    );
+    final startTime = DateTime.now();
+    _logger.info('Leaving community', data: {'communityId': communityId});
 
-    if (result.hasException) {
-      throw Exception('Failed to leave community: ${result.exception}');
+    try {
+      // Validate input
+      if (communityId.isEmpty) {
+        throw ArgumentError('Community ID cannot be empty');
+      }
+
+      final client = await GraphQLConfig.getClient();
+      
+      final result = await client.mutate(
+        MutationOptions(
+          document: gql(leaveCommunityMutation),
+          variables: {'communityId': communityId},
+        ),
+      );
+
+      if (result.hasException) {
+        _logger.error(
+          'GraphQL error in leaveCommunity',
+          error: result.exception,
+          data: {'communityId': communityId},
+        );
+        _handleGraphQLException(result.exception!);
+      }
+
+      final success = result.data?['leaveCommunityHabit'] as bool? ?? false;
+      
+      final duration = DateTime.now().difference(startTime).inMilliseconds;
+      _logger.logPerformance('leaveCommunity', duration, data: {
+        'communityId': communityId,
+        'success': success,
+      });
+      
+      if (success) {
+        _logger.info('Successfully left community', data: {'communityId': communityId});
+      } else {
+        _logger.warning('Leave community returned false', data: {'communityId': communityId});
+      }
+      
+      return success;
+    } catch (e, stackTrace) {
+      _logger.error(
+        'Failed to leave community',
+        error: e,
+        stackTrace: stackTrace,
+        data: {'communityId': communityId},
+      );
+      throw _mapException(e);
     }
-
-    return result.data!['leaveCommunityHabit'] as bool;
   }
 
   Future<bool> retireFromCommunity(String communityId) async {
@@ -801,4 +1084,137 @@ enum ProposalType {
   changeSettings,
   changeName,
   other,
+}
+
+// Error handling extension for CommunityService
+extension CommunityServiceErrorHandling on CommunityService {
+  bool _isRetryableError(dynamic error) {
+    if (error is OperationException) {
+      // Retry on network errors
+      if (error.linkException != null) {
+        final linkException = error.linkException!;
+        if (linkException is NetworkException || linkException is ServerException) {
+          return true;
+        }
+      }
+      
+      // Don't retry on GraphQL errors (usually client errors)
+      if (error.graphqlErrors.isNotEmpty) {
+        final firstError = error.graphqlErrors.first;
+        final message = firstError.message.toLowerCase();
+        
+        // Don't retry on client errors
+        if (message.contains('unauthorized') || 
+            message.contains('forbidden') ||
+            message.contains('not found') ||
+            message.contains('already exists') ||
+            message.contains('invalid')) {
+          return false;
+        }
+      }
+      
+      return true;
+    }
+    
+    // Retry on timeout
+    if (error is TimeoutException) return true;
+    
+    // Check error message for network-related issues
+    final errorString = error.toString().toLowerCase();
+    return errorString.contains('network') ||
+           errorString.contains('connection') ||
+           errorString.contains('timeout') ||
+           errorString.contains('socket');
+  }
+  
+  void _handleGraphQLException(OperationException exception) {
+    if (exception.linkException != null) {
+      final linkException = exception.linkException!;
+      if (linkException is NetworkException) {
+        throw CommunityServiceException(
+          'Network error. Please check your connection.',
+          type: CommunityErrorType.network,
+        );
+      } else if (linkException is ServerException) {
+        throw CommunityServiceException(
+          'Server error. Please try again later.',
+          type: CommunityErrorType.server,
+        );
+      }
+    }
+
+    // Parse GraphQL errors
+    if (exception.graphqlErrors.isNotEmpty) {
+      final error = exception.graphqlErrors.first;
+      final message = error.message;
+      
+      if (message.contains('not found')) {
+        throw CommunityServiceException(
+          message,
+          type: CommunityErrorType.notFound,
+        );
+      } else if (message.contains('unauthorized') || message.contains('forbidden')) {
+        throw CommunityServiceException(
+          message,
+          type: CommunityErrorType.unauthorized,
+        );
+      } else if (message.contains('already')) {
+        throw CommunityServiceException(
+          message,
+          type: CommunityErrorType.duplicate,
+        );
+      }
+    }
+
+    throw CommunityServiceException(
+      'An unexpected error occurred',
+      type: CommunityErrorType.unknown,
+    );
+  }
+
+  Exception _mapException(dynamic error) {
+    if (error is CommunityServiceException) {
+      return error;
+    } else if (error is ArgumentError) {
+      return CommunityServiceException(
+        error.message?.toString() ?? 'Invalid argument',
+        type: CommunityErrorType.validation,
+      );
+    } else if (error is Exception) {
+      return CommunityServiceException(
+        error.toString(),
+        type: CommunityErrorType.unknown,
+      );
+    } else {
+      return CommunityServiceException(
+        'An unexpected error occurred',
+        type: CommunityErrorType.unknown,
+      );
+    }
+  }
+}
+
+enum CommunityErrorType {
+  network,
+  server,
+  notFound,
+  unauthorized,
+  duplicate,
+  validation,
+  unknown,
+}
+
+class CommunityServiceException implements Exception {
+  final String message;
+  final CommunityErrorType type;
+  final dynamic originalError;
+
+  CommunityServiceException(
+    this.message, {
+    required this.type,
+    this.originalError,
+  });
+
+  @override
+  String toString() => 'CommunityServiceException: $message (type: ${type.name})';
 }
