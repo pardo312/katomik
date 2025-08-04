@@ -44,7 +44,7 @@ class CommunityService {
         totalCompletions
         originalCreator {
           id
-          name
+          displayName
         }
       }
     }
@@ -97,13 +97,7 @@ class CommunityService {
         createdAt
         originalCreator {
           id
-          name
-        }
-        memberStatus {
-          isMember
-          joinedAt
-          currentStreak
-          totalCompletions
+          displayName
         }
       }
     }
@@ -116,8 +110,8 @@ class CommunityService {
         member {
           user {
             id
-            name
-            profileImage
+            displayName
+            avatarUrl
           }
           currentStreak
           longestStreak
@@ -818,8 +812,8 @@ class User {
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
       id: json['id'],
-      name: json['name'],
-      profileImage: json['profileImage'],
+      name: json['displayName'] ?? json['name'] ?? '',
+      profileImage: json['avatarUrl'] ?? json['profileImage'],
     );
   }
 }
@@ -863,7 +857,9 @@ class CommunityDetails extends CommunityHabit {
       habitTemplate: base.habitTemplate,
       createdByUser: base.createdByUser,
       createdAt: DateTime.parse(json['createdAt']),
-      settings: CommunitySettings.fromJson(json['settings']),
+      settings: json['settings'] != null
+          ? CommunitySettings.fromJson(json['settings'])
+          : CommunitySettings(),
       memberStatus: json['memberStatus'] != null
           ? MemberStatus.fromJson(json['memberStatus'])
           : null,

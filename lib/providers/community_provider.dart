@@ -98,19 +98,20 @@ class CommunityProvider extends ChangeNotifier {
 
   // Leaderboard
   Future<void> loadLeaderboard(String communityId, {String timeframe = 'all'}) async {
-    _isLoading = true;
-    _error = null;
-    notifyListeners();
+    // Don't set global loading state for leaderboard
+    // to avoid interfering with community details loading
 
     try {
       _currentLeaderboard = await _communityService.getCommunityLeaderboard(
         communityId,
         timeframe: timeframe,
       );
+      notifyListeners();
     } catch (e) {
-      _error = e.toString();
-    } finally {
-      _isLoading = false;
+      // Log error but don't set global error state
+      // Leaderboard is optional - community can still be displayed
+      print('Failed to load leaderboard: $e');
+      _currentLeaderboard = [];
       notifyListeners();
     }
   }
