@@ -216,7 +216,7 @@ class _DiscoverCommunitiesScreenState extends State<DiscoverCommunitiesScreen> {
                       final community = communities[index];
                       final template = community.habitTemplate;
                       return Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
+                        padding: const EdgeInsets.only(bottom: 20),
                         child: CommunityCard(
                           id: community.id,
                           name: community.name,

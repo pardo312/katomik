@@ -57,17 +57,37 @@ class CommunityCard extends StatelessWidget {
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(16),
+          color: Theme.of(context).brightness == Brightness.dark
+              ? Theme.of(context).colorScheme.surfaceContainer
+              : Theme.of(context).colorScheme.surface,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: Theme.of(context).brightness == Brightness.dark
+                ? Theme.of(context).colorScheme.outlineVariant.withValues(alpha:0.5)
+                : Theme.of(context).colorScheme.outlineVariant.withValues(alpha:0.4),
+            width: 1.5,
+          ),
           boxShadow: [
             BoxShadow(
-              color: Theme.of(context).colorScheme.shadow.withValues(alpha:0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 2),
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? Colors.black.withValues(alpha:0.3)
+                  : Theme.of(context).colorScheme.shadow.withValues(alpha:0.12),
+              blurRadius: 24,
+              offset: const Offset(0, 8),
+              spreadRadius: -4,
+            ),
+            BoxShadow(
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? Colors.black.withValues(alpha:0.2)
+                  : Theme.of(context).colorScheme.shadow.withValues(alpha:0.08),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+              spreadRadius: -2,
             ),
           ],
         ),
-        padding: const EdgeInsets.all(16),
+        margin: const EdgeInsets.symmetric(horizontal: 2),
+        padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
