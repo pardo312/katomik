@@ -200,7 +200,11 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen>
               );
             }
 
-            final isMember = community.memberStatus?.isMember ?? false;
+            // Check if user is a member by looking at their habits
+            final habitProvider = context.watch<HabitProvider>();
+            final isMember = habitProvider.habits.any(
+              (habit) => habit.communityId == widget.communityId,
+            );
             final authProvider = context.watch<AuthProvider>();
             final currentUserId = authProvider.user?.id;
             
@@ -217,7 +221,8 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen>
               }
             }
             
-            final userStreak = community.memberStatus?.currentStreak ?? 0;
+            // Get user streak from leaderboard entry if member
+            final userStreak = currentUserEntry?.member.currentStreak ?? 0;
 
             return Column(
               children: [
@@ -580,8 +585,8 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen>
                             child: OutlinedButton(
                               onPressed: _leaveCommunity,
                               style: OutlinedButton.styleFrom(
-                                foregroundColor: AppColors.error,
-                                side: BorderSide(color: AppColors.error),
+                                foregroundColor: Theme.of(context).colorScheme.onSurfaceVariant,
+                                side: BorderSide(color: Theme.of(context).colorScheme.outline),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
@@ -649,8 +654,8 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen>
                               );
                             },
                             style: OutlinedButton.styleFrom(
-                              foregroundColor: Theme.of(context).colorScheme.onSurfaceVariant,
-                              side: BorderSide(color: Theme.of(context).colorScheme.outline),
+                              foregroundColor: AppColors.error,
+                              side: BorderSide(color: AppColors.error),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
