@@ -285,6 +285,17 @@ class _HabitDetailScreenNewState extends State<HabitDetailScreen>
   }
 
   Widget _buildCustomHeader() {
+    // Debug logging to understand why Make Public button might not show
+    debugPrint('Habit Detail - Name: ${_habit.name}');
+    debugPrint('Habit Detail - ID: ${_habit.id}');
+    debugPrint('Habit Detail - isPublic: ${_habit.isPublic}');
+    debugPrint('Habit Detail - isFromCommunity: ${_habit.isFromCommunity}');
+    debugPrint('Habit Detail - communityId: ${_habit.communityId}');
+    
+    // Simplified logic: Show Make Public button only if habit has no community association
+    final bool canMakePublic = _habit.communityId == null;
+    debugPrint('Habit Detail - Can Make Public: $canMakePublic');
+    
     return Container(
       height: 56,
       padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -298,8 +309,8 @@ class _HabitDetailScreenNewState extends State<HabitDetailScreen>
             onPressed: () => Navigator.pop(context),
           ),
           const Spacer(),
-          // Make Public Button for private habits
-          if (!_habit.isPublic && !_habit.isFromCommunity)
+          // Make Public Button for habits not associated with any community
+          if (canMakePublic)
             IconButton(
               icon: Icon(
                 Platform.isIOS ? CupertinoIcons.globe : Icons.public,

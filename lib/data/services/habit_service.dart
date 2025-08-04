@@ -89,6 +89,8 @@ class HabitService {
         icon
         isActive
         isPublic
+        isFromCommunity
+        communityId
         reminderTime
         reminderDays
         createdAt
@@ -107,6 +109,8 @@ class HabitService {
         icon
         isActive
         isPublic
+        isFromCommunity
+        communityId
         reminderTime
         reminderDays
         createdAt
@@ -200,6 +204,9 @@ class HabitService {
     });
     final client = await GraphQLConfig.getClient();
     
+    // TODO: Backend bug - isPrivate is not being converted to isPublic
+    // The backend ignores isPrivate and uses database default isPublic: true
+    // This needs to be fixed in communities.service.ts createPrivateHabit method
     final variables = {
       'input': {
         'name': name,
