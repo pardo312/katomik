@@ -28,7 +28,7 @@ class HabitDetailScreen extends StatefulWidget {
 class _HabitDetailScreenNewState extends State<HabitDetailScreen>
     with TickerProviderStateMixin {
   late Habit _habit;
-  final DateTime _focusedMonth = DateTime.now();
+  late DateTime _focusedMonth;
   late AnimationController _floatingAnimationController;
 
   final List<Map<String, dynamic>> _communityPhrases = [
@@ -41,6 +41,7 @@ class _HabitDetailScreenNewState extends State<HabitDetailScreen>
   void initState() {
     super.initState();
     _habit = widget.habit;
+    _focusedMonth = DateTime.now();
     _loadCompletions();
     _initializeDateFormatting();
 
@@ -67,6 +68,18 @@ class _HabitDetailScreenNewState extends State<HabitDetailScreen>
     if (mounted) {
       setState(() {});
     }
+  }
+
+  void _navigateToPreviousMonth() {
+    setState(() {
+      _focusedMonth = DateTime(_focusedMonth.year, _focusedMonth.month - 1);
+    });
+  }
+
+  void _navigateToNextMonth() {
+    setState(() {
+      _focusedMonth = DateTime(_focusedMonth.year, _focusedMonth.month + 1);
+    });
   }
 
   void _showPlatformSnackBar(
@@ -542,12 +555,35 @@ class _HabitDetailScreenNewState extends State<HabitDetailScreen>
             ),
             child: Column(
               children: [
-                Text(
-                  _getMonthName(_focusedMonth).toUpperCase(),
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    IconButton(
+                      icon: Icon(
+                        Platform.isIOS
+                            ? CupertinoIcons.chevron_left
+                            : Icons.chevron_left,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      onPressed: _navigateToPreviousMonth,
+                    ),
+                    Text(
+                      _getMonthName(_focusedMonth).toUpperCase(),
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(
+                        Platform.isIOS
+                            ? CupertinoIcons.chevron_right
+                            : Icons.chevron_right,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      onPressed: _navigateToNextMonth,
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 16),
                 Consumer<HabitProvider>(
