@@ -147,20 +147,27 @@ class _HabitDetailScreenNewState extends State<HabitDetailScreen>
                   _habit = updatedHabit;
                 });
 
+                // Store the community info before showing the snackbar
+                final communityId = updatedHabit.communityId;
+                final communityName = updatedHabit.name;
+                final navContext = context;
+                
                 _showPlatformSnackBar(
                   '${_habit.name} is now public!',
                   backgroundColor: Colors.green,
                   actionLabel: 'View Community',
                   onActionPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => CommunityDetailScreen(
-                          communityId: updatedHabit.communityId!,
-                          communityName: updatedHabit.name,
+                    if (communityId != null) {
+                      Navigator.push(
+                        navContext,
+                        MaterialPageRoute(
+                          builder: (_) => CommunityDetailScreen(
+                            communityId: communityId,
+                            communityName: communityName,
+                          ),
                         ),
-                      ),
-                    );
+                      );
+                    }
                   },
                 );
               }
@@ -204,20 +211,27 @@ class _HabitDetailScreenNewState extends State<HabitDetailScreen>
                   _habit = updatedHabit;
                 });
 
+                // Store the community info before showing the snackbar
+                final communityId = updatedHabit.communityId;
+                final communityName = updatedHabit.name;
+                final navContext = context;
+                
                 _showPlatformSnackBar(
                   '${_habit.name} is now public!',
                   backgroundColor: Colors.green,
                   actionLabel: 'View Community',
                   onActionPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => CommunityDetailScreen(
-                          communityId: updatedHabit.communityId!,
-                          communityName: updatedHabit.name,
+                    if (communityId != null) {
+                      Navigator.push(
+                        navContext,
+                        MaterialPageRoute(
+                          builder: (_) => CommunityDetailScreen(
+                            communityId: communityId,
+                            communityName: communityName,
+                          ),
                         ),
-                      ),
-                    );
+                      );
+                    }
                   },
                 );
               }

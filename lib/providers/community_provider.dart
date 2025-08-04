@@ -154,6 +154,8 @@ class CommunityProvider extends ChangeNotifier {
       return true;
     } catch (e) {
       _error = e.toString();
+      // Log detailed error for debugging
+      debugPrint('Error making habit public: $e');
       return false;
     } finally {
       _isLoading = false;
