@@ -158,7 +158,7 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: SafeArea(
         child: Consumer<CommunityProvider>(
           builder: (context, provider, child) {
@@ -226,11 +226,16 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen>
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: Theme.of(context).colorScheme.surface,
+                    border: Border(
+                      bottom: BorderSide(
+                        color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+                      ),
+                    ),
                     boxShadow: [
                       BoxShadow(
-                        color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.05),
-                        blurRadius: 10,
-                        offset: const Offset(0, 2),
+                        color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.03),
+                        blurRadius: 8,
+                        offset: const Offset(0, 1),
                       ),
                     ],
                   ),
@@ -367,9 +372,10 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen>
                   ),
                   child: TabBar(
                     controller: _tabController,
-                    labelColor: AppColors.primary,
+                    labelColor: Theme.of(context).colorScheme.primary,
                     unselectedLabelColor: Theme.of(context).colorScheme.onSurfaceVariant,
-                    indicatorColor: AppColors.primary,
+                    indicatorColor: Theme.of(context).colorScheme.primary,
+                    indicatorWeight: 3,
                     tabs: const [
                       Tab(text: 'Leaderboard'),
                       Tab(text: 'Stats'),
@@ -388,6 +394,7 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen>
                         children: [
                           // Timeframe selector
                           Container(
+                            color: Theme.of(context).colorScheme.surface,
                             padding: const EdgeInsets.all(16),
                             child: Row(
                               children: [
@@ -400,40 +407,48 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen>
                             ),
                           ),
                           Expanded(
-                            child: LeaderboardList(
-                              communityId: widget.communityId,
-                              currentUserRank: isMember ? userRank : null,
-                              currentUserEntry: isMember ? currentUserEntry : null,
-                              leaderboard: provider.currentLeaderboard,
+                            child: Container(
+                              color: Theme.of(context).colorScheme.surface,
+                              child: LeaderboardList(
+                                communityId: widget.communityId,
+                                currentUserRank: isMember ? userRank : null,
+                                currentUserEntry: isMember ? currentUserEntry : null,
+                                leaderboard: provider.currentLeaderboard,
+                              ),
                             ),
                           ),
                         ],
                       ),
                       
                       // Stats Tab
-                      SingleChildScrollView(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          children: [
-                            CommunityStatsCard(
-                              memberCount: community.memberCount,
-                              totalCompletions: community.totalCompletions,
-                              averageStreak: community.averageStreak.toInt(),
-                              successRate: community.successRate,
-                              createdDate: _formatDate(community.createdAt),
-                            ),
-                            const SizedBox(height: 16),
-                            // Additional stats widgets can be added here
-                          ],
+                      Container(
+                        color: Theme.of(context).colorScheme.surface,
+                        child: SingleChildScrollView(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            children: [
+                              CommunityStatsCard(
+                                memberCount: community.memberCount,
+                                totalCompletions: community.totalCompletions,
+                                averageStreak: community.averageStreak.toInt(),
+                                successRate: community.successRate,
+                                createdDate: _formatDate(community.createdAt),
+                              ),
+                              const SizedBox(height: 16),
+                              // Additional stats widgets can be added here
+                            ],
+                          ),
                         ),
                       ),
                       
                       // About Tab
-                      SingleChildScrollView(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
+                      Container(
+                        color: Theme.of(context).colorScheme.surface,
+                        child: SingleChildScrollView(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
                             const Text(
                               'About this Community',
                               style: TextStyle(
@@ -503,9 +518,10 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen>
                       ],
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
+          ),
             
                 // Action Button
                 if (!isMember)
@@ -515,7 +531,7 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen>
                       color: Theme.of(context).colorScheme.surface,
                       boxShadow: [
                         BoxShadow(
-                          color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.05),
+                          color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.03),
                           blurRadius: 10,
                           offset: const Offset(0, -2),
                         ),
@@ -549,7 +565,7 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen>
                       color: Theme.of(context).colorScheme.surface,
                       boxShadow: [
                         BoxShadow(
-                          color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.05),
+                          color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.03),
                           blurRadius: 10,
                           offset: const Offset(0, -2),
                         ),
@@ -688,7 +704,7 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen>
               text,
               style: TextStyle(
                 fontSize: 16,
-                color: Colors.grey.shade700,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
                 height: 1.3,
               ),
             ),
@@ -711,10 +727,10 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen>
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 8),
           decoration: BoxDecoration(
-            color: isSelected ? AppColors.primary : Colors.transparent,
+            color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.surfaceContainer,
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
-              color: isSelected ? AppColors.primary : Theme.of(context).colorScheme.outline,
+              color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
             ),
           ),
           child: Text(
