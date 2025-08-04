@@ -21,7 +21,7 @@ class DatabaseService {
     
     return await openDatabase(
       path,
-      version: 5,
+      version: 6,
       onCreate: (db, version) async {
         await db.execute('''
           CREATE TABLE habits(
@@ -34,7 +34,7 @@ class DatabaseService {
             icon TEXT NOT NULL DEFAULT 'science',
             is_active INTEGER NOT NULL DEFAULT 1,
             is_from_community INTEGER NOT NULL DEFAULT 0,
-            is_public INTEGER NOT NULL DEFAULT 0,
+            is_community_habit INTEGER NOT NULL DEFAULT 0,
             community_id TEXT,
             community_name TEXT
           )
@@ -83,6 +83,38 @@ class DatabaseService {
           await db.execute('ALTER TABLE habits ADD COLUMN is_public INTEGER NOT NULL DEFAULT 0');
           await db.execute('ALTER TABLE habits ADD COLUMN community_id TEXT');
           await db.execute('ALTER TABLE habits ADD COLUMN community_name TEXT');
+        }
+        if (oldVersion < 6) {
+          // Rename is_public to is_community_habit for consistency
+          // SQLite doesn't support column rename, so we need to recreate the table
+          await db.execute('ALTER TABLE habits RENAME TO habits_old');
+          
+          await db.execute('''
+            CREATE TABLE habits(
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              name TEXT NOT NULL,
+              phrases TEXT NOT NULL DEFAULT '',
+              images TEXT NOT NULL DEFAULT '',
+              created_date TEXT NOT NULL,
+              color TEXT NOT NULL,
+              icon TEXT NOT NULL DEFAULT 'science',
+              is_active INTEGER NOT NULL DEFAULT 1,
+              is_from_community INTEGER NOT NULL DEFAULT 0,
+              is_community_habit INTEGER NOT NULL DEFAULT 0,
+              community_id TEXT,
+              community_name TEXT
+            )
+          ''');
+          
+          // Copy data from old table, renaming is_public to is_community_habit
+          await db.execute('''
+            INSERT INTO habits (id, name, phrases, images, created_date, color, icon, is_active, is_from_community, is_community_habit, community_id, community_name)
+            SELECT id, name, phrases, images, created_date, color, icon, is_active, is_from_community, is_public, community_id, community_name
+            FROM habits_old
+          ''');
+          
+          // Drop the old table
+          await db.execute('DROP TABLE habits_old');
         }
       },
     );

@@ -151,7 +151,7 @@ class _HabitDetailScreenNewState extends State<HabitDetailScreen>
                 final communityId = updatedHabit.communityId;
                 final communityName = updatedHabit.name;
                 final navContext = context;
-                
+
                 _showPlatformSnackBar(
                   '${_habit.name} is now public!',
                   backgroundColor: Colors.green,
@@ -173,8 +173,25 @@ class _HabitDetailScreenNewState extends State<HabitDetailScreen>
               }
             } else {
               if (mounted) {
+                final errorMessage = communityProvider.error ?? 'Failed to make habit public';
+                
+                // If habit is already public, refresh the habit data
+                if (errorMessage.contains('already shared with the community')) {
+                  try {
+                    final updatedHabit = habitProvider.habits.firstWhere(
+                      (h) => h.id == _habit.id,
+                    );
+                    setState(() {
+                      _habit = updatedHabit;
+                    });
+                  } catch (e) {
+                    // Habit not found in provider - this shouldn't happen but handle gracefully
+                    debugPrint('Could not find updated habit in provider');
+                  }
+                }
+                
                 _showPlatformSnackBar(
-                  'Failed to make habit public',
+                  errorMessage,
                   backgroundColor: Colors.red,
                 );
               }
@@ -215,7 +232,7 @@ class _HabitDetailScreenNewState extends State<HabitDetailScreen>
                 final communityId = updatedHabit.communityId;
                 final communityName = updatedHabit.name;
                 final navContext = context;
-                
+
                 _showPlatformSnackBar(
                   '${_habit.name} is now public!',
                   backgroundColor: Colors.green,
@@ -237,8 +254,25 @@ class _HabitDetailScreenNewState extends State<HabitDetailScreen>
               }
             } else {
               if (mounted) {
+                final errorMessage = communityProvider.error ?? 'Failed to make habit public';
+                
+                // If habit is already public, refresh the habit data
+                if (errorMessage.contains('already shared with the community')) {
+                  try {
+                    final updatedHabit = habitProvider.habits.firstWhere(
+                      (h) => h.id == _habit.id,
+                    );
+                    setState(() {
+                      _habit = updatedHabit;
+                    });
+                  } catch (e) {
+                    // Habit not found in provider - this shouldn't happen but handle gracefully
+                    debugPrint('Could not find updated habit in provider');
+                  }
+                }
+                
                 _showPlatformSnackBar(
-                  'Failed to make habit public',
+                  errorMessage,
                   backgroundColor: Colors.red,
                 );
               }
@@ -301,7 +335,12 @@ class _HabitDetailScreenNewState extends State<HabitDetailScreen>
   Widget _buildCustomHeader() {
     // Show Make Public button only if habit is not a community habit
     final bool canMakePublic = !_habit.isCommunityHabit;
-    
+
+    debugPrint('Habit Detail - Name: ${_habit.name}');
+    debugPrint('Habit Detail - ID: ${_habit.id}');
+    debugPrint('Habit Detail - isCommunityHabit: ${_habit.isCommunityHabit}');
+    debugPrint('Habit Detail - communityId: ${_habit.communityId}');
+
     return Container(
       height: 56,
       padding: const EdgeInsets.symmetric(horizontal: 8),

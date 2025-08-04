@@ -153,7 +153,23 @@ class CommunityProvider extends ChangeNotifier {
       
       return true;
     } catch (e) {
-      _error = e.toString();
+      String errorMessage = e.toString();
+      
+      // Extract more user-friendly error messages
+      if (errorMessage.contains('already public')) {
+        _error = 'This habit is already shared with the community';
+        // Refresh habit data to sync with server state
+        await habitProvider.loadHabits();
+      } else if (errorMessage.contains('BadRequestException')) {
+        // Extract the actual error message from BadRequestException
+        final match = RegExp(r'BadRequestException: (.+)').firstMatch(errorMessage);
+        _error = match?.group(1) ?? 'Invalid request';
+      } else if (errorMessage.contains('NetworkException')) {
+        _error = 'Network error. Please check your connection and try again.';
+      } else {
+        _error = 'Failed to make habit public. Please try again.';
+      }
+      
       // Log detailed error for debugging
       debugPrint('Error making habit public: $e');
       return false;
