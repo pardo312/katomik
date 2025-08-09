@@ -5,6 +5,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../providers/community_provider.dart';
 import '../../../providers/habit_provider.dart';
 import '../../../providers/auth_provider.dart';
+import '../../../providers/platform_provider.dart';
 import '../../../data/services/community_service.dart';
 import '../widgets/leaderboard_list.dart';
 import '../widgets/community_stats_card.dart';
@@ -63,15 +64,43 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen>
     await provider.loadLeaderboard(widget.communityId, timeframe: timeframe);
   }
 
+  void _showMessage(String message, {bool isError = false}) {
+    final platformProvider = context.read<PlatformProvider>();
+    
+    if (platformProvider.isIOS) {
+      // For iOS, show a CupertinoDialog since ScaffoldMessenger doesn't exist
+      showCupertinoDialog(
+        context: context,
+        builder: (dialogContext) => CupertinoAlertDialog(
+          content: Text(message),
+          actions: [
+            CupertinoDialogAction(
+              child: const Text('OK'),
+              onPressed: () => Navigator.pop(dialogContext),
+            ),
+          ],
+        ),
+      );
+    } else {
+      // For Android/Material, use ScaffoldMessenger
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: isError ? AppColors.error : AppColors.success,
+        ),
+      );
+    }
+  }
+
   void _showJoinDialog() {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => JoinCommunityDialog(
+      builder: (bottomSheetContext) => JoinCommunityDialog(
         communityName: widget.communityName,
         onJoin: () async {
-          Navigator.pop(context);
+          Navigator.pop(bottomSheetContext);
           final communityProvider = context.read<CommunityProvider>();
           final habitProvider = context.read<HabitProvider>();
           
@@ -83,21 +112,11 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen>
           if (success) {
             await _loadCommunityDetails();
             if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Welcome to ${widget.communityName}!'),
-                  backgroundColor: AppColors.success,
-                ),
-              );
+              _showMessage('Welcome to ${widget.communityName}!');
             }
           } else {
             if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Failed to join community'),
-                  backgroundColor: AppColors.error,
-                ),
-              );
+              _showMessage('Failed to join community', isError: true);
             }
           }
         },
@@ -108,7 +127,7 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen>
   void _leaveCommunity() {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: const Text('Leave Community?'),
         content: Text(
           'Are you sure you want to leave ${widget.communityName}? '
@@ -116,12 +135,12 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen>
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogContext),
             child: const Text('Cancel'),
           ),
           TextButton(
             onPressed: () async {
-              Navigator.pop(context);
+              Navigator.pop(dialogContext);
               final provider = context.read<CommunityProvider>();
               
               final success = await provider.leaveCommunity(widget.communityId);
@@ -129,20 +148,11 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen>
               if (success) {
                 await _loadCommunityDetails();
                 if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('You have left the community'),
-                    ),
-                  );
+                  _showMessage('You have left the community');
                 }
               } else {
                 if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Failed to leave community'),
-                      backgroundColor: AppColors.error,
-                    ),
-                  );
+                  _showMessage('Failed to leave community', isError: true);
                 }
               }
             },
@@ -667,11 +677,7 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen>
                                         );
                                         if (success && mounted) {
                                           Navigator.pop(context);
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            const SnackBar(
-                                              content: Text('You have retired from the community'),
-                                            ),
-                                          );
+                                          _showMessage('You have retired from the community');
                                         }
                                       },
                                       child: const Text(

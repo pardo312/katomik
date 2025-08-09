@@ -10,6 +10,8 @@ import 'package:katomik/features/profile/screens/profile_screen.dart';
 import 'package:katomik/features/habit/add_habit/add_habit_screen.dart';
 import 'package:katomik/features/community/screens/discover_communities_screen.dart';
 import 'package:katomik/providers/navigation_provider.dart';
+import 'package:katomik/providers/habit_provider.dart';
+import 'package:katomik/providers/auth_provider.dart';
 import 'package:katomik/shared/widgets/profile_tab_icon.dart';
 
 class MainScreen extends StatefulWidget {
@@ -23,6 +25,21 @@ class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
 
   @override
+  void initState() {
+    super.initState();
+    // Initialize habits when user is authenticated
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final authProvider = context.read<AuthProvider>();
+      final habitProvider = context.read<HabitProvider>();
+      final userId = authProvider.user?.id;
+      
+      if (userId != null) {
+        habitProvider.initializeForUser(userId);
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final tabs = [
       AdaptiveTabItem(
@@ -30,12 +47,6 @@ class _MainScreenState extends State<MainScreen> {
         activeIcon: Icon(PlatformIcons.homeActive),
         label: 'Home',
         page: const HomeScreen(),
-      ),
-      AdaptiveTabItem(
-        icon: Icon(PlatformIcons.analytics),
-        activeIcon: Icon(PlatformIcons.analyticsActive),
-        label: 'Analytics',
-        page: const StatisticsScreen(),
       ),
       AdaptiveTabItem(
         icon: Icon(PlatformIcons.globe),

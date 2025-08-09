@@ -5,6 +5,9 @@ import 'package:katomik/features/habit/habit_detail/habit_detail_screen.dart';
 import 'package:provider/provider.dart';
 import 'providers/theme_provider.dart';
 import 'providers/platform_provider.dart';
+import 'providers/auth_provider.dart';
+import 'providers/habit_provider.dart';
+import 'providers/community_provider.dart';
 import 'core/theme/app_theme.dart';
 import 'features/auth/widgets/auth_wrapper.dart';
 import 'features/auth/screens/login_screen.dart';
@@ -13,8 +16,25 @@ import 'features/habit/add_habit/add_habit_screen.dart';
 import 'features/settings/screens/theme_settings_screen.dart';
 import 'data/models/habit.dart';
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  @override
+  void initState() {
+    super.initState();
+    // Connect providers after build
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final authProvider = context.read<AuthProvider>();
+      final habitProvider = context.read<HabitProvider>();
+      final communityProvider = context.read<CommunityProvider>();
+      authProvider.setProviders(habitProvider, communityProvider);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

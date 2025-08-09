@@ -24,6 +24,18 @@ class CommunityProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get error => _error;
 
+  // Clear all data when user logs out
+  void clearData() {
+    _popularCommunities = [];
+    _searchResults = [];
+    _userCommunities = [];
+    _currentCommunityDetails = null;
+    _currentLeaderboard = [];
+    _isLoading = false;
+    _error = null;
+    notifyListeners();
+  }
+
   // Popular Communities
   Future<void> loadPopularCommunities() async {
     _isLoading = true;

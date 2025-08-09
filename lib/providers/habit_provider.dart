@@ -12,13 +12,45 @@ class HabitProvider extends ChangeNotifier {
   final Map<String, int> _streaks = {}; // habitId -> streak count
   bool _isLoading = false;
   String? _error;
+  String? _currentUserId;
 
   List<Habit> get habits => _habits;
   bool get isLoading => _isLoading;
   String? get error => _error;
 
   HabitProvider() {
-    loadHabits();
+    // Don't load habits in constructor - wait for authentication
+  }
+
+  // Initialize habits when user is authenticated
+  Future<void> initializeForUser(String userId) async {
+    // If it's a different user or first time, load habits
+    if (_currentUserId != userId) {
+      debugPrint('Initializing habits for user: $userId (previous: $_currentUserId)');
+      _currentUserId = userId;
+      // Clear any existing data first
+      _clearDataInternal();
+      await loadHabits();
+    } else {
+      debugPrint('Habits already loaded for user: $userId');
+    }
+  }
+
+  // Internal method to clear data without notifying listeners
+  void _clearDataInternal() {
+    _habits = [];
+    _completions.clear();
+    _streaks.clear();
+    _isLoading = false;
+    _error = null;
+  }
+
+  // Clear all data when user logs out
+  void clearData() {
+    debugPrint('Clearing habit data for user: $_currentUserId');
+    _clearDataInternal();
+    _currentUserId = null;
+    notifyListeners();
   }
 
   Future<void> loadHabits() async {

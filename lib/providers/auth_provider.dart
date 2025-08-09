@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 import '../data/services/auth_service.dart';
 import '../data/models/user.dart';
+import 'habit_provider.dart';
+import 'community_provider.dart';
 
 enum AuthStatus {
   uninitialized,
@@ -11,6 +13,8 @@ enum AuthStatus {
 
 class AuthProvider extends ChangeNotifier {
   final AuthService _authService = AuthService();
+  HabitProvider? _habitProvider;
+  CommunityProvider? _communityProvider;
   
   AuthStatus _status = AuthStatus.uninitialized;
   User? _user;
@@ -23,6 +27,12 @@ class AuthProvider extends ChangeNotifier {
 
   AuthProvider() {
     _initializeAuth();
+  }
+
+  // Set providers that need to be cleared on logout
+  void setProviders(HabitProvider habitProvider, CommunityProvider communityProvider) {
+    _habitProvider = habitProvider;
+    _communityProvider = communityProvider;
   }
 
   // Initialize authentication state
@@ -40,6 +50,11 @@ class AuthProvider extends ChangeNotifier {
         if (user != null) {
           _user = user;
           _status = AuthStatus.authenticated;
+          
+          // Initialize habits for the authenticated user
+          if (_habitProvider != null) {
+            await _habitProvider!.initializeForUser(user.id);
+          }
         } else {
           _status = AuthStatus.unauthenticated;
         }
@@ -49,6 +64,11 @@ class AuthProvider extends ChangeNotifier {
           final result = await _authService.refreshToken();
           _user = result.user;
           _status = AuthStatus.authenticated;
+          
+          // Initialize habits for the authenticated user
+          if (_habitProvider != null && _user != null) {
+            await _habitProvider!.initializeForUser(_user!.id);
+          }
         } catch (e) {
           _status = AuthStatus.unauthenticated;
         }
@@ -70,6 +90,12 @@ class AuthProvider extends ChangeNotifier {
       final result = await _authService.login(emailOrUsername, password);
       _user = result.user;
       _status = AuthStatus.authenticated;
+      
+      // Initialize habits for the logged-in user
+      if (_habitProvider != null && _user != null) {
+        await _habitProvider!.initializeForUser(_user!.id);
+      }
+      
       notifyListeners();
     } catch (e) {
       _status = AuthStatus.unauthenticated;
@@ -102,6 +128,12 @@ class AuthProvider extends ChangeNotifier {
       
       _user = result.user;
       _status = AuthStatus.authenticated;
+      
+      // Initialize habits for the newly registered user
+      if (_habitProvider != null && _user != null) {
+        await _habitProvider!.initializeForUser(_user!.id);
+      }
+      
       notifyListeners();
     } catch (e) {
       _status = AuthStatus.unauthenticated;
@@ -121,6 +153,12 @@ class AuthProvider extends ChangeNotifier {
       final result = await _authService.signInWithGoogle();
       _user = result.user;
       _status = AuthStatus.authenticated;
+      
+      // Initialize habits for the Google sign-in user
+      if (_habitProvider != null && _user != null) {
+        await _habitProvider!.initializeForUser(_user!.id);
+      }
+      
       notifyListeners();
     } catch (e) {
       _status = AuthStatus.unauthenticated;
@@ -134,6 +172,11 @@ class AuthProvider extends ChangeNotifier {
   Future<void> logout() async {
     try {
       await _authService.logout();
+      
+      // Clear data from other providers
+      _habitProvider?.clearData();
+      _communityProvider?.clearData();
+      
       _user = null;
       _status = AuthStatus.unauthenticated;
       _error = null;
