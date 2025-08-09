@@ -37,7 +37,7 @@ class _HabitDetailScreenState extends State<HabitDetailScreen>
     _initializeAnimation();
     _initializeDateFormatting();
   }
-  
+
   void _initializeViewModel() {
     _viewModel = HabitDetailViewModel(
       habitProvider: context.read<HabitProvider>(),
@@ -46,7 +46,7 @@ class _HabitDetailScreenState extends State<HabitDetailScreen>
     );
     _viewModel.addListener(_onViewModelChanged);
   }
-  
+
   void _initializeAnimation() {
     _floatingAnimationController = AnimationController(
       duration: const Duration(seconds: 20),
@@ -93,7 +93,7 @@ class _HabitDetailScreenState extends State<HabitDetailScreen>
       body: body,
     );
   }
-  
+
   Widget _buildContent() {
     return ListView(
       children: [
@@ -135,7 +135,7 @@ class _HabitDetailScreenState extends State<HabitDetailScreen>
       ),
     );
   }
-  
+
   Widget _buildCloseButton() {
     return IconButton(
       icon: Icon(
@@ -145,7 +145,7 @@ class _HabitDetailScreenState extends State<HabitDetailScreen>
       onPressed: () => Navigator.pop(context),
     );
   }
-  
+
   Widget _buildMakePublicButton() {
     return IconButton(
       icon: Icon(
@@ -155,7 +155,7 @@ class _HabitDetailScreenState extends State<HabitDetailScreen>
       onPressed: _showMakePublicDialog,
     );
   }
-  
+
   Widget _buildEditButton() {
     return IconButton(
       icon: Icon(
@@ -181,7 +181,7 @@ class _HabitDetailScreenState extends State<HabitDetailScreen>
       ),
     );
   }
-  
+
   Widget _buildHabitIcon(Color color) {
     return Container(
       width: 80,
@@ -199,15 +199,15 @@ class _HabitDetailScreenState extends State<HabitDetailScreen>
       ),
     );
   }
-  
+
   Widget _buildHabitName() {
     return Column(
       children: [
         Text(
           _viewModel.habit.name,
-          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-            fontWeight: FontWeight.w500,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w500),
         ),
         if (_viewModel.habit.communityId != null) ...[
           const SizedBox(height: 8),
@@ -216,7 +216,7 @@ class _HabitDetailScreenState extends State<HabitDetailScreen>
       ],
     );
   }
-  
+
   Widget _buildCommunityBadge() {
     return GestureDetector(
       onTap: _navigateToCommunity,
@@ -248,7 +248,7 @@ class _HabitDetailScreenState extends State<HabitDetailScreen>
       ),
     );
   }
-  
+
   void _navigateToCommunity() {
     if (_viewModel.habit.communityId != null) {
       Navigator.push(
@@ -256,7 +256,8 @@ class _HabitDetailScreenState extends State<HabitDetailScreen>
         MaterialPageRoute(
           builder: (context) => CommunityDetailScreen(
             communityId: _viewModel.habit.communityId!,
-            communityName: _viewModel.habit.communityName ?? _viewModel.habit.name,
+            communityName:
+                _viewModel.habit.communityName ?? _viewModel.habit.name,
           ),
         ),
       );
@@ -279,7 +280,7 @@ class _HabitDetailScreenState extends State<HabitDetailScreen>
   }
 
   void _showMakePublicDialog() {
-    final builder = (BuildContext context) => MakeHabitPublicDialog(
+    builder(BuildContext context) => MakeHabitPublicDialog(
       habitName: _viewModel.habit.name,
       onMakePublic: (settings) => _handleMakePublic(settings),
     );
@@ -295,21 +296,21 @@ class _HabitDetailScreenState extends State<HabitDetailScreen>
       );
     }
   }
-  
+
   Future<void> _handleMakePublic(CommunitySettings settings) async {
     Navigator.pop(context);
-    
+
     final result = await _viewModel.makeHabitPublic(settings);
-    
+
     if (!mounted) return;
-    
+
     if (result.success) {
       _showSuccessMessage(result);
     } else {
       _showErrorMessage(result.error ?? 'Failed to make habit public');
     }
   }
-  
+
   void _showSuccessMessage(MakePublicResult result) {
     _showPlatformSnackBar(
       '${_viewModel.habit.name} is now public!',
@@ -330,12 +331,9 @@ class _HabitDetailScreenState extends State<HabitDetailScreen>
       },
     );
   }
-  
+
   void _showErrorMessage(String message) {
-    _showPlatformSnackBar(
-      message,
-      backgroundColor: Colors.red,
-    );
+    _showPlatformSnackBar(message, backgroundColor: Colors.red);
   }
 
   void _showPlatformSnackBar(
@@ -347,11 +345,20 @@ class _HabitDetailScreenState extends State<HabitDetailScreen>
     if (Platform.isIOS) {
       _showIOSAlert(message, actionLabel, onActionPressed);
     } else {
-      _showAndroidSnackBar(message, backgroundColor, actionLabel, onActionPressed);
+      _showAndroidSnackBar(
+        message,
+        backgroundColor,
+        actionLabel,
+        onActionPressed,
+      );
     }
   }
-  
-  void _showIOSAlert(String message, String? actionLabel, VoidCallback? onActionPressed) {
+
+  void _showIOSAlert(
+    String message,
+    String? actionLabel,
+    VoidCallback? onActionPressed,
+  ) {
     showCupertinoDialog(
       context: context,
       builder: (context) => CupertinoAlertDialog(
@@ -373,8 +380,13 @@ class _HabitDetailScreenState extends State<HabitDetailScreen>
       ),
     );
   }
-  
-  void _showAndroidSnackBar(String message, Color? backgroundColor, String? actionLabel, VoidCallback? onActionPressed) {
+
+  void _showAndroidSnackBar(
+    String message,
+    Color? backgroundColor,
+    String? actionLabel,
+    VoidCallback? onActionPressed,
+  ) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),

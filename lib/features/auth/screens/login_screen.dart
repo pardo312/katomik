@@ -5,6 +5,12 @@ import '../../../shared/widgets/adaptive_widgets.dart';
 import '../../../core/platform/platform_service.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../core/utils/platform_messages.dart';
+import '../view_models/login_view_model.dart';
+import '../widgets/auth_header.dart';
+import '../widgets/auth_form_field.dart';
+import '../widgets/social_login_button.dart';
+import '../widgets/auth_loading_state.dart';
+import '../utils/auth_validator.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -17,78 +23,50 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  bool _isLoading = false;
-  bool _obscurePassword = true;
+  late final LoginViewModel _viewModel;
+
+  @override
+  void initState() {
+    super.initState();
+    _viewModel = LoginViewModel(context.read<AuthProvider>());
+    _viewModel.addListener(_handleViewModelChange);
+  }
 
   @override
   void dispose() {
+    _viewModel.removeListener(_handleViewModelChange);
+    _viewModel.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
 
+  void _handleViewModelChange() {
+    if (_viewModel.error != null && mounted) {
+      PlatformMessages.showError(context, _viewModel.error!);
+      _viewModel.clearError();
+    }
+  }
+
   Future<void> _handleLogin() async {
-    if (!_formKey.currentState!.validate()) return;
-
-    setState(() => _isLoading = true);
-
-    try {
-      final authProvider = context.read<AuthProvider>();
-      await authProvider.login(_emailController.text, _passwordController.text);
+    if (context.isIOS || _formKey.currentState!.validate()) {
+      final success = await _viewModel.login(
+        _emailController.text,
+        _passwordController.text,
+      );
       
-      // Navigate to home screen on successful login
-      if (mounted && authProvider.isAuthenticated) {
+      if (success && mounted) {
         Navigator.pushReplacementNamed(context, '/');
-      }
-    } catch (e) {
-      if (mounted) {
-        _showError(e.toString());
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
       }
     }
   }
 
   Future<void> _handleGoogleSignIn() async {
-    setState(() => _isLoading = true);
-
-    try {
-      final authProvider = context.read<AuthProvider>();
-      await authProvider.signInWithGoogle();
-      
-      // Navigate to home screen on successful login
-      if (mounted && authProvider.isAuthenticated) {
-        Navigator.pushReplacementNamed(context, '/');
-      }
-    } catch (e) {
-      if (mounted) {
-        _showError(e.toString());
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
-    }
-  }
-
-  void _showError(String message) {
-    // Parse backend error messages
-    String displayMessage = message;
+    final success = await _viewModel.signInWithGoogle();
     
-    // Handle common backend error messages
-    if (message.contains('Invalid credentials') || message.contains('invalid credentials')) {
-      displayMessage = 'Invalid email/username or password. Please try again.';
-    } else if (message.contains('User not found')) {
-      displayMessage = 'No account found with this email/username. Please register first.';
-    } else if (message.contains('Network error')) {
-      displayMessage = 'Unable to connect to server. Please check your internet connection.';
-    } else if (message.contains('Bad Request Exception')) {
-      displayMessage = 'Please check your login details and try again.';
+    if (success && mounted) {
+      Navigator.pushReplacementNamed(context, '/');
     }
-    
-    PlatformMessages.showError(context, displayMessage);
   }
 
   @override
@@ -107,135 +85,62 @@ class _LoginScreenState extends State<LoginScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const Icon(
-                      Icons.track_changes,
-                      size: 80,
-                      color: Colors.blue,
+                    const AuthHeader(
+                      title: 'Welcome Back',
+                      subtitle: 'Sign in to continue',
                     ),
                     const SizedBox(height: 48),
-                    Text(
-                      'Welcome Back',
-                      style: Theme.of(context).textTheme.headlineLarge,
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Sign in to continue',
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            color: Theme.of(context).textTheme.bodySmall?.color,
-                          ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 48),
-                    if (context.isIOS)
-                      CupertinoTextField(
-                        controller: _emailController,
-                        placeholder: 'Email',
-                        keyboardType: TextInputType.emailAddress,
-                        textInputAction: TextInputAction.next,
-                        autocorrect: false,
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: CupertinoColors.systemGrey6,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      )
-                    else
-                      TextFormField(
-                        controller: _emailController,
-                        decoration: const InputDecoration(
-                          labelText: 'Email',
-                          prefixIcon: Icon(Icons.email),
-                          border: OutlineInputBorder(),
-                        ),
-                        keyboardType: TextInputType.emailAddress,
-                        textInputAction: TextInputAction.next,
-                        autocorrect: false,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter your email';
-                          }
-                          if (!value.contains('@')) {
-                            return 'Please enter a valid email';
-                          }
-                          return null;
-                        },
-                      ),
-                    const SizedBox(height: 16),
-                    if (context.isIOS)
-                      CupertinoTextField(
-                        controller: _passwordController,
-                        placeholder: 'Password',
-                        obscureText: _obscurePassword,
-                        textInputAction: TextInputAction.done,
-                        onSubmitted: (_) => _handleLogin(),
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: CupertinoColors.systemGrey6,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        suffix: CupertinoButton(
-                          padding: EdgeInsets.zero,
-                          onPressed: () {
-                            setState(() => _obscurePassword = !_obscurePassword);
-                          },
-                          child: Icon(
-                            _obscurePassword
-                                ? CupertinoIcons.eye_slash
-                                : CupertinoIcons.eye,
-                            color: CupertinoColors.systemGrey,
-                          ),
-                        ),
-                      )
-                    else
-                      TextFormField(
-                        controller: _passwordController,
-                        decoration: InputDecoration(
-                          labelText: 'Password',
-                          prefixIcon: const Icon(Icons.lock),
-                          border: const OutlineInputBorder(),
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              _obscurePassword
-                                  ? Icons.visibility_off
-                                  : Icons.visibility,
+                    ListenableBuilder(
+                      listenable: _viewModel,
+                      builder: (context, _) {
+                        if (_viewModel.isLoading) {
+                          return const AuthLoadingState(
+                            message: 'Signing in...',
+                          );
+                        }
+                        
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            AuthFormField(
+                              controller: _emailController,
+                              label: 'Email',
+                              placeholder: 'Email',
+                              prefixIcon: Icons.email,
+                              keyboardType: TextInputType.emailAddress,
+                              textInputAction: TextInputAction.next,
+                              validator: AuthValidator.validateEmail,
                             ),
-                            onPressed: () {
-                              setState(() => _obscurePassword = !_obscurePassword);
-                            },
-                          ),
-                        ),
-                        obscureText: _obscurePassword,
-                        textInputAction: TextInputAction.done,
-                        onFieldSubmitted: (_) => _handleLogin(),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter your password';
-                          }
-                          if (value.length < 8) {
-                            return 'Password must be at least 8 characters';
-                          }
-                          return null;
-                        },
-                      ),
-                    const SizedBox(height: 24),
-                    if (_isLoading)
-                      const Center(
-                        child: CircularProgressIndicator(),
-                      )
-                    else
-                      AdaptiveButton(
-                        text: 'Login',
-                        onPressed: _handleLogin,
-                        isPrimary: true,
-                      ),
-                    const SizedBox(height: 16),
-                    AdaptiveButton(
-                      text: 'Create Account',
-                      onPressed: () {
-                        Navigator.pushReplacementNamed(context, '/register');
+                            const SizedBox(height: 16),
+                            AuthFormField(
+                              controller: _passwordController,
+                              label: 'Password',
+                              placeholder: 'Password',
+                              prefixIcon: Icons.lock,
+                              obscureText: _viewModel.obscurePassword,
+                              textInputAction: TextInputAction.done,
+                              onFieldSubmitted: _handleLogin,
+                              showToggleVisibility: true,
+                              onToggleVisibility: _viewModel.togglePasswordVisibility,
+                              validator: AuthValidator.validatePassword,
+                            ),
+                            const SizedBox(height: 24),
+                            AdaptiveButton(
+                              text: 'Login',
+                              onPressed: _handleLogin,
+                              isPrimary: true,
+                            ),
+                            const SizedBox(height: 16),
+                            AdaptiveButton(
+                              text: 'Create Account',
+                              onPressed: () {
+                                Navigator.pushReplacementNamed(context, '/register');
+                              },
+                              isPrimary: false,
+                            ),
+                          ],
+                        );
                       },
-                      isPrimary: false,
                     ),
                     const SizedBox(height: 32),
                     Row(
@@ -252,63 +157,20 @@ class _LoginScreenState extends State<LoginScreen> {
                       ],
                     ),
                     const SizedBox(height: 32),
-                    if (context.isIOS)
-                      CupertinoButton(
-                        onPressed: _isLoading ? null : _handleGoogleSignIn,
-                        child: Container(
-                          height: 50,
-                          decoration: BoxDecoration(
-                            color: CupertinoColors.systemBackground,
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                              color: CupertinoColors.systemGrey4,
-                            ),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.g_mobiledata,
-                                size: 24,
-                                color: Colors.blue,
-                              ),
-                              const SizedBox(width: 12),
-                              const Text(
-                                'Sign in with Google',
-                                style: TextStyle(
-                                  color: CupertinoColors.label,
-                                  fontSize: 16,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      )
-                    else
-                      OutlinedButton(
-                        onPressed: _isLoading ? null : _handleGoogleSignIn,
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              CupertinoIcons.person_crop_circle,
-                              size: 24,
-                              color: CupertinoColors.systemBlue,
-                            ),
-                            const SizedBox(width: 12),
-                            const Text(
-                              'Sign in with Google',
-                              style: TextStyle(fontSize: 16),
-                            ),
-                          ],
-                        ),
-                      ),
+                    ListenableBuilder(
+                      listenable: _viewModel,
+                      builder: (context, _) {
+                        return SocialLoginButton(
+                          text: 'Sign in with Google',
+                          icon: context.isIOS 
+                              ? Icons.g_mobiledata 
+                              : CupertinoIcons.person_crop_circle,
+                          iconColor: Colors.blue,
+                          onPressed: _handleGoogleSignIn,
+                          isLoading: _viewModel.isLoading,
+                        );
+                      },
+                    ),
                   ],
                 ),
               ),

@@ -5,6 +5,12 @@ import '../../../shared/widgets/adaptive_widgets.dart';
 import '../../../core/platform/platform_service.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../core/utils/platform_messages.dart';
+import '../view_models/register_view_model.dart';
+import '../widgets/auth_header.dart';
+import '../widgets/auth_form_field.dart';
+import '../widgets/social_login_button.dart';
+import '../widgets/auth_loading_state.dart';
+import '../utils/auth_validator.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -19,18 +25,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
-  bool _isLoading = false;
-  bool _obscurePassword = true;
-  bool _obscureConfirmPassword = true;
-  
-  // Validation error messages for iOS
-  String? _usernameError;
-  String? _emailError;
-  String? _passwordError;
-  String? _confirmPasswordError;
+  late final RegisterViewModel _viewModel;
+
+  @override
+  void initState() {
+    super.initState();
+    _viewModel = RegisterViewModel(context.read<AuthProvider>());
+    _viewModel.addListener(_handleViewModelChange);
+  }
 
   @override
   void dispose() {
+    _viewModel.removeListener(_handleViewModelChange);
+    _viewModel.dispose();
     _usernameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
@@ -38,169 +45,53 @@ class _RegisterScreenState extends State<RegisterScreen> {
     super.dispose();
   }
 
-  bool _validateiOSFields() {
-    bool isValid = true;
-    
-    // Validate username
-    if (_usernameController.text.isEmpty) {
-      setState(() => _usernameError = 'Please enter a username');
-      isValid = false;
-    } else if (_usernameController.text.length < 3) {
-      setState(() => _usernameError = 'Username must be at least 3 characters');
-      isValid = false;
-    } else if (_usernameController.text.length > 50) {
-      setState(() => _usernameError = 'Username must be less than 50 characters');
-      isValid = false;
-    } else if (!RegExp(r'^[a-zA-Z0-9_]+$').hasMatch(_usernameController.text)) {
-      setState(() => _usernameError = 'Username can only contain letters, numbers, and underscores');
-      isValid = false;
-    } else {
-      setState(() => _usernameError = null);
+  void _handleViewModelChange() {
+    if (_viewModel.error != null && mounted) {
+      PlatformMessages.showError(context, _viewModel.error!);
+      _viewModel.clearError();
     }
-    
-    // Validate email
-    final emailRegex = RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
-    if (_emailController.text.isEmpty) {
-      setState(() => _emailError = 'Please enter your email');
-      isValid = false;
-    } else if (!emailRegex.hasMatch(_emailController.text)) {
-      setState(() => _emailError = 'Please enter a valid email address');
-      isValid = false;
-    } else {
-      setState(() => _emailError = null);
-    }
-    
-    // Validate password
-    if (_passwordController.text.isEmpty) {
-      setState(() => _passwordError = 'Please enter a password');
-      isValid = false;
-    } else if (_passwordController.text.length < 8) {
-      setState(() => _passwordError = 'Password must be at least 8 characters');
-      isValid = false;
-    } else {
-      setState(() => _passwordError = null);
-    }
-    
-    // Validate confirm password
-    if (_confirmPasswordController.text.isEmpty) {
-      setState(() => _confirmPasswordError = 'Please confirm your password');
-      isValid = false;
-    } else if (_confirmPasswordController.text != _passwordController.text) {
-      setState(() => _confirmPasswordError = 'Passwords do not match');
-      isValid = false;
-    } else {
-      setState(() => _confirmPasswordError = null);
-    }
-    
-    return isValid;
   }
 
   Future<void> _handleRegister() async {
-    // For iOS, manually validate
+    bool isValid = true;
+    
     if (context.isIOS) {
-      if (!_validateiOSFields()) return;
-    } else {
-      if (!_formKey.currentState!.validate()) return;
-    }
-
-    setState(() => _isLoading = true);
-
-    try {
-      final authProvider = context.read<AuthProvider>();
-      await authProvider.register(
+      isValid = _viewModel.validateFields(
         username: _usernameController.text,
         email: _emailController.text,
         password: _passwordController.text,
-        displayName: _usernameController.text, // Using username as display name for now
+        confirmPassword: _confirmPasswordController.text,
+      );
+    } else {
+      isValid = _formKey.currentState!.validate();
+    }
+    
+    if (isValid) {
+      final success = await _viewModel.register(
+        username: _usernameController.text,
+        email: _emailController.text,
+        password: _passwordController.text,
+        confirmPassword: _confirmPasswordController.text,
       );
       
-      // Navigate to home screen on successful registration
-      if (mounted && authProvider.isAuthenticated) {
+      if (success && mounted) {
         Navigator.pushReplacementNamed(context, '/');
-      }
-    } catch (e) {
-      if (mounted) {
-        _showError(e.toString());
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
       }
     }
   }
 
   Future<void> _handleGoogleSignIn() async {
-    setState(() => _isLoading = true);
-
-    try {
-      final authProvider = context.read<AuthProvider>();
-      await authProvider.signInWithGoogle();
-      
-      // Navigate to home screen on successful login
-      if (mounted && authProvider.isAuthenticated) {
-        Navigator.pushReplacementNamed(context, '/');
-      }
-    } catch (e) {
-      if (mounted) {
-        _showError(e.toString());
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
-    }
-  }
-
-  void _showError(String message) {
-    // Parse backend validation errors
-    String displayMessage = message;
+    final success = await _viewModel.signInWithGoogle();
     
-    // Handle common backend validation messages
-    if (message.contains('email already exists') || message.contains('Email already exists')) {
-      displayMessage = 'This email is already registered. Please use a different email or login.';
-    } else if (message.contains('username already exists') || message.contains('Username already exists')) {
-      displayMessage = 'This username is already taken. Please choose a different username.';
-    } else if (message.contains('password') && message.contains('short')) {
-      displayMessage = 'Password must be at least 8 characters long.';
-    } else if (message.contains('Bad Request Exception')) {
-      displayMessage = 'Please check your input and try again. Make sure your password is at least 8 characters.';
+    if (success && mounted) {
+      Navigator.pushReplacementNamed(context, '/');
     }
-    
-    PlatformMessages.showError(context, displayMessage);
-  }
-
-  Widget _buildIOSField({
-    required TextEditingController controller,
-    required String placeholder,
-    bool obscureText = false,
-    TextInputType keyboardType = TextInputType.text,
-    TextInputAction textInputAction = TextInputAction.next,
-    VoidCallback? onSubmitted,
-    Widget? suffix,
-    ValueChanged<String>? onChanged,
-  }) {
-    return CupertinoTextField(
-      controller: controller,
-      placeholder: placeholder,
-      obscureText: obscureText,
-      keyboardType: keyboardType,
-      textInputAction: textInputAction,
-      onSubmitted: onSubmitted != null ? (_) => onSubmitted() : null,
-      onChanged: onChanged,
-      autocorrect: false,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: CupertinoColors.systemGrey6,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      suffix: suffix,
-    );
   }
 
   @override
   Widget build(BuildContext context) {
     return AdaptiveScaffold(
-      title: const Text('Create Account'),
+      title: const Text('Register'),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -213,286 +104,103 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const Icon(
-                      Icons.track_changes,
-                      size: 80,
-                      color: Colors.blue,
+                    const AuthHeader(
+                      title: 'Create Account',
+                      subtitle: 'Sign up to get started',
                     ),
                     const SizedBox(height: 48),
-                    Text(
-                      'Create Account',
-                      style: Theme.of(context).textTheme.headlineLarge,
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Sign up to start tracking your habits',
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            color: Theme.of(context).textTheme.bodySmall?.color,
-                          ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 48),
-                    if (context.isIOS) ...[
-                      _buildIOSField(
-                        controller: _usernameController,
-                        placeholder: 'Username',
-                        onChanged: (value) {
-                          if (_usernameError != null) {
-                            _validateiOSFields();
-                          }
-                        },
-                      ),
-                      if (_usernameError != null)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 8, left: 16),
-                          child: Text(
-                            _usernameError!,
-                            style: const TextStyle(
-                              color: CupertinoColors.destructiveRed,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ),
-                    ]
-                    else
-                      TextFormField(
-                        controller: _usernameController,
-                        decoration: const InputDecoration(
-                          labelText: 'Username',
-                          prefixIcon: Icon(Icons.person),
-                          border: OutlineInputBorder(),
-                        ),
-                        textInputAction: TextInputAction.next,
-                        autocorrect: false,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter a username';
-                          }
-                          if (value.length < 3) {
-                            return 'Username must be at least 3 characters';
-                          }
-                          if (value.length > 50) {
-                            return 'Username must be less than 50 characters';
-                          }
-                          if (!RegExp(r'^[a-zA-Z0-9_]+$').hasMatch(value)) {
-                            return 'Username can only contain letters, numbers, and underscores';
-                          }
-                          return null;
-                        },
-                      ),
-                    const SizedBox(height: 16),
-                    if (context.isIOS) ...[
-                      _buildIOSField(
-                        controller: _emailController,
-                        placeholder: 'Email',
-                        keyboardType: TextInputType.emailAddress,
-                        onChanged: (value) {
-                          if (_emailError != null) {
-                            _validateiOSFields();
-                          }
-                        },
-                      ),
-                      if (_emailError != null)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 8, left: 16),
-                          child: Text(
-                            _emailError!,
-                            style: const TextStyle(
-                              color: CupertinoColors.destructiveRed,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ),
-                    ]
-                    else
-                      TextFormField(
-                        controller: _emailController,
-                        decoration: const InputDecoration(
-                          labelText: 'Email',
-                          prefixIcon: Icon(Icons.email),
-                          border: OutlineInputBorder(),
-                        ),
-                        keyboardType: TextInputType.emailAddress,
-                        textInputAction: TextInputAction.next,
-                        autocorrect: false,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter your email';
-                          }
-                          // More comprehensive email validation
-                          final emailRegex = RegExp(
-                            r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+                    ListenableBuilder(
+                      listenable: _viewModel,
+                      builder: (context, _) {
+                        if (_viewModel.isLoading) {
+                          return const AuthLoadingState(
+                            message: 'Creating your account...',
                           );
-                          if (!emailRegex.hasMatch(value)) {
-                            return 'Please enter a valid email address';
-                          }
-                          return null;
-                        },
-                      ),
-                    const SizedBox(height: 16),
-                    if (context.isIOS) ...[
-                      _buildIOSField(
-                        controller: _passwordController,
-                        placeholder: 'Password',
-                        obscureText: _obscurePassword,
-                        onChanged: (value) {
-                          if (_passwordError != null) {
-                            _validateiOSFields();
-                          }
-                        },
-                        suffix: CupertinoButton(
-                          padding: EdgeInsets.zero,
-                          onPressed: () {
-                            setState(() => _obscurePassword = !_obscurePassword);
-                          },
-                          child: Icon(
-                            _obscurePassword
-                                ? CupertinoIcons.eye_slash
-                                : CupertinoIcons.eye,
-                            color: CupertinoColors.systemGrey,
-                          ),
-                        ),
-                      ),
-                      if (_passwordError != null)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 8, left: 16),
-                          child: Text(
-                            _passwordError!,
-                            style: const TextStyle(
-                              color: CupertinoColors.destructiveRed,
-                              fontSize: 12,
+                        }
+                        
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            AuthFormField(
+                              controller: _usernameController,
+                              label: 'Username',
+                              placeholder: 'Username',
+                              prefixIcon: Icons.person,
+                              keyboardType: TextInputType.text,
+                              textInputAction: TextInputAction.next,
+                              validator: AuthValidator.validateUsername,
+                              errorText: context.isIOS ? _viewModel.usernameError : null,
+                              onChanged: context.isIOS 
+                                  ? (_) => setState(() {}) 
+                                  : null,
                             ),
-                          ),
-                        ),
-                    ]
-                    else
-                      TextFormField(
-                        controller: _passwordController,
-                        decoration: InputDecoration(
-                          labelText: 'Password',
-                          prefixIcon: const Icon(Icons.lock),
-                          border: const OutlineInputBorder(),
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              _obscurePassword
-                                  ? Icons.visibility_off
-                                  : Icons.visibility,
+                            const SizedBox(height: 16),
+                            AuthFormField(
+                              controller: _emailController,
+                              label: 'Email',
+                              placeholder: 'Email',
+                              prefixIcon: Icons.email,
+                              keyboardType: TextInputType.emailAddress,
+                              textInputAction: TextInputAction.next,
+                              validator: AuthValidator.validateEmail,
+                              errorText: context.isIOS ? _viewModel.emailError : null,
+                              onChanged: context.isIOS 
+                                  ? (_) => setState(() {}) 
+                                  : null,
                             ),
-                            onPressed: () {
-                              setState(() => _obscurePassword = !_obscurePassword);
-                            },
-                          ),
-                        ),
-                        obscureText: _obscurePassword,
-                        textInputAction: TextInputAction.next,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter a password';
-                          }
-                          if (value.length < 8) {
-                            return 'Password must be at least 8 characters';
-                          }
-                          // Check for password strength
-                          bool hasUppercase = value.contains(RegExp(r'[A-Z]'));
-                          bool hasLowercase = value.contains(RegExp(r'[a-z]'));
-                          bool hasNumbers = value.contains(RegExp(r'[0-9]'));
-                          
-                          if (!hasUppercase || !hasLowercase || !hasNumbers) {
-                            return 'Password must contain uppercase, lowercase, and numbers';
-                          }
-                          return null;
-                        },
-                      ),
-                    const SizedBox(height: 16),
-                    if (context.isIOS) ...[
-                      _buildIOSField(
-                        controller: _confirmPasswordController,
-                        placeholder: 'Confirm Password',
-                        obscureText: _obscureConfirmPassword,
-                        textInputAction: TextInputAction.done,
-                        onSubmitted: _handleRegister,
-                        onChanged: (value) {
-                          if (_confirmPasswordError != null) {
-                            _validateiOSFields();
-                          }
-                        },
-                        suffix: CupertinoButton(
-                          padding: EdgeInsets.zero,
-                          onPressed: () {
-                            setState(() =>
-                                _obscureConfirmPassword = !_obscureConfirmPassword);
-                          },
-                          child: Icon(
-                            _obscureConfirmPassword
-                                ? CupertinoIcons.eye_slash
-                                : CupertinoIcons.eye,
-                            color: CupertinoColors.systemGrey,
-                          ),
-                        ),
-                      ),
-                      if (_confirmPasswordError != null)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 8, left: 16),
-                          child: Text(
-                            _confirmPasswordError!,
-                            style: const TextStyle(
-                              color: CupertinoColors.destructiveRed,
-                              fontSize: 12,
+                            const SizedBox(height: 16),
+                            AuthFormField(
+                              controller: _passwordController,
+                              label: 'Password',
+                              placeholder: 'Password',
+                              prefixIcon: Icons.lock,
+                              obscureText: _viewModel.obscurePassword,
+                              textInputAction: TextInputAction.next,
+                              showToggleVisibility: true,
+                              onToggleVisibility: _viewModel.togglePasswordVisibility,
+                              validator: AuthValidator.validatePassword,
+                              errorText: context.isIOS ? _viewModel.passwordError : null,
+                              onChanged: context.isIOS 
+                                  ? (_) => setState(() {}) 
+                                  : null,
                             ),
-                          ),
-                        ),
-                    ]
-                    else
-                      TextFormField(
-                        controller: _confirmPasswordController,
-                        decoration: InputDecoration(
-                          labelText: 'Confirm Password',
-                          prefixIcon: const Icon(Icons.lock_outline),
-                          border: const OutlineInputBorder(),
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              _obscureConfirmPassword
-                                  ? Icons.visibility_off
-                                  : Icons.visibility,
+                            const SizedBox(height: 16),
+                            AuthFormField(
+                              controller: _confirmPasswordController,
+                              label: 'Confirm Password',
+                              placeholder: 'Confirm Password',
+                              prefixIcon: Icons.lock_outline,
+                              obscureText: _viewModel.obscureConfirmPassword,
+                              textInputAction: TextInputAction.done,
+                              onFieldSubmitted: _handleRegister,
+                              showToggleVisibility: true,
+                              onToggleVisibility: _viewModel.toggleConfirmPasswordVisibility,
+                              validator: (value) => AuthValidator.validateConfirmPassword(
+                                value,
+                                _passwordController.text,
+                              ),
+                              errorText: context.isIOS ? _viewModel.confirmPasswordError : null,
+                              onChanged: context.isIOS 
+                                  ? (_) => setState(() {}) 
+                                  : null,
                             ),
-                            onPressed: () {
-                              setState(() =>
-                                  _obscureConfirmPassword = !_obscureConfirmPassword);
-                            },
-                          ),
-                        ),
-                        obscureText: _obscureConfirmPassword,
-                        textInputAction: TextInputAction.done,
-                        onFieldSubmitted: (_) => _handleRegister(),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please confirm your password';
-                          }
-                          if (value != _passwordController.text) {
-                            return 'Passwords do not match';
-                          }
-                          return null;
-                        },
-                      ),
-                    const SizedBox(height: 24),
-                    if (_isLoading)
-                      const Center(
-                        child: CircularProgressIndicator(),
-                      )
-                    else
-                      AdaptiveButton(
-                        text: 'Create Account',
-                        onPressed: _handleRegister,
-                        isPrimary: true,
-                      ),
-                    const SizedBox(height: 16),
-                    AdaptiveButton(
-                      text: 'Already have an account? Login',
-                      onPressed: () {
-                        Navigator.pushReplacementNamed(context, '/login');
+                            const SizedBox(height: 24),
+                            AdaptiveButton(
+                              text: 'Create Account',
+                              onPressed: _handleRegister,
+                              isPrimary: true,
+                            ),
+                            const SizedBox(height: 16),
+                            AdaptiveButton(
+                              text: 'Already have an account? Login',
+                              onPressed: () {
+                                Navigator.pushReplacementNamed(context, '/login');
+                              },
+                              isPrimary: false,
+                            ),
+                          ],
+                        );
                       },
-                      isPrimary: false,
                     ),
                     const SizedBox(height: 32),
                     Row(
@@ -509,63 +217,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ],
                     ),
                     const SizedBox(height: 32),
-                    if (context.isIOS)
-                      CupertinoButton(
-                        onPressed: _isLoading ? null : _handleGoogleSignIn,
-                        child: Container(
-                          height: 50,
-                          decoration: BoxDecoration(
-                            color: CupertinoColors.systemBackground,
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                              color: CupertinoColors.systemGrey4,
-                            ),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                CupertinoIcons.person_crop_circle,
-                                size: 24,
-                                color: CupertinoColors.systemBlue,
-                              ),
-                              const SizedBox(width: 12),
-                              const Text(
-                                'Sign up with Google',
-                                style: TextStyle(
-                                  color: CupertinoColors.label,
-                                  fontSize: 16,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      )
-                    else
-                      OutlinedButton(
-                        onPressed: _isLoading ? null : _handleGoogleSignIn,
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.g_mobiledata,
-                              size: 24,
-                              color: Colors.blue,
-                            ),
-                            const SizedBox(width: 12),
-                            const Text(
-                              'Sign up with Google',
-                              style: TextStyle(fontSize: 16),
-                            ),
-                          ],
-                        ),
-                      ),
+                    ListenableBuilder(
+                      listenable: _viewModel,
+                      builder: (context, _) {
+                        return SocialLoginButton(
+                          text: 'Sign up with Google',
+                          icon: context.isIOS 
+                              ? Icons.g_mobiledata 
+                              : CupertinoIcons.person_crop_circle,
+                          iconColor: Colors.blue,
+                          onPressed: _handleGoogleSignIn,
+                          isLoading: _viewModel.isLoading,
+                        );
+                      },
+                    ),
                   ],
                 ),
               ),
