@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:katomik/features/habit/widgets/habit_icon.dart';
+import 'habit_icon.dart';
 import 'dart:io';
 
 class IconPicker extends StatelessWidget {

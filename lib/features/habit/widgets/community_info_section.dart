@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import '../../../community/screens/community_detail_screen.dart';
-import '../../../../core/constants/app_colors.dart';
+import '../../community/screens/community_detail_screen.dart';
+import '../../../core/constants/app_colors.dart';
 
 class CommunityInfoSection extends StatelessWidget {
   final String? communityId;

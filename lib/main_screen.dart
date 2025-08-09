@@ -6,7 +6,7 @@ import 'package:katomik/core/platform/platform_icons.dart';
 import 'package:katomik/core/platform/platform_service.dart';
 import 'package:katomik/features/home/screens/home_screen.dart';
 import 'package:katomik/features/profile/screens/profile_screen.dart';
-import 'package:katomik/features/habit/add_habit/add_habit_screen.dart';
+import 'package:katomik/features/habit/screens/add_habit_screen.dart';
 import 'package:katomik/features/community/screens/discover_communities_screen.dart';
 import 'package:katomik/providers/navigation_provider.dart';
 import 'package:katomik/providers/habit_provider.dart';

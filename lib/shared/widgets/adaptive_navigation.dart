@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:katomik/features/habit/habit_detail/habit_detail_screen.dart';
+import 'package:katomik/features/habit/screens/habit_detail_screen.dart';
 import 'dart:io';
 import '../../features/settings/screens/theme_settings_screen.dart';
-import '../../features/habit/add_habit/add_habit_screen.dart';
+import '../../features/habit/screens/add_habit_screen.dart';
 import '../../data/models/habit.dart';
 
 class AdaptiveNavigationHelper {

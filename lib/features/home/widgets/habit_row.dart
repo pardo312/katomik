@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:provider/provider.dart';
 import 'package:katomik/data/models/habit.dart';
 import 'package:katomik/features/habit/widgets/habit_icon.dart';
-import 'package:katomik/features/habit/habit_detail/habit_detail_screen.dart';
+import 'package:katomik/features/habit/screens/habit_detail_screen.dart';
 import 'package:katomik/core/utils/date_utils.dart';
 import 'package:katomik/core/utils/color_utils.dart';
 import 'package:katomik/providers/navigation_provider.dart';

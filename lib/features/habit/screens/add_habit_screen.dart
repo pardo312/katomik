@@ -4,13 +4,14 @@ import 'package:provider/provider.dart';
 import 'package:katomik/data/models/habit.dart';
 import 'package:katomik/providers/habit_provider.dart';
 import 'package:katomik/shared/widgets/adaptive_widgets.dart';
-import 'package:katomik/features/habit/add_habit/widgets/color_picker.dart';
-import 'package:katomik/features/habit/add_habit/widgets/icon_picker.dart';
-import 'package:katomik/features/habit/add_habit/widgets/phrases_section.dart';
-import 'package:katomik/features/habit/add_habit/widgets/images_section.dart';
+import '../widgets/color_picker.dart';
+import '../widgets/icon_picker.dart';
+import '../widgets/phrases_section.dart';
+import '../widgets/images_section.dart';
 import '../view_models/add_habit_view_model.dart';
 import 'dart:io';
 import 'package:katomik/core/utils/platform_messages.dart';
+import 'package:katomik/core/utils/image_picker_helper.dart';
 
 class AddHabitScreen extends StatefulWidget {
   final Habit? habitToEdit;

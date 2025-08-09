@@ -14,12 +14,7 @@ class HabitDetailViewModel extends ChangeNotifier {
   DateTime _focusedMonth = DateTime.now();
   bool _isLoading = false;
   String? _error;
-  
-  final List<Map<String, dynamic>> communityPhrases = [
-    {'name': 'Brandon Anderson', 'avatar': '🎮', 'streak': 3},
-    {'name': 'Jane Martinez', 'avatar': '👩‍🦰', 'streak': 4},
-    {'name': 'Sebas Alzate', 'avatar': '👨‍💼', 'streak': 2},
-  ];
+  List<Map<String, dynamic>> _communityPhrases = [];
   
   HabitDetailViewModel({
     required HabitProvider habitProvider,
@@ -28,7 +23,7 @@ class HabitDetailViewModel extends ChangeNotifier {
   }) : _habitProvider = habitProvider,
        _communityProvider = communityProvider,
        _habit = habit {
-    _loadCompletions();
+    _initialize();
   }
   
   Habit get habit => _habit;
@@ -37,8 +32,14 @@ class HabitDetailViewModel extends ChangeNotifier {
   String? get error => _error;
   bool get canMakePublic => _habit.communityId == null;
   Color get habitColor => ColorUtils.parseColor(_habit.color);
+  List<Map<String, dynamic>> get communityPhrases => _communityPhrases;
   
   List<DateTime> get weeklyDates => HomeDateUtils.getLastNDays(5);
+  
+  Future<void> _initialize() async {
+    await _loadCompletions();
+    await _loadCommunityPhrases();
+  }
   
   Future<void> _loadCompletions() async {
     _isLoading = true;
@@ -55,13 +56,28 @@ class HabitDetailViewModel extends ChangeNotifier {
     }
   }
   
+  Future<void> _loadCommunityPhrases() async {
+    if (_habit.communityId == null) return;
+    
+    try {
+      _communityPhrases = await _fetchCommunityPhrases();
+      notifyListeners();
+    } catch (e) {
+      _communityPhrases = [];
+    }
+  }
+  
+  Future<List<Map<String, dynamic>>> _fetchCommunityPhrases() async {
+    return [];
+  }
+  
   Future<void> refreshHabit() async {
     try {
       final updatedHabit = _habitProvider.habits.firstWhere(
         (h) => h.id == _habit.id,
       );
       _habit = updatedHabit;
-      await _loadCompletions();
+      await _initialize();
     } catch (e) {
       _error = 'Failed to refresh habit';
       notifyListeners();
