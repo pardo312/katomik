@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:katomik/data/services/community_service.dart';
 import 'package:katomik/data/models/habit.dart';
@@ -6,7 +5,7 @@ import 'package:katomik/providers/habit_provider.dart';
 
 class CommunityProvider extends ChangeNotifier {
   final CommunityService _communityService = CommunityService();
-  
+
   List<CommunityHabit> _popularCommunities = [];
   List<CommunityHabit> _searchResults = [];
   List<UserCommunity> _userCommunities = [];
@@ -62,11 +61,16 @@ class CommunityProvider extends ChangeNotifier {
 
   Future<void> loadCommunityDetails(String communityId) async {
     await _executeAsync(() async {
-      _currentCommunityDetails = await _communityService.getCommunityDetails(communityId);
+      _currentCommunityDetails = await _communityService.getCommunityDetails(
+        communityId,
+      );
     });
   }
 
-  Future<void> loadLeaderboard(String communityId, {String timeframe = 'ALL_TIME'}) async {
+  Future<void> loadLeaderboard(
+    String communityId, {
+    String timeframe = 'ALL_TIME',
+  }) async {
     try {
       _currentLeaderboard = await _communityService.getCommunityLeaderboard(
         communityId,
@@ -87,7 +91,7 @@ class CommunityProvider extends ChangeNotifier {
   ) async {
     return await _executeWithResult(() async {
       _validateHabitForPublishing(habit);
-      
+
       final community = await _communityService.makeHabitPublic(
         habit.id!,
         settings,
@@ -142,11 +146,11 @@ class CommunityProvider extends ChangeNotifier {
   Future<bool> voteOnProposal(String proposalId, bool vote) async {
     return await _executeWithResult(() async {
       await _communityService.voteOnProposal(proposalId, vote);
-      
+
       if (_currentCommunityDetails != null) {
         await loadCommunityDetails(_currentCommunityDetails!.id);
       }
-      
+
       return true;
     });
   }
@@ -205,11 +209,13 @@ class CommunityProvider extends ChangeNotifier {
 
   String _formatErrorMessage(dynamic error) {
     final errorString = error.toString();
-    
+
     if (errorString.contains('already public')) {
       return 'This habit is already shared with the community';
     } else if (errorString.contains('BadRequestException')) {
-      final match = RegExp(r'BadRequestException: (.+)').firstMatch(errorString);
+      final match = RegExp(
+        r'BadRequestException: (.+)',
+      ).firstMatch(errorString);
       return match?.group(1) ?? 'Invalid request';
     } else if (errorString.contains('NetworkException')) {
       return 'Network error. Please check your connection and try again.';
@@ -233,7 +239,7 @@ class CommunityProvider extends ChangeNotifier {
       communityId: community.id,
       communityName: community.name,
     );
-    
+
     await habitProvider.updateHabit(updatedHabit);
   }
 }

@@ -1,5 +1,5 @@
-export 'screens/community_detail_screen.dart';
 export 'screens/discover_communities_screen.dart';
+export 'screens/community_detail_screen.dart';
 export 'screens/governance_screen.dart';
 
 export 'widgets/community_card.dart';
