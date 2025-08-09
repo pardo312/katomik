@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:katomik/data/services/community_service.dart';
 import 'package:katomik/data/models/habit.dart';
 import 'package:katomik/providers/habit_provider.dart';
@@ -188,7 +189,9 @@ class CommunityProvider extends ChangeNotifier {
 
   void _setLoadingState(bool loading) {
     _isLoading = loading;
-    notifyListeners();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      notifyListeners();
+    });
   }
 
   void _clearError() {
