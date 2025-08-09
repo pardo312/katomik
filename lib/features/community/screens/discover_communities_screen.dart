@@ -26,11 +26,17 @@ class _DiscoverCommunitiesScreenState extends State<DiscoverCommunitiesScreen> {
   void initState() {
     super.initState();
     _viewModel = DiscoverViewModel(context.read<CommunityProvider>());
+    _viewModel.addListener(_onViewModelChanged);
     _viewModel.initialize();
+  }
+
+  void _onViewModelChanged() {
+    if (mounted) setState(() {});
   }
 
   @override
   void dispose() {
+    _viewModel.removeListener(_onViewModelChanged);
     _viewModel.dispose();
     super.dispose();
   }
@@ -74,7 +80,7 @@ class _DiscoverCommunitiesScreenState extends State<DiscoverCommunitiesScreen> {
               CupertinoIcons.slider_horizontal_3,
               color: Theme.of(context).colorScheme.primary,
             ),
-            onPressed: () => setState(() => _viewModel.toggleFilters()),
+            onPressed: () => _viewModel.toggleFilters(),
           ),
         ],
       ),
@@ -85,9 +91,7 @@ class _DiscoverCommunitiesScreenState extends State<DiscoverCommunitiesScreen> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: CommunitySearchBar(
-        onChanged: (value) {
-          setState(() => _viewModel.updateSearchQuery(value));
-        },
+        onChanged: (value) => _viewModel.updateSearchQuery(value),
       ),
     );
   }
@@ -98,12 +102,8 @@ class _DiscoverCommunitiesScreenState extends State<DiscoverCommunitiesScreen> {
       child: CommunityFilters(
         selectedCategory: _viewModel.selectedCategory,
         selectedDifficulty: _viewModel.selectedDifficulty,
-        onCategoryChanged: (value) {
-          setState(() => _viewModel.updateCategory(value));
-        },
-        onDifficultyChanged: (value) {
-          setState(() => _viewModel.updateDifficulty(value));
-        },
+        onCategoryChanged: (value) => _viewModel.updateCategory(value),
+        onDifficultyChanged: (value) => _viewModel.updateDifficulty(value),
       ),
     );
   }

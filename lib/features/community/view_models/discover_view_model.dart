@@ -25,28 +25,43 @@ class DiscoverViewModel extends ChangeNotifier {
       _selectedDifficulty != null;
 
   Future<void> initialize() async {
-    await _provider.loadPopularCommunities();
-    _isInitialized = true;
-    notifyListeners();
+    try {
+      await _provider.loadPopularCommunities();
+      _isInitialized = true;
+      notifyListeners();
+    } catch (e) {
+      _isInitialized = false;
+      notifyListeners();
+      rethrow;
+    }
   }
 
   Future<void> reload() async {
-    _isInitialized = false;
-    notifyListeners();
-    await initialize();
+    try {
+      _isInitialized = false;
+      notifyListeners();
+      await initialize();
+    } catch (e) {
+      _isInitialized = false;
+      notifyListeners();
+      rethrow;
+    }
   }
 
   void updateSearchQuery(String query) {
-    _searchQuery = query;
+    if (query.length > 100) return;
+    _searchQuery = query.trim();
     _performSearch();
   }
 
   void updateCategory(String? category) {
+    if (category != null && category.isEmpty) return;
     _selectedCategory = category;
     _performSearch();
   }
 
   void updateDifficulty(String? difficulty) {
+    if (difficulty != null && difficulty.isEmpty) return;
     _selectedDifficulty = difficulty;
     _performSearch();
   }
@@ -57,11 +72,15 @@ class DiscoverViewModel extends ChangeNotifier {
   }
 
   Future<void> _performSearch() async {
-    await _provider.searchCommunities(
-      searchTerm: _searchQuery.isEmpty ? null : _searchQuery,
-      category: _selectedCategory,
-      difficulty: _selectedDifficulty,
-    );
+    try {
+      await _provider.searchCommunities(
+        searchTerm: _searchQuery.isEmpty ? null : _searchQuery,
+        category: _selectedCategory,
+        difficulty: _selectedDifficulty,
+      );
+    } catch (e) {
+      notifyListeners();
+    }
   }
 
   List<CommunityHabit> getCommunities(CommunityProvider provider) {
@@ -75,6 +94,7 @@ class DiscoverViewModel extends ChangeNotifier {
     _searchQuery = '';
     _selectedCategory = null;
     _selectedDifficulty = null;
+    notifyListeners();
     _performSearch();
   }
 }

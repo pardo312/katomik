@@ -1,8 +1,10 @@
 import 'package:flutter/foundation.dart';
+import 'package:intl/intl.dart';
 import '../../../providers/community_provider.dart';
 import '../../../providers/habit_provider.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../data/services/community_service.dart';
+import '../../../core/constants/community_constants.dart';
 
 class CommunityDetailViewModel extends ChangeNotifier {
   final CommunityProvider _communityProvider;
@@ -12,7 +14,7 @@ class CommunityDetailViewModel extends ChangeNotifier {
   final String communityName;
 
   bool _isInitialized = false;
-  String _selectedTimeframe = 'ALL_TIME';
+  String _selectedTimeframe = CommunityTimeframe.allTime;
   int _selectedTabIndex = 0;
 
   CommunityDetailViewModel({
@@ -68,22 +70,39 @@ class CommunityDetailViewModel extends ChangeNotifier {
   int get userStreak => currentUserEntry?.member.currentStreak ?? 0;
 
   Future<void> initialize() async {
-    await loadCommunityDetails();
-    _isInitialized = true;
-    notifyListeners();
+    try {
+      await loadCommunityDetails();
+      _isInitialized = true;
+      notifyListeners();
+    } catch (e) {
+      _isInitialized = false;
+      notifyListeners();
+      rethrow;
+    }
   }
 
   Future<void> loadCommunityDetails() async {
-    await _communityProvider.loadCommunityDetails(communityId);
-    await _communityProvider.loadLeaderboard(communityId);
+    try {
+      await _communityProvider.loadCommunityDetails(communityId);
+      await _communityProvider.loadLeaderboard(communityId);
+    } catch (e) {
+      rethrow;
+    }
   }
 
   Future<void> updateTimeframe(String timeframe) async {
+    if (timeframe.isEmpty) return;
     if (_selectedTimeframe == timeframe) return;
 
-    _selectedTimeframe = timeframe;
-    notifyListeners();
-    await _communityProvider.loadLeaderboard(communityId, timeframe: timeframe);
+    try {
+      _selectedTimeframe = timeframe;
+      notifyListeners();
+      await _communityProvider.loadLeaderboard(communityId, timeframe: timeframe);
+    } catch (e) {
+      _selectedTimeframe = CommunityTimeframe.allTime;
+      notifyListeners();
+      rethrow;
+    }
   }
 
   void updateTabIndex(int index) {
@@ -92,43 +111,37 @@ class CommunityDetailViewModel extends ChangeNotifier {
   }
 
   Future<bool> joinCommunity() async {
-    final success = await _communityProvider.joinCommunity(
-      communityId,
-      _habitProvider,
-    );
+    try {
+      final success = await _communityProvider.joinCommunity(
+        communityId,
+        _habitProvider,
+      );
 
-    if (success) {
-      await loadCommunityDetails();
+      if (success) {
+        await loadCommunityDetails();
+      }
+
+      return success;
+    } catch (e) {
+      return false;
     }
-
-    return success;
   }
 
   Future<bool> leaveCommunity() async {
-    final success = await _communityProvider.leaveCommunity(communityId);
+    try {
+      final success = await _communityProvider.leaveCommunity(communityId);
 
-    if (success) {
-      await loadCommunityDetails();
+      if (success) {
+        await loadCommunityDetails();
+      }
+
+      return success;
+    } catch (e) {
+      return false;
     }
-
-    return success;
   }
 
   String formatDate(DateTime date) {
-    final months = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ];
-    return '${months[date.month - 1]} ${date.day}, ${date.year}';
+    return DateFormat('MMM d, y').format(date);
   }
 }
