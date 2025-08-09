@@ -5,7 +5,6 @@ import 'package:katomik/shared/widgets/adaptive_navigation.dart';
 import 'package:katomik/core/platform/platform_icons.dart';
 import 'package:katomik/core/platform/platform_service.dart';
 import 'package:katomik/features/home/screens/home_screen.dart';
-import 'package:katomik/features/statistics/screens/statistics_screen.dart';
 import 'package:katomik/features/profile/screens/profile_screen.dart';
 import 'package:katomik/features/habit/add_habit/add_habit_screen.dart';
 import 'package:katomik/features/community/screens/discover_communities_screen.dart';
@@ -32,7 +31,7 @@ class _MainScreenState extends State<MainScreen> {
       final authProvider = context.read<AuthProvider>();
       final habitProvider = context.read<HabitProvider>();
       final userId = authProvider.user?.id;
-      
+
       if (userId != null) {
         habitProvider.initializeForUser(userId);
       }
@@ -108,7 +107,9 @@ class _MainScreenState extends State<MainScreen> {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        CupertinoPageRoute(builder: (_) => const AddHabitScreen()),
+                        CupertinoPageRoute(
+                          builder: (_) => const AddHabitScreen(),
+                        ),
                       );
                     },
                   ),

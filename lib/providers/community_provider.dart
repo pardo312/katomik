@@ -6,7 +6,6 @@ import 'package:katomik/providers/habit_provider.dart';
 class CommunityProvider extends ChangeNotifier {
   final CommunityService _communityService = CommunityService();
   
-  // State
   List<CommunityHabit> _popularCommunities = [];
   List<CommunityHabit> _searchResults = [];
   List<UserCommunity> _userCommunities = [];
@@ -15,7 +14,6 @@ class CommunityProvider extends ChangeNotifier {
   bool _isLoading = false;
   String? _error;
 
-  // Getters
   List<CommunityHabit> get popularCommunities => _popularCommunities;
   List<CommunityHabit> get searchResults => _searchResults;
   List<UserCommunity> get userCommunities => _userCommunities;
@@ -24,7 +22,6 @@ class CommunityProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get error => _error;
 
-  // Clear all data when user logs out
   void clearData() {
     _popularCommunities = [];
     _searchResults = [];
@@ -36,83 +33,39 @@ class CommunityProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Popular Communities
   Future<void> loadPopularCommunities() async {
-    _isLoading = true;
-    _error = null;
-    notifyListeners();
-
-    try {
+    await _executeAsync(() async {
       _popularCommunities = await _communityService.getPopularCommunities();
-    } catch (e) {
-      _error = e.toString();
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
+    });
   }
 
-  // Search Communities
   Future<void> searchCommunities({
     String? searchTerm,
     String? category,
     String? difficulty,
   }) async {
-    _isLoading = true;
-    _error = null;
-    notifyListeners();
-
-    try {
+    await _executeAsync(() async {
       _searchResults = await _communityService.searchCommunities(
         searchTerm: searchTerm,
         category: category,
         difficulty: difficulty,
       );
-    } catch (e) {
-      _error = e.toString();
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
+    });
   }
 
-  // User Communities
   Future<void> loadUserCommunities() async {
-    _isLoading = true;
-    _error = null;
-    notifyListeners();
-
-    try {
+    await _executeAsync(() async {
       _userCommunities = await _communityService.getUserCommunities();
-    } catch (e) {
-      _error = e.toString();
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
+    });
   }
 
-  // Community Details
   Future<void> loadCommunityDetails(String communityId) async {
-    _isLoading = true;
-    _error = null;
-    notifyListeners();
-
-    try {
+    await _executeAsync(() async {
       _currentCommunityDetails = await _communityService.getCommunityDetails(communityId);
-    } catch (e) {
-      _error = e.toString();
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
+    });
   }
 
-  // Leaderboard
   Future<void> loadLeaderboard(String communityId, {String timeframe = 'ALL_TIME'}) async {
-    // Don't set global loading state for leaderboard
-    // to avoid interfering with community details loading
-
     try {
       _currentLeaderboard = await _communityService.getCommunityLeaderboard(
         communityId,
@@ -120,214 +73,164 @@ class CommunityProvider extends ChangeNotifier {
       );
       notifyListeners();
     } catch (e) {
-      // Log error but don't set global error state
-      // Leaderboard is optional - community can still be displayed
       debugPrint('Failed to load leaderboard: $e');
       _currentLeaderboard = [];
       notifyListeners();
     }
   }
 
-  // Make Habit Public
   Future<bool> makeHabitPublic(
     Habit habit,
     CommunitySettings settings,
     HabitProvider habitProvider,
   ) async {
-    _isLoading = true;
-    _error = null;
-    notifyListeners();
-
-    try {
-      // Ensure habit has a server ID
-      if (habit.id == null) {
-        _error = 'Habit must be saved to server first';
-        _isLoading = false;
-        notifyListeners();
-        return false;
-      }
-
+    return await _executeWithResult(() async {
+      _validateHabitForPublishing(habit);
+      
       final community = await _communityService.makeHabitPublic(
         habit.id!,
         settings,
       );
 
-      // Update local habit to reflect it's now a community habit
-      final updatedHabit = habit.copyWith(
-        communityId: community.id,
-        communityName: community.name,
-      );
-      
-      await habitProvider.updateHabit(updatedHabit);
-      
+      await _updateHabitWithCommunity(habit, community, habitProvider);
       return true;
-    } catch (e) {
-      String errorMessage = e.toString();
-      
-      // Extract more user-friendly error messages
-      if (errorMessage.contains('already public')) {
-        _error = 'This habit is already shared with the community';
-        // Refresh habit data to sync with server state
-        await habitProvider.loadHabits();
-      } else if (errorMessage.contains('BadRequestException')) {
-        // Extract the actual error message from BadRequestException
-        final match = RegExp(r'BadRequestException: (.+)').firstMatch(errorMessage);
-        _error = match?.group(1) ?? 'Invalid request';
-      } else if (errorMessage.contains('NetworkException')) {
-        _error = 'Network error. Please check your connection and try again.';
-      } else {
-        _error = 'Failed to make habit public. Please try again.';
-      }
-      
-      // Log detailed error for debugging
-      debugPrint('Error making habit public: $e');
-      return false;
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
+    });
   }
 
-  // Join Community
   Future<bool> joinCommunity(
     String communityId,
     HabitProvider habitProvider,
   ) async {
-    _isLoading = true;
-    _error = null;
-    notifyListeners();
-
-    try {
+    return await _executeWithResult(() async {
       await _communityService.joinCommunity(communityId);
-
-      // Reload habits to include the new community habit
       await habitProvider.loadHabits();
-      
-      // Reload user communities
       await loadUserCommunities();
-      
       return true;
-    } catch (e) {
-      _error = e.toString();
-      return false;
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
+    });
   }
 
-  // Leave Community
   Future<bool> leaveCommunity(String communityId) async {
-    _isLoading = true;
-    _error = null;
-    notifyListeners();
-
-    try {
+    return await _executeWithResult(() async {
       await _communityService.leaveCommunity(communityId);
-      
-      // Reload user communities
       await loadUserCommunities();
-      
       return true;
-    } catch (e) {
-      _error = e.toString();
-      return false;
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
+    });
   }
 
-  // Retire from Community
   Future<bool> retireFromCommunity(
     String communityId,
     String habitId,
     HabitProvider habitProvider,
   ) async {
-    _isLoading = true;
-    _error = null;
-    notifyListeners();
-
-    try {
+    return await _executeWithResult(() async {
       await _communityService.retireFromCommunity(communityId);
-      
-      // Delete the habit from server
       await habitProvider.deleteHabit(habitId);
-      
-      // Reload user communities
       await loadUserCommunities();
-      
       return true;
-    } catch (e) {
-      _error = e.toString();
-      return false;
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
+    });
   }
 
-  // Propose Change
   Future<bool> proposeChange(String communityId, ProposalInput proposal) async {
-    _isLoading = true;
-    _error = null;
-    notifyListeners();
-
-    try {
+    return await _executeWithResult(() async {
       await _communityService.proposeChange(communityId, proposal);
-      
-      // Reload community details to get updated proposals
       await loadCommunityDetails(communityId);
-      
       return true;
-    } catch (e) {
-      _error = e.toString();
-      return false;
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
+    });
   }
 
-  // Vote on Proposal
   Future<bool> voteOnProposal(String proposalId, bool vote) async {
-    _isLoading = true;
-    _error = null;
-    notifyListeners();
-
-    try {
+    return await _executeWithResult(() async {
       await _communityService.voteOnProposal(proposalId, vote);
       
-      // Reload community details if we have one
       if (_currentCommunityDetails != null) {
         await loadCommunityDetails(_currentCommunityDetails!.id);
       }
       
       return true;
-    } catch (e) {
-      _error = e.toString();
-      return false;
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
+    });
   }
 
-  // Clear error
   void clearError() {
     _error = null;
     notifyListeners();
   }
 
-  // Reset state
   void reset() {
-    _popularCommunities = [];
-    _searchResults = [];
-    _userCommunities = [];
-    _currentCommunityDetails = null;
-    _currentLeaderboard = [];
-    _isLoading = false;
-    _error = null;
+    clearData();
+  }
+
+  Future<void> _executeAsync(Future<void> Function() operation) async {
+    _setLoadingState(true);
+    _clearError();
+
+    try {
+      await operation();
+    } catch (e) {
+      _handleError(e);
+    } finally {
+      _setLoadingState(false);
+    }
+  }
+
+  Future<bool> _executeWithResult(Future<bool> Function() operation) async {
+    _setLoadingState(true);
+    _clearError();
+
+    try {
+      return await operation();
+    } catch (e) {
+      _handleError(e);
+      return false;
+    } finally {
+      _setLoadingState(false);
+    }
+  }
+
+  void _setLoadingState(bool loading) {
+    _isLoading = loading;
     notifyListeners();
+  }
+
+  void _clearError() {
+    _error = null;
+  }
+
+  void _handleError(dynamic error) {
+    _error = _formatErrorMessage(error);
+    debugPrint('Community operation error: $error');
+  }
+
+  String _formatErrorMessage(dynamic error) {
+    final errorString = error.toString();
+    
+    if (errorString.contains('already public')) {
+      return 'This habit is already shared with the community';
+    } else if (errorString.contains('BadRequestException')) {
+      final match = RegExp(r'BadRequestException: (.+)').firstMatch(errorString);
+      return match?.group(1) ?? 'Invalid request';
+    } else if (errorString.contains('NetworkException')) {
+      return 'Network error. Please check your connection and try again.';
+    } else {
+      return 'An error occurred. Please try again.';
+    }
+  }
+
+  void _validateHabitForPublishing(Habit habit) {
+    if (habit.id == null) {
+      throw Exception('Habit must be saved to server first');
+    }
+  }
+
+  Future<void> _updateHabitWithCommunity(
+    Habit habit,
+    CommunityHabit community,
+    HabitProvider habitProvider,
+  ) async {
+    final updatedHabit = habit.copyWith(
+      communityId: community.id,
+      communityName: community.name,
+    );
+    
+    await habitProvider.updateHabit(updatedHabit);
   }
 }
