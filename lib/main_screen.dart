@@ -1,17 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'package:katomik/shared/widgets/adaptive_navigation.dart';
-import 'package:katomik/core/platform/platform_icons.dart';
 import 'package:katomik/core/platform/platform_service.dart';
-import 'package:katomik/features/home/presentation/screens/home_screen.dart';
-import 'package:katomik/features/profile/presentation/screens/profile_screen.dart';
-import 'package:katomik/features/habit/presentation/screens/add_habit_screen.dart';
-import 'package:katomik/features/community/presentation/screens/discover_communities_screen.dart';
 import 'package:katomik/shared/providers/navigation_provider.dart';
-import 'package:katomik/shared/providers/habit_provider.dart';
-import 'package:katomik/shared/providers/auth_provider.dart';
-import 'package:katomik/shared/widgets/profile_tab_icon.dart';
+import 'package:katomik/core/navigation/main_screen_tab_config.dart';
+import 'package:katomik/core/navigation/main_screen_controller.dart';
+import 'package:katomik/shared/widgets/ios_floating_action_button.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -26,128 +20,122 @@ class _MainScreenState extends State<MainScreen> {
   @override
   void initState() {
     super.initState();
-    // Initialize habits when user is authenticated
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final authProvider = context.read<AuthProvider>();
-      final habitProvider = context.read<HabitProvider>();
-      final userId = authProvider.user?.id;
+    MainScreenController.initializeHabits(context);
+  }
 
-      if (userId != null) {
-        habitProvider.initializeForUser(userId);
-      }
+  void _updateIndex(int index) {
+    setState(() {
+      _currentIndex = index;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final tabs = [
-      AdaptiveTabItem(
-        icon: Icon(PlatformIcons.home),
-        activeIcon: Icon(PlatformIcons.homeActive),
-        label: 'Home',
-        page: const HomeScreen(),
-      ),
-      AdaptiveTabItem(
-        icon: Icon(PlatformIcons.globe),
-        activeIcon: Icon(PlatformIcons.globeActive),
-        label: 'Community',
-        page: const DiscoverCommunitiesScreen(),
-      ),
-      AdaptiveTabItem(
-        icon: const ProfileTabIcon(isActive: false),
-        activeIcon: const ProfileTabIcon(isActive: true),
-        label: 'Profile',
-        page: const ProfileScreen(),
-      ),
-    ];
-
-    if (context.platform.isIOS) {
-      return Consumer<NavigationProvider>(
-        builder: (context, navProvider, child) {
-          return Stack(
-            children: [
-              AdaptiveTabScaffold(
-                tabs: tabs,
-                currentIndex: _currentIndex,
-                onTabChanged: (index) {
-                  setState(() {
-                    _currentIndex = index;
-                  });
-                  if (index == 0) {
-                    navProvider.showHomeFabIfNeeded();
-                  }
-                },
-              ),
-              if (_currentIndex == 0 && navProvider.showHomeFab)
-                Positioned(
-                  bottom: 100,
-                  right: 16,
-                  child: CupertinoButton(
-                    padding: EdgeInsets.zero,
-                    child: Container(
-                      width: 56,
-                      height: 56,
-                      decoration: BoxDecoration(
-                        color: CupertinoColors.activeBlue,
-                        borderRadius: BorderRadius.circular(28),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.2),
-                            blurRadius: 8,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: const Icon(
-                        CupertinoIcons.add,
-                        color: CupertinoColors.white,
-                        size: 28,
-                      ),
-                    ),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        CupertinoPageRoute(
-                          builder: (_) => const AddHabitScreen(),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-            ],
-          );
-        },
-      );
-    }
+    final tabs = MainScreenTabConfig.getTabs();
 
     return Consumer<NavigationProvider>(
       builder: (context, navProvider, child) {
-        return Scaffold(
-          body: AdaptiveTabScaffold(
+        final showFab = MainScreenController.shouldShowFab(
+          currentIndex: _currentIndex,
+          navProvider: navProvider,
+        );
+
+        if (context.platform.isIOS) {
+          return _IOSLayout(
             tabs: tabs,
             currentIndex: _currentIndex,
-            onTabChanged: (index) {
-              setState(() {
-                _currentIndex = index;
-              });
-              if (index == 0) {
-                navProvider.showHomeFabIfNeeded();
-              }
-            },
+            showFab: showFab,
+            onTabChanged: (index) => MainScreenController.handleTabChange(
+              context: context,
+              index: index,
+              updateIndex: _updateIndex,
+            ),
+            onAddPressed: () => MainScreenController.navigateToAddHabit(context),
+          );
+        }
+
+        return _AndroidLayout(
+          tabs: tabs,
+          currentIndex: _currentIndex,
+          showFab: showFab,
+          onTabChanged: (index) => MainScreenController.handleTabChange(
+            context: context,
+            index: index,
+            updateIndex: _updateIndex,
           ),
-          floatingActionButton: _currentIndex == 0 && navProvider.showHomeFab
-              ? FloatingActionButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const AddHabitScreen()),
-                    );
-                  },
-                  child: const Icon(Icons.add),
-                )
-              : null,
+          onAddPressed: () => MainScreenController.navigateToAddHabit(context),
         );
       },
+    );
+  }
+}
+
+class _IOSLayout extends StatelessWidget {
+  final List<AdaptiveTabItem> tabs;
+  final int currentIndex;
+  final bool showFab;
+  final ValueChanged<int> onTabChanged;
+  final VoidCallback onAddPressed;
+
+  const _IOSLayout({
+    required this.tabs,
+    required this.currentIndex,
+    required this.showFab,
+    required this.onTabChanged,
+    required this.onAddPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        AdaptiveTabScaffold(
+          tabs: tabs,
+          currentIndex: currentIndex,
+          onTabChanged: onTabChanged,
+        ),
+        if (showFab)
+          Positioned(
+            bottom: 100,
+            right: 16,
+            child: IOSFloatingActionButton(
+              onPressed: onAddPressed,
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _AndroidLayout extends StatelessWidget {
+  final List<AdaptiveTabItem> tabs;
+  final int currentIndex;
+  final bool showFab;
+  final ValueChanged<int> onTabChanged;
+  final VoidCallback onAddPressed;
+
+  const _AndroidLayout({
+    required this.tabs,
+    required this.currentIndex,
+    required this.showFab,
+    required this.onTabChanged,
+    required this.onAddPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: AdaptiveTabScaffold(
+        tabs: tabs,
+        currentIndex: currentIndex,
+        onTabChanged: onTabChanged,
+      ),
+      floatingActionButton: showFab
+          ? FloatingActionButton(
+              onPressed: onAddPressed,
+              child: const Icon(Icons.add),
+            )
+          : null,
     );
   }
 }
