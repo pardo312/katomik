@@ -1,4 +1,4 @@
-import '../services/community_service_refactored.dart';
+import '../services/community_service.dart';
 import 'cache/community_cache.dart';
 
 abstract class ICommunityRepository {

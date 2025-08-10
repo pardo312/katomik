@@ -3,7 +3,7 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'graphql_client.dart';
-import '../models/user.dart';
+import '../../shared/models/user.dart';
 
 class ProfileService {
   static const String _generateAvatarUploadUrlMutation = r'''

@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
-import 'package:katomik/app.dart';
-import 'package:katomik/providers/habit_provider.dart';
-import 'package:katomik/providers/theme_provider.dart';
+import 'package:katomik/app/app.dart';
+import 'package:katomik/shared/providers/habit_provider.dart';
+import 'package:katomik/shared/providers/theme_provider.dart';
 
 void main() {
   testWidgets('Katomik app smoke test', (WidgetTester tester) async {

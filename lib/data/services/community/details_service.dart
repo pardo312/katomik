@@ -1,4 +1,4 @@
-import '../../models/community_models.dart';
+import '../../../shared/models/community_models.dart';
 import 'queries.dart';
 import 'base_service.dart';
 import 'error_handler.dart';

@@ -1,5 +1,5 @@
 import 'package:graphql_flutter/graphql_flutter.dart';
-import '../models/habit.dart';
+import '../../shared/models/habit.dart';
 import '../../config/graphql_config.dart';
 import '../../core/logging/logging.dart';
 

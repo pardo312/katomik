@@ -3,11 +3,11 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:katomik/data/services/graphql_client.dart';
 import 'package:katomik/core/logging/logger_service.dart';
 import 'package:katomik/core/network/retry_service.dart';
-import 'package:katomik/data/models/community_models.dart';
+import 'package:katomik/shared/models/community_models.dart';
 import 'package:katomik/data/services/community/queries.dart';
 import 'package:katomik/data/services/community/mutations.dart';
 import 'package:katomik/data/services/community/error_handler.dart';
-export 'package:katomik/data/models/community_models.dart';
+export 'package:katomik/shared/models/community_models.dart';
 export 'package:katomik/data/services/community/error_handler.dart';
 
 class CommunityService {

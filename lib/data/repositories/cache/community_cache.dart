@@ -1,4 +1,4 @@
-import '../../models/community_models.dart';
+import '../../../shared/models/community_models.dart';
 
 class CommunityCache {
   final Map<String, CachedData<List<CommunityHabit>>> _searchCache = {};
