@@ -1,4 +1,6 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../../shared/providers/auth_provider.dart';
 
 class LoginViewModel extends ChangeNotifier {
@@ -25,7 +27,7 @@ class LoginViewModel extends ChangeNotifier {
     notifyListeners();
   }
   
-  Future<bool> login(String email, String password) async {
+  Future<bool> login(String email, String password, {AppLocalizations? l10n}) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
@@ -34,7 +36,7 @@ class LoginViewModel extends ChangeNotifier {
       await _authProvider.login(email, password);
       return _authProvider.isAuthenticated;
     } catch (e) {
-      _error = _parseError(e.toString());
+      _error = _parseError(e.toString(), l10n: l10n);
       return false;
     } finally {
       _isLoading = false;
@@ -59,15 +61,15 @@ class LoginViewModel extends ChangeNotifier {
     }
   }
   
-  String _parseError(String message) {
+  String _parseError(String message, {AppLocalizations? l10n}) {
     if (message.contains('Invalid credentials') || message.contains('invalid credentials')) {
-      return 'Invalid email/username or password. Please try again.';
+      return l10n?.invalidCredentials ?? 'Invalid email/username or password. Please try again.';
     } else if (message.contains('User not found')) {
-      return 'No account found with this email/username. Please register first.';
+      return l10n?.noAccountFound ?? 'No account found with this email/username. Please register first.';
     } else if (message.contains('Network error')) {
-      return 'Unable to connect to server. Please check your internet connection.';
+      return l10n?.unableToConnect ?? 'Unable to connect to server. Please check your internet connection.';
     } else if (message.contains('Bad Request Exception')) {
-      return 'Please check your login details and try again.';
+      return l10n?.checkLoginDetails ?? 'Please check your login details and try again.';
     }
     return message;
   }

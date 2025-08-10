@@ -10,6 +10,7 @@ import '../widgets/avatar_upload_mixin.dart';
 import '../widgets/avatar_options_sheet.dart';
 import '../widgets/logout_confirmation_dialog.dart';
 import '../widgets/user_info_section.dart';
+import '../../../../l10n/app_localizations.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -41,7 +42,7 @@ class _ProfileScreenState extends State<ProfileScreen> with AvatarUploadMixin {
     final user = authProvider.user;
 
     return AdaptiveScaffold(
-      title: const Text('Profile'),
+      title: Text(AppLocalizations.of(context).profile),
       body: SafeArea(
         child: ListView(
           children: [
@@ -62,7 +63,7 @@ class _ProfileScreenState extends State<ProfileScreen> with AvatarUploadMixin {
             const Divider(),
             AdaptiveListTile(
               leading: Icon(PlatformIcons.settings),
-              title: const Text('Theme Settings'),
+              title: Text(AppLocalizations.of(context).themeSettings),
               trailing: Icon(
                 context.isIOS
                     ? CupertinoIcons.chevron_right
@@ -75,8 +76,8 @@ class _ProfileScreenState extends State<ProfileScreen> with AvatarUploadMixin {
             if (user?.emailVerified == false)
               AdaptiveListTile(
                 leading: const Icon(Icons.verified_outlined),
-                title: const Text('Verify Email'),
-                subtitle: const Text('Your email is not verified'),
+                title: Text(AppLocalizations.of(context).verifyEmail),
+                subtitle: Text(AppLocalizations.of(context).yourEmailNotVerified),
                 trailing: Icon(
                   context.isIOS
                       ? CupertinoIcons.chevron_right
@@ -88,8 +89,8 @@ class _ProfileScreenState extends State<ProfileScreen> with AvatarUploadMixin {
               ),
             AdaptiveListTile(
               leading: const Icon(Icons.logout, color: Colors.red),
-              title: const Text(
-                'Logout',
+              title: Text(
+                AppLocalizations.of(context).logout,
                 style: TextStyle(color: Colors.red),
               ),
               onTap: () => _handleLogout(context),

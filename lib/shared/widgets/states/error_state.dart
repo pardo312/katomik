@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../l10n/app_localizations.dart';
 
 class ErrorState extends StatelessWidget {
   final String message;
@@ -35,7 +36,7 @@ class ErrorState extends StatelessWidget {
           TextButton(
             onPressed: onRetry,
             child: Text(
-              'Retry',
+              AppLocalizations.of(context).retry,
               style: TextStyle(
                 color: Theme.of(context).colorScheme.primary,
               ),

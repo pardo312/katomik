@@ -5,6 +5,7 @@ import '../../../../shared/widgets/common/adaptive_widgets.dart';
 import '../widgets/streak_header.dart';
 import '../widgets/weekly_habit_tracker.dart';
 import '../../../../shared/widgets/states/empty_state.dart';
+import '../../../../l10n/app_localizations.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -40,10 +41,10 @@ class HomeScreen extends StatelessWidget {
           ] else ...[
             SizedBox(
               height: MediaQuery.of(context).size.height * 0.4,
-              child: const EmptyState(
+              child: EmptyState(
                 icon: Icons.add_circle_outline,
-                title: 'No habits yet',
-                subtitle: 'Start building your first habit!',
+                title: AppLocalizations.of(context).noHabitsYet,
+                subtitle: AppLocalizations.of(context).startBuildingFirstHabit,
               ),
             ),
           ],

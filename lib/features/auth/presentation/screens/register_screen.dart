@@ -5,6 +5,7 @@ import '../../../../shared/widgets/common/adaptive_widgets.dart';
 import '../../../../core/platform/platform_service.dart';
 import '../../../../shared/providers/auth_provider.dart';
 import '../../../../core/utils/platform_messages.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../providers/register_view_model.dart';
 import '../widgets/auth_header.dart';
 import '../widgets/auth_form_field.dart';
@@ -53,6 +54,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Future<void> _handleRegister() async {
+    final l10n = AppLocalizations.of(context);
     bool isValid = true;
     
     if (context.isIOS) {
@@ -61,6 +63,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         email: _emailController.text,
         password: _passwordController.text,
         confirmPassword: _confirmPasswordController.text,
+        l10n: l10n,
       );
     } else {
       isValid = _formKey.currentState!.validate();
@@ -72,6 +75,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         email: _emailController.text,
         password: _passwordController.text,
         confirmPassword: _confirmPasswordController.text,
+        l10n: l10n,
       );
       
       if (success && mounted) {
@@ -91,7 +95,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return AdaptiveScaffold(
-      title: const Text('Register'),
+      title: Text(AppLocalizations.of(context).register),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -104,17 +108,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const AuthHeader(
-                      title: 'Create Account',
-                      subtitle: 'Sign up to get started',
+                    AuthHeader(
+                      title: AppLocalizations.of(context).createAccount,
+                      subtitle: AppLocalizations.of(context).signUpToGetStarted,
                     ),
                     const SizedBox(height: 48),
                     ListenableBuilder(
                       listenable: _viewModel,
                       builder: (context, _) {
                         if (_viewModel.isLoading) {
-                          return const AuthLoadingState(
-                            message: 'Creating your account...',
+                          return AuthLoadingState(
+                            message: AppLocalizations.of(context).creatingYourAccount,
                           );
                         }
                         
@@ -123,12 +127,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           children: [
                             AuthFormField(
                               controller: _usernameController,
-                              label: 'Username',
-                              placeholder: 'Username',
+                              label: AppLocalizations.of(context).username,
+                              placeholder: AppLocalizations.of(context).username,
                               prefixIcon: Icons.person,
                               keyboardType: TextInputType.text,
                               textInputAction: TextInputAction.next,
-                              validator: AuthValidator.validateUsername,
+                              validator: AuthValidator.getUsernameValidator(context),
                               errorText: context.isIOS ? _viewModel.usernameError : null,
                               onChanged: context.isIOS 
                                   ? (_) => setState(() {}) 
@@ -137,12 +141,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             const SizedBox(height: 16),
                             AuthFormField(
                               controller: _emailController,
-                              label: 'Email',
-                              placeholder: 'Email',
+                              label: AppLocalizations.of(context).email,
+                              placeholder: AppLocalizations.of(context).email,
                               prefixIcon: Icons.email,
                               keyboardType: TextInputType.emailAddress,
                               textInputAction: TextInputAction.next,
-                              validator: AuthValidator.validateEmail,
+                              validator: AuthValidator.getEmailValidator(context),
                               errorText: context.isIOS ? _viewModel.emailError : null,
                               onChanged: context.isIOS 
                                   ? (_) => setState(() {}) 
@@ -151,14 +155,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             const SizedBox(height: 16),
                             AuthFormField(
                               controller: _passwordController,
-                              label: 'Password',
-                              placeholder: 'Password',
+                              label: AppLocalizations.of(context).password,
+                              placeholder: AppLocalizations.of(context).password,
                               prefixIcon: Icons.lock,
                               obscureText: _viewModel.obscurePassword,
                               textInputAction: TextInputAction.next,
                               showToggleVisibility: true,
                               onToggleVisibility: _viewModel.togglePasswordVisibility,
-                              validator: AuthValidator.validatePassword,
+                              validator: AuthValidator.getPasswordValidator(context),
                               errorText: context.isIOS ? _viewModel.passwordError : null,
                               onChanged: context.isIOS 
                                   ? (_) => setState(() {}) 
@@ -167,15 +171,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             const SizedBox(height: 16),
                             AuthFormField(
                               controller: _confirmPasswordController,
-                              label: 'Confirm Password',
-                              placeholder: 'Confirm Password',
+                              label: AppLocalizations.of(context).confirmPassword,
+                              placeholder: AppLocalizations.of(context).confirmPassword,
                               prefixIcon: Icons.lock_outline,
                               obscureText: _viewModel.obscureConfirmPassword,
                               textInputAction: TextInputAction.done,
                               onFieldSubmitted: _handleRegister,
                               showToggleVisibility: true,
                               onToggleVisibility: _viewModel.toggleConfirmPasswordVisibility,
-                              validator: (value) => AuthValidator.validateConfirmPassword(
+                              validator: (value) => AuthValidator.getConfirmPasswordValidator(context)(
                                 value,
                                 _passwordController.text,
                               ),
@@ -186,13 +190,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             ),
                             const SizedBox(height: 24),
                             AdaptiveButton(
-                              text: 'Create Account',
+                              text: AppLocalizations.of(context).createAccount,
                               onPressed: _handleRegister,
                               isPrimary: true,
                             ),
                             const SizedBox(height: 16),
                             AdaptiveButton(
-                              text: 'Already have an account? Login',
+                              text: AppLocalizations.of(context).login,
                               onPressed: () {
                                 Navigator.pushReplacementNamed(context, '/login');
                               },
@@ -209,7 +213,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           child: Text(
-                            'Or',
+                            AppLocalizations.of(context).or,
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                         ),
@@ -221,7 +225,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       listenable: _viewModel,
                       builder: (context, _) {
                         return SocialLoginButton(
-                          text: 'Sign up with Google',
+                          text: AppLocalizations.of(context).signInWithGoogle,
                           icon: context.isIOS 
                               ? Icons.g_mobiledata 
                               : CupertinoIcons.person_crop_circle,

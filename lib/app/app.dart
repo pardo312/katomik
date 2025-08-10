@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:katomik/shared/providers/theme_provider.dart';
 import 'package:katomik/shared/providers/platform_provider.dart';
@@ -9,6 +8,7 @@ import 'package:katomik/shared/providers/habit_provider.dart';
 import 'package:katomik/shared/providers/community_provider.dart';
 import 'package:katomik/core/theme/app_theme.dart';
 import 'package:katomik/features/auth/presentation/widgets/auth_wrapper.dart';
+import 'package:katomik/l10n/app_localizations.dart';
 import 'app_router.dart';
 
 class MyApp extends StatefulWidget {
@@ -39,34 +39,29 @@ class _MyAppState extends State<MyApp> {
 
         if (platformProvider.isIOS) {
           return CupertinoApp(
-            title: 'Katomik - Habit Tracker',
+            title: 'Katomik',
             theme: AppTheme.getCupertinoTheme(
               selectedColor,
               themeProvider.isDarkMode,
             ),
             home: const AuthWrapper(),
             debugShowCheckedModeBanner: false,
-            localizationsDelegates: const [
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-            ],
-            supportedLocales: const [
-              Locale('en', 'US'),
-              Locale('es', 'ES'),
-            ],
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
             routes: AppRouter.routes,
             onGenerateRoute: AppRouter.onGenerateRouteCupertino,
           );
         }
 
         return MaterialApp(
-          title: 'Katomik - Habit Tracker',
+          title: 'Katomik',
           theme: AppTheme.getLightTheme(selectedColor),
           darkTheme: AppTheme.getDarkTheme(selectedColor),
           themeMode: themeProvider.themeMode,
           home: const AuthWrapper(),
           debugShowCheckedModeBanner: false,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
           routes: AppRouter.routes,
           onGenerateRoute: AppRouter.onGenerateRoute,
         );

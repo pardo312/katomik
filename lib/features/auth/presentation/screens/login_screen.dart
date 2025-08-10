@@ -5,6 +5,7 @@ import '../../../../shared/widgets/common/adaptive_widgets.dart';
 import '../../../../core/platform/platform_service.dart';
 import '../../../../shared/providers/auth_provider.dart';
 import '../../../../core/utils/platform_messages.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../providers/login_view_model.dart';
 import '../widgets/auth_header.dart';
 import '../widgets/auth_form_field.dart';
@@ -53,6 +54,7 @@ class _LoginScreenState extends State<LoginScreen> {
       final success = await _viewModel.login(
         _emailController.text,
         _passwordController.text,
+        l10n: AppLocalizations.of(context),
       );
       
       if (success && mounted) {
@@ -72,7 +74,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return AdaptiveScaffold(
-      title: const Text('Login'),
+      title: Text(AppLocalizations.of(context).login),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -85,17 +87,17 @@ class _LoginScreenState extends State<LoginScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const AuthHeader(
-                      title: 'Welcome Back',
-                      subtitle: 'Sign in to continue',
+                    AuthHeader(
+                      title: AppLocalizations.of(context).welcomeBack,
+                      subtitle: AppLocalizations.of(context).signInToContinue,
                     ),
                     const SizedBox(height: 48),
                     ListenableBuilder(
                       listenable: _viewModel,
                       builder: (context, _) {
                         if (_viewModel.isLoading) {
-                          return const AuthLoadingState(
-                            message: 'Signing in...',
+                          return AuthLoadingState(
+                            message: AppLocalizations.of(context).signingIn,
                           );
                         }
                         
@@ -104,35 +106,35 @@ class _LoginScreenState extends State<LoginScreen> {
                           children: [
                             AuthFormField(
                               controller: _emailController,
-                              label: 'Email',
-                              placeholder: 'Email',
+                              label: AppLocalizations.of(context).email,
+                              placeholder: AppLocalizations.of(context).email,
                               prefixIcon: Icons.email,
                               keyboardType: TextInputType.emailAddress,
                               textInputAction: TextInputAction.next,
-                              validator: AuthValidator.validateEmail,
+                              validator: AuthValidator.getEmailValidator(context),
                             ),
                             const SizedBox(height: 16),
                             AuthFormField(
                               controller: _passwordController,
-                              label: 'Password',
-                              placeholder: 'Password',
+                              label: AppLocalizations.of(context).password,
+                              placeholder: AppLocalizations.of(context).password,
                               prefixIcon: Icons.lock,
                               obscureText: _viewModel.obscurePassword,
                               textInputAction: TextInputAction.done,
                               onFieldSubmitted: _handleLogin,
                               showToggleVisibility: true,
                               onToggleVisibility: _viewModel.togglePasswordVisibility,
-                              validator: AuthValidator.validatePassword,
+                              validator: AuthValidator.getPasswordValidator(context),
                             ),
                             const SizedBox(height: 24),
                             AdaptiveButton(
-                              text: 'Login',
+                              text: AppLocalizations.of(context).login,
                               onPressed: _handleLogin,
                               isPrimary: true,
                             ),
                             const SizedBox(height: 16),
                             AdaptiveButton(
-                              text: 'Create Account',
+                              text: AppLocalizations.of(context).createAccount,
                               onPressed: () {
                                 Navigator.pushReplacementNamed(context, '/register');
                               },
@@ -149,7 +151,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           child: Text(
-                            'Or',
+                            AppLocalizations.of(context).or,
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                         ),
@@ -161,7 +163,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       listenable: _viewModel,
                       builder: (context, _) {
                         return SocialLoginButton(
-                          text: 'Sign in with Google',
+                          text: AppLocalizations.of(context).signInWithGoogle,
                           icon: context.isIOS 
                               ? Icons.g_mobiledata 
                               : CupertinoIcons.person_crop_circle,

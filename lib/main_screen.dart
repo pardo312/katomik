@@ -31,7 +31,7 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final tabs = MainScreenTabConfig.getTabs();
+    final tabs = MainScreenTabConfig.getTabs(context);
 
     return Consumer<NavigationProvider>(
       builder: (context, navProvider, child) {

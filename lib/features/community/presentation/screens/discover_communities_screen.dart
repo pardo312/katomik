@@ -11,6 +11,7 @@ import '../../../../shared/widgets/states/error_state.dart';
 import '../../../../shared/widgets/states/empty_state.dart';
 import '../providers/discover_view_model.dart';
 import 'community_detail_screen.dart';
+import '../../../../l10n/app_localizations.dart';
 
 class DiscoverCommunitiesScreen extends StatefulWidget {
   const DiscoverCommunitiesScreen({super.key});
@@ -66,7 +67,7 @@ class _DiscoverCommunitiesScreenState extends State<DiscoverCommunitiesScreen> {
           const SizedBox(width: 48),
           Expanded(
             child: Text(
-              'Discover Communities',
+              AppLocalizations.of(context).discoverCommunities,
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w400,
@@ -112,12 +113,12 @@ class _DiscoverCommunitiesScreenState extends State<DiscoverCommunitiesScreen> {
     return Consumer<CommunityProvider>(
       builder: (context, provider, child) {
         if (!_viewModel.isInitialized || provider.isLoading) {
-          return const LoadingState(message: 'Loading communities...');
+          return LoadingState(message: AppLocalizations.of(context).loadingCommunities);
         }
 
         if (provider.error != null) {
           return ErrorState(
-            message: 'Error loading communities',
+            message: AppLocalizations.of(context).errorLoadingCommunities,
             onRetry: _viewModel.reload,
           );
         }
@@ -127,10 +128,10 @@ class _DiscoverCommunitiesScreenState extends State<DiscoverCommunitiesScreen> {
         if (communities.isEmpty) {
           return EmptyState(
             icon: CupertinoIcons.search,
-            title: 'No communities found',
+            title: AppLocalizations.of(context).noCommunitiesFound,
             subtitle: _viewModel.hasActiveFilters
-                ? 'Try adjusting your filters'
-                : 'Be the first to create one!',
+                ? AppLocalizations.of(context).tryAdjustingFilters
+                : AppLocalizations.of(context).beFirstToCreateOne,
           );
         }
 

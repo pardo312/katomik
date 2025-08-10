@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'dart:io';
+import '../../../../l10n/app_localizations.dart';
 
 class ImagesSection extends StatelessWidget {
   final List<String> imagePaths;
@@ -30,7 +31,7 @@ class ImagesSection extends StatelessWidget {
   
   Widget _buildHeader(BuildContext context) {
     return Text(
-      'Add Images',
+      AppLocalizations.of(context).images,
       style: Platform.isIOS
           ? CupertinoTheme.of(context).textTheme.textStyle.copyWith(
               fontSize: 17,
@@ -42,7 +43,7 @@ class ImagesSection extends StatelessWidget {
   
   Widget _buildSubtitle(BuildContext context) {
     return Text(
-      'Add images that inspire you',
+      AppLocalizations.of(context).enterMotivatingPhrase,
       style: Theme.of(context).textTheme.bodySmall?.copyWith(
         color: Theme.of(context).colorScheme.onSurfaceVariant,
       ),

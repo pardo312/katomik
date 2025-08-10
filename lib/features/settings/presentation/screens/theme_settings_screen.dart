@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'package:katomik/shared/providers/theme_provider.dart';
 import 'dart:io';
+import '../../../../l10n/app_localizations.dart';
 
 class ThemeSettingsScreen extends StatelessWidget {
   const ThemeSettingsScreen({super.key});
@@ -13,8 +14,8 @@ class ThemeSettingsScreen extends StatelessWidget {
     
     if (Platform.isIOS) {
       return CupertinoPageScaffold(
-        navigationBar: const CupertinoNavigationBar(
-          middle: Text('Theme Settings'),
+        navigationBar: CupertinoNavigationBar(
+          middle: Text(AppLocalizations.of(context).themeSettings),
         ),
         child: SafeArea(
           child: _buildContent(context, themeProvider),
@@ -24,7 +25,7 @@ class ThemeSettingsScreen extends StatelessWidget {
     
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Theme Settings'),
+        title: Text(AppLocalizations.of(context).themeSettings),
       ),
       body: _buildContent(context, themeProvider),
     );
@@ -66,18 +67,18 @@ class ThemeSettingsScreen extends StatelessWidget {
             themeProvider.setThemeMode(value);
           }
         },
-        children: const {
+        children: {
           ThemeMode.light: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            child: Text('Light'),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Text(AppLocalizations.of(context).light),
           ),
           ThemeMode.dark: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            child: Text('Dark'),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Text(AppLocalizations.of(context).dark),
           ),
           ThemeMode.system: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            child: Text('System'),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Text(AppLocalizations.of(context).system),
           ),
         },
       );
@@ -87,7 +88,7 @@ class ThemeSettingsScreen extends StatelessWidget {
       child: Column(
         children: [
           RadioListTile<ThemeMode>(
-            title: const Text('Light'),
+            title: Text(AppLocalizations.of(context).light),
             value: ThemeMode.light,
             groupValue: themeProvider.themeMode,
             onChanged: (value) {
@@ -97,7 +98,7 @@ class ThemeSettingsScreen extends StatelessWidget {
             },
           ),
           RadioListTile<ThemeMode>(
-            title: const Text('Dark'),
+            title: Text(AppLocalizations.of(context).dark),
             value: ThemeMode.dark,
             groupValue: themeProvider.themeMode,
             onChanged: (value) {
@@ -107,7 +108,7 @@ class ThemeSettingsScreen extends StatelessWidget {
             },
           ),
           RadioListTile<ThemeMode>(
-            title: const Text('System'),
+            title: Text(AppLocalizations.of(context).system),
             value: ThemeMode.system,
             groupValue: themeProvider.themeMode,
             onChanged: (value) {

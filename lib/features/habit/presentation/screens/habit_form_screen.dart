@@ -12,6 +12,7 @@ import '../providers/habit_form_view_model.dart';
 import 'dart:io';
 import '../../../../core/utils/platform_messages.dart';
 import '../../../../core/utils/image_picker_helper.dart';
+import '../../../../l10n/app_localizations.dart';
 
 class HabitFormScreen extends StatefulWidget {
   final Habit? habitToEdit;
@@ -65,13 +66,13 @@ class _HabitFormScreenState extends State<HabitFormScreen> {
     if (Platform.isIOS) {
       AdaptiveDialog.show(
         context: context,
-        title: 'Missing Information',
-        content: const Text(
-          'Please provide a habit name and at least one phrase.',
+        title: AppLocalizations.of(context).missingInformation,
+        content: Text(
+          AppLocalizations.of(context).provideHabitNameAndPhrase,
         ),
         actions: [
           AdaptiveDialogAction(
-            text: 'OK',
+            text: AppLocalizations.of(context).ok,
             onPressed: () => Navigator.pop(context),
           ),
         ],
@@ -84,11 +85,11 @@ class _HabitFormScreenState extends State<HabitFormScreen> {
       showCupertinoDialog(
         context: context,
         builder: (context) => CupertinoAlertDialog(
-          title: const Text('Error'),
+          title: Text(AppLocalizations.of(context).error),
           content: Text(error),
           actions: [
             CupertinoDialogAction(
-              child: const Text('OK'),
+              child: Text(AppLocalizations.of(context).ok),
               onPressed: () => Navigator.pop(context),
             ),
           ],
@@ -102,14 +103,14 @@ class _HabitFormScreenState extends State<HabitFormScreen> {
   @override
   Widget build(BuildContext context) {
     return AdaptiveScaffold(
-      title: Text(_viewModel.isEditing ? 'Edit Habit' : 'New Habit'),
+      title: Text(_viewModel.isEditing ? AppLocalizations.of(context).editHabit : AppLocalizations.of(context).newHabit),
       actions: Platform.isIOS
           ? [
               CupertinoButton(
                 padding: EdgeInsets.zero,
                 onPressed: _saveHabit,
-                child: const Text(
-                  'Save',
+                child: Text(
+                  AppLocalizations.of(context).save,
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),
@@ -122,8 +123,8 @@ class _HabitFormScreenState extends State<HabitFormScreen> {
           children: [
             AdaptiveTextField(
               controller: _viewModel.nameController,
-              label: 'Habit Name',
-              placeholder: 'e.g., Drink Water, Exercise, Read',
+              label: AppLocalizations.of(context).habitName,
+              placeholder: AppLocalizations.of(context).habitNamePlaceholder,
               prefix: Icon(
                 Platform.isIOS ? CupertinoIcons.pencil : Icons.edit,
                 size: 20,
@@ -160,7 +161,7 @@ class _HabitFormScreenState extends State<HabitFormScreen> {
                 children: [
                   Expanded(
                     child: AdaptiveButton(
-                      text: 'Cancel',
+                      text: AppLocalizations.of(context).cancel,
                       onPressed: () => Navigator.pop(context),
                       isPrimary: false,
                     ),
@@ -168,7 +169,7 @@ class _HabitFormScreenState extends State<HabitFormScreen> {
                   const SizedBox(width: 16),
                   Expanded(
                     child: AdaptiveButton(
-                      text: _viewModel.isEditing ? 'Update' : 'Create',
+                      text: _viewModel.isEditing ? AppLocalizations.of(context).update : AppLocalizations.of(context).create,
                       onPressed: _saveHabit,
                       isPrimary: true,
                     ),

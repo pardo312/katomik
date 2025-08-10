@@ -1,0 +1,757 @@
+{
+  "@@locale": "en",
+  "appTitle": "Katomik - Habit Tracker",
+  "@appTitle": {
+    "description": "The title of the application"
+  },
+  "login": "Login",
+  "@login": {
+    "description": "Login button and screen title"
+  },
+  "register": "Register",
+  "@register": {
+    "description": "Register button and screen title"
+  },
+  "welcomeBack": "Welcome Back",
+  "@welcomeBack": {
+    "description": "Welcome message on login screen"
+  },
+  "signInToContinue": "Sign in to continue",
+  "@signInToContinue": {
+    "description": "Subtitle on login screen"
+  },
+  "createAccount": "Create Account",
+  "@createAccount": {
+    "description": "Create account button text"
+  },
+  "signUpToGetStarted": "Sign up to get started",
+  "@signUpToGetStarted": {
+    "description": "Subtitle on register screen"
+  },
+  "email": "Email",
+  "@email": {
+    "description": "Email field label"
+  },
+  "password": "Password",
+  "@password": {
+    "description": "Password field label"
+  },
+  "username": "Username",
+  "@username": {
+    "description": "Username field label"
+  },
+  "confirmPassword": "Confirm Password",
+  "@confirmPassword": {
+    "description": "Confirm password field label"
+  },
+  "or": "Or",
+  "@or": {
+    "description": "Divider text between login options"
+  },
+  "signInWithGoogle": "Sign in with Google",
+  "@signInWithGoogle": {
+    "description": "Google sign in button text"
+  },
+  "signingIn": "Signing in...",
+  "@signingIn": {
+    "description": "Loading message during sign in"
+  },
+  "creatingYourAccount": "Creating your account...",
+  "@creatingYourAccount": {
+    "description": "Loading message during registration"
+  },
+  "cancel": "Cancel",
+  "@cancel": {
+    "description": "Cancel button text"
+  },
+  "ok": "OK",
+  "@ok": {
+    "description": "OK button text"
+  },
+  "save": "Save",
+  "@save": {
+    "description": "Save button text"
+  },
+  "update": "Update",
+  "@update": {
+    "description": "Update button text"
+  },
+  "create": "Create",
+  "@create": {
+    "description": "Create button text"
+  },
+  "retry": "Retry",
+  "@retry": {
+    "description": "Retry button text"
+  },
+  "pleaseEnterYourEmail": "Please enter your email",
+  "@pleaseEnterYourEmail": {
+    "description": "Email validation message"
+  },
+  "pleaseEnterValidEmail": "Please enter a valid email address",
+  "@pleaseEnterValidEmail": {
+    "description": "Invalid email validation message"
+  },
+  "pleaseEnterYourPassword": "Please enter your password",
+  "@pleaseEnterYourPassword": {
+    "description": "Password validation message"
+  },
+  "passwordMustBeAtLeastChars": "Password must be at least {minLength} characters",
+  "@passwordMustBeAtLeastChars": {
+    "description": "Password length validation message",
+    "placeholders": {
+      "minLength": {
+        "type": "int",
+        "example": "8"
+      }
+    }
+  },
+  "pleaseConfirmYourPassword": "Please confirm your password",
+  "@pleaseConfirmYourPassword": {
+    "description": "Confirm password validation message"
+  },
+  "passwordsDoNotMatch": "Passwords do not match",
+  "@passwordsDoNotMatch": {
+    "description": "Password mismatch validation message"
+  },
+  "pleaseEnterUsername": "Please enter a username",
+  "@pleaseEnterUsername": {
+    "description": "Username validation message"
+  },
+  "usernameMustBeAtLeastChars": "Username must be at least {minLength} characters",
+  "@usernameMustBeAtLeastChars": {
+    "description": "Username minimum length validation",
+    "placeholders": {
+      "minLength": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "usernameMustBeLessThanChars": "Username must be less than {maxLength} characters",
+  "@usernameMustBeLessThanChars": {
+    "description": "Username maximum length validation",
+    "placeholders": {
+      "maxLength": {
+        "type": "int",
+        "example": "50"
+      }
+    }
+  },
+  "usernameCanOnlyContain": "Username can only contain letters, numbers, and underscores",
+  "@usernameCanOnlyContain": {
+    "description": "Username format validation message"
+  },
+  "invalidCredentials": "Invalid email/username or password. Please try again.",
+  "@invalidCredentials": {
+    "description": "Invalid login credentials error"
+  },
+  "noAccountFound": "No account found with this email/username. Please register first.",
+  "@noAccountFound": {
+    "description": "Account not found error"
+  },
+  "unableToConnect": "Unable to connect to server. Please check your internet connection.",
+  "@unableToConnect": {
+    "description": "Connection error message"
+  },
+  "checkLoginDetails": "Please check your login details and try again.",
+  "@checkLoginDetails": {
+    "description": "Generic login error message"
+  },
+  "emailAlreadyRegistered": "This email is already registered. Please use a different email or login.",
+  "@emailAlreadyRegistered": {
+    "description": "Email already exists error"
+  },
+  "usernameAlreadyTaken": "This username is already taken. Please choose a different username.",
+  "@usernameAlreadyTaken": {
+    "description": "Username already exists error"
+  },
+  "passwordTooShort": "Password must be at least 8 characters long.",
+  "@passwordTooShort": {
+    "description": "Password too short error"
+  },
+  "connectionError": "Connection error. Please check your internet connection.",
+  "@connectionError": {
+    "description": "Connection error message"
+  },
+  "requestTimeout": "Request timed out. Please try again.",
+  "@requestTimeout": {
+    "description": "Request timeout error"
+  },
+  "serverError": "Server error. Please try again later.",
+  "@serverError": {
+    "description": "Server error message"
+  },
+  "discoverCommunities": "Discover Communities",
+  "@discoverCommunities": {
+    "description": "Discover communities screen title"
+  },
+  "loadingCommunities": "Loading communities...",
+  "@loadingCommunities": {
+    "description": "Loading communities message"
+  },
+  "errorLoadingCommunities": "Error loading communities",
+  "@errorLoadingCommunities": {
+    "description": "Error loading communities message"
+  },
+  "noCommunitiesFound": "No communities found",
+  "@noCommunitiesFound": {
+    "description": "No communities found message"
+  },
+  "tryAdjustingFilters": "Try adjusting your filters",
+  "@tryAdjustingFilters": {
+    "description": "Empty state suggestion"
+  },
+  "beFirstToCreateOne": "Be the first to create one!",
+  "@beFirstToCreateOne": {
+    "description": "Empty state call to action"
+  },
+  "searchCommunities": "Search communities...",
+  "@searchCommunities": {
+    "description": "Search communities placeholder"
+  },
+  "leaveCommunity": "Leave Community?",
+  "@leaveCommunity": {
+    "description": "Leave community dialog title"
+  },
+  "logout": "Logout",
+  "@logout": {
+    "description": "Logout button text"
+  },
+  "areYouSureLogout": "Are you sure you want to logout?",
+  "@areYouSureLogout": {
+    "description": "Logout confirmation message"
+  },
+  "profile": "Profile",
+  "@profile": {
+    "description": "Profile screen title"
+  },
+  "themeSettings": "Theme Settings",
+  "@themeSettings": {
+    "description": "Theme settings option"
+  },
+  "verifyEmail": "Verify Email",
+  "@verifyEmail": {
+    "description": "Verify email option"
+  },
+  "yourEmailNotVerified": "Your email is not verified",
+  "@yourEmailNotVerified": {
+    "description": "Email not verified message"
+  },
+  "changeProfilePicture": "Change Profile Picture",
+  "@changeProfilePicture": {
+    "description": "Change profile picture option"
+  },
+  "takePhoto": "Take Photo",
+  "@takePhoto": {
+    "description": "Take photo option"
+  },
+  "chooseFromGallery": "Choose from Gallery",
+  "@chooseFromGallery": {
+    "description": "Choose from gallery option"
+  },
+  "useGoogleProfilePicture": "Use Google Profile Picture",
+  "@useGoogleProfilePicture": {
+    "description": "Use Google profile picture option"
+  },
+  "light": "Light",
+  "@light": {
+    "description": "Light theme option"
+  },
+  "dark": "Dark",
+  "@dark": {
+    "description": "Dark theme option"
+  },
+  "system": "System",
+  "@system": {
+    "description": "System theme option"
+  },
+  "editHabit": "Edit Habit",
+  "@editHabit": {
+    "description": "Edit habit screen title"
+  },
+  "newHabit": "New Habit",
+  "@newHabit": {
+    "description": "New habit screen title"
+  },
+  "habitName": "Habit Name",
+  "@habitName": {
+    "description": "Habit name field label"
+  },
+  "habitNamePlaceholder": "e.g., Drink Water, Exercise, Read",
+  "@habitNamePlaceholder": {
+    "description": "Habit name placeholder"
+  },
+  "missingInformation": "Missing Information",
+  "@missingInformation": {
+    "description": "Missing information dialog title"
+  },
+  "provideHabitNameAndPhrase": "Please provide a habit name and at least one phrase.",
+  "@provideHabitNameAndPhrase": {
+    "description": "Missing habit information message"
+  },
+  "error": "Error",
+  "@error": {
+    "description": "Error dialog title"
+  },
+  "noHabitsYet": "No habits yet",
+  "@noHabitsYet": {
+    "description": "No habits empty state title"
+  },
+  "startBuildingFirstHabit": "Start building your first habit!",
+  "@startBuildingFirstHabit": {
+    "description": "No habits empty state message"
+  },
+  "joinCommunity": "Join Community",
+  "@joinCommunity": {
+    "description": "Join community button text"
+  },
+  "governance": "Governance",
+  "@governance": {
+    "description": "Governance section title"
+  },
+  "createProposal": "Create Proposal",
+  "@createProposal": {
+    "description": "Create proposal button text"
+  },
+  "approve": "Approve",
+  "@approve": {
+    "description": "Approve button text"
+  },
+  "reject": "Reject",
+  "@reject": {
+    "description": "Reject button text"
+  },
+  "viewCommunity": "View Community",
+  "@viewCommunity": {
+    "description": "View community button text"
+  },
+  "easy": "Easy",
+  "@easy": {
+    "description": "Easy difficulty level"
+  },
+  "medium": "Medium",
+  "@medium": {
+    "description": "Medium difficulty level"
+  },
+  "hard": "Hard",
+  "@hard": {
+    "description": "Hard difficulty level"
+  },
+  "selectCategory": "Select a category",
+  "@selectCategory": {
+    "description": "Category selection placeholder"
+  },
+  "loadingCommunity": "Loading community...",
+  "@loadingCommunity": {
+    "description": "Loading community message"
+  },
+  "errorLoadingCommunity": "Error loading community",
+  "@errorLoadingCommunity": {
+    "description": "Error loading community message"
+  },
+  "communityNotFound": "Community not found",
+  "@communityNotFound": {
+    "description": "Community not found message"
+  },
+  "somethingWentWrong": "Something went wrong!",
+  "@somethingWentWrong": {
+    "description": "Generic error message"
+  },
+  "selectImageSource": "Select Image Source",
+  "@selectImageSource": {
+    "description": "Image source selection title"
+  },
+  "camera": "Camera",
+  "@camera": {
+    "description": "Camera option"
+  },
+  "photoLibrary": "Photo Library",
+  "@photoLibrary": {
+    "description": "Photo library option"
+  },
+  "modifyHabit": "Modify Habit",
+  "@modifyHabit": {
+    "description": "Modify habit proposal type"
+  },
+  "changeRules": "Change Rules",
+  "@changeRules": {
+    "description": "Change rules proposal type"
+  },
+  "removeMember": "Remove Member",
+  "@removeMember": {
+    "description": "Remove member proposal type"
+  },
+  "deleteHabit": "Delete Habit",
+  "@deleteHabit": {
+    "description": "Delete habit proposal type"
+  },
+  "unknown": "Unknown",
+  "@unknown": {
+    "description": "Unknown status or type"
+  },
+  "daysAgo": "{days, plural, =1{1 day ago} other{{days} days ago}}",
+  "@daysAgo": {
+    "description": "Days ago time format",
+    "placeholders": {
+      "days": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "hoursAgo": "{hours, plural, =1{1 hour ago} other{{hours} hours ago}}",
+  "@hoursAgo": {
+    "description": "Hours ago time format",
+    "placeholders": {
+      "hours": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "minutesAgo": "{minutes, plural, =1{1 minute ago} other{{minutes} minutes ago}}",
+  "@minutesAgo": {
+    "description": "Minutes ago time format",
+    "placeholders": {
+      "minutes": {
+        "type": "int",
+        "example": "30"
+      }
+    }
+  },
+  "expired": "Expired",
+  "@expired": {
+    "description": "Expired status"
+  },
+  "daysRemaining": "{days, plural, =1{1 day} other{{days} days}}",
+  "@daysRemaining": {
+    "description": "Days remaining format",
+    "placeholders": {
+      "days": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "hoursRemaining": "{hours, plural, =1{1 hour} other{{hours} hours}}",
+  "@hoursRemaining": {
+    "description": "Hours remaining format",
+    "placeholders": {
+      "hours": {
+        "type": "int",
+        "example": "12"
+      }
+    }
+  },
+  "minutesRemaining": "{minutes, plural, =1{1 minute} other{{minutes} minutes}}",
+  "@minutesRemaining": {
+    "description": "Minutes remaining format",
+    "placeholders": {
+      "minutes": {
+        "type": "int",
+        "example": "45"
+      }
+    }
+  },
+  "aboutThisCommunity": "About this Community",
+  "@aboutThisCommunity": {
+    "description": "About community section title"
+  },
+  "enterMotivatingPhrase": "Enter a motivating phrase",
+  "@enterMotivatingPhrase": {
+    "description": "Motivating phrase placeholder"
+  },
+  "describeHabitCommunityGoals": "Describe your habit and community goals...",
+  "@describeHabitCommunityGoals": {
+    "description": "Habit description placeholder"
+  },
+  "enterClearDescriptiveTitle": "Enter a clear, descriptive title",
+  "@enterClearDescriptiveTitle": {
+    "description": "Proposal title placeholder"
+  },
+  "explainProposalDetail": "Explain your proposal in detail",
+  "@explainProposalDetail": {
+    "description": "Proposal description placeholder"
+  },
+  "about": "About",
+  "@about": {
+    "description": "About tab"
+  },
+  "leaderboard": "Leaderboard",
+  "@leaderboard": {
+    "description": "Leaderboard tab"
+  },
+  "stats": "Stats",
+  "@stats": {
+    "description": "Stats tab"
+  },
+  "proposals": "Proposals",
+  "@proposals": {
+    "description": "Proposals tab"
+  },
+  "votingMembers": "Voting Members",
+  "@votingMembers": {
+    "description": "Voting members tab"
+  },
+  "whyImDoingThis": "Why I'm doing this",
+  "@whyImDoingThis": {
+    "description": "Motivation section title"
+  },
+  "images": "Images",
+  "@images": {
+    "description": "Images section title"
+  },
+  "phrases": "Phrases",
+  "@phrases": {
+    "description": "Phrases section title"
+  },
+  "communityInfo": "Community Info",
+  "@communityInfo": {
+    "description": "Community info section title"
+  },
+  "chooseColor": "Choose Color",
+  "@chooseColor": {
+    "description": "Color picker title"
+  },
+  "chooseIcon": "Choose Icon",
+  "@chooseIcon": {
+    "description": "Icon picker title"
+  },
+  "makeHabitPublic": "Make Habit Public",
+  "@makeHabitPublic": {
+    "description": "Make habit public option"
+  },
+  "pendingProposals": "Pending Proposals",
+  "@pendingProposals": {
+    "description": "Pending proposals section title"
+  },
+  "noProposals": "No proposals",
+  "@noProposals": {
+    "description": "No proposals message"
+  },
+  "weeklyStreak": "Weekly Streak",
+  "@weeklyStreak": {
+    "description": "Weekly streak label"
+  },
+  "totalStreak": "Total Streak",
+  "@totalStreak": {
+    "description": "Total streak label"
+  },
+  "members": "Members",
+  "@members": {
+    "description": "Members label"
+  },
+  "difficulty": "Difficulty",
+  "@difficulty": {
+    "description": "Difficulty label"
+  },
+  "status": "Status",
+  "@status": {
+    "description": "Status label"
+  },
+  "active": "Active",
+  "@active": {
+    "description": "Active status"
+  },
+  "inactive": "Inactive",
+  "@inactive": {
+    "description": "Inactive status"
+  },
+  "pending": "Pending",
+  "@pending": {
+    "description": "Pending status"
+  },
+  "completed": "Completed",
+  "@completed": {
+    "description": "Completed status"
+  },
+  "home": "Home",
+  "@home": {
+    "description": "Home navigation item"
+  },
+  "communities": "Communities",
+  "@communities": {
+    "description": "Communities navigation item"
+  },
+  "add": "Add",
+  "@add": {
+    "description": "Add button text"
+  },
+  "edit": "Edit",
+  "@edit": {
+    "description": "Edit button text"
+  },
+  "delete": "Delete",
+  "@delete": {
+    "description": "Delete button text"
+  },
+  "confirm": "Confirm",
+  "@confirm": {
+    "description": "Confirm button text"
+  },
+  "yes": "Yes",
+  "@yes": {
+    "description": "Yes option"
+  },
+  "no": "No",
+  "@no": {
+    "description": "No option"
+  },
+  "loading": "Loading...",
+  "@loading": {
+    "description": "Loading message"
+  },
+  "submit": "Submit",
+  "@submit": {
+    "description": "Submit button text"
+  },
+  "back": "Back",
+  "@back": {
+    "description": "Back button text"
+  },
+  "next": "Next",
+  "@next": {
+    "description": "Next button text"
+  },
+  "finish": "Finish",
+  "@finish": {
+    "description": "Finish button text"
+  },
+  "search": "Search",
+  "@search": {
+    "description": "Search button text"
+  },
+  "filter": "Filter",
+  "@filter": {
+    "description": "Filter button text"
+  },
+  "sort": "Sort",
+  "@sort": {
+    "description": "Sort button text"
+  },
+  "close": "Close",
+  "@close": {
+    "description": "Close button text"
+  },
+  "open": "Open",
+  "@open": {
+    "description": "Open button text"
+  },
+  "more": "More",
+  "@more": {
+    "description": "More button text"
+  },
+  "less": "Less",
+  "@less": {
+    "description": "Less button text"
+  },
+  "showMore": "Show more",
+  "@showMore": {
+    "description": "Show more button text"
+  },
+  "showLess": "Show less",
+  "@showLess": {
+    "description": "Show less button text"
+  },
+  "today": "Today",
+  "@today": {
+    "description": "Today label"
+  },
+  "yesterday": "Yesterday",
+  "@yesterday": {
+    "description": "Yesterday label"
+  },
+  "tomorrow": "Tomorrow",
+  "@tomorrow": {
+    "description": "Tomorrow label"
+  },
+  "week": "Week",
+  "@week": {
+    "description": "Week label"
+  },
+  "month": "Month",
+  "@month": {
+    "description": "Month label"
+  },
+  "year": "Year",
+  "@year": {
+    "description": "Year label"
+  },
+  "all": "All",
+  "@all": {
+    "description": "All option"
+  },
+  "none": "None",
+  "@none": {
+    "description": "None option"
+  },
+  "select": "Select",
+  "@select": {
+    "description": "Select button text"
+  },
+  "selected": "Selected",
+  "@selected": {
+    "description": "Selected label"
+  },
+  "apply": "Apply",
+  "@apply": {
+    "description": "Apply button text"
+  },
+  "reset": "Reset",
+  "@reset": {
+    "description": "Reset button text"
+  },
+  "clear": "Clear",
+  "@clear": {
+    "description": "Clear button text"
+  },
+  "done": "Done",
+  "@done": {
+    "description": "Done button text"
+  },
+  "settings": "Settings",
+  "@settings": {
+    "description": "Settings navigation item"
+  },
+  "help": "Help",
+  "@help": {
+    "description": "Help option"
+  },
+  "aboutApp": "About",
+  "@aboutApp": {
+    "description": "About app option"
+  },
+  "version": "Version",
+  "@version": {
+    "description": "Version label"
+  },
+  "share": "Share",
+  "@share": {
+    "description": "Share button text"
+  },
+  "copy": "Copy",
+  "@copy": {
+    "description": "Copy button text"
+  },
+  "copied": "Copied",
+  "@copied": {
+    "description": "Copied confirmation"
+  },
+  "paste": "Paste",
+  "@paste": {
+    "description": "Paste button text"
+  },
+  "cut": "Cut",
+  "@cut": {
+    "description": "Cut button text"
+  },
+  "undo": "Undo",
+  "@undo": {
+    "description": "Undo button text"
+  },
+  "redo": "Redo",
+  "@redo": {
+    "description": "Redo button text"
+  }
+}

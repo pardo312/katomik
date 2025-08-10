@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import '../../../../shared/widgets/common/adaptive_widgets.dart';
 import 'dart:io';
+import '../../../../l10n/app_localizations.dart';
 
 class PhrasesSection extends StatelessWidget {
   final List<TextEditingController> phraseControllers;
@@ -26,7 +27,7 @@ class PhrasesSection extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Why do you want to build this habit?',
+              AppLocalizations.of(context).whyImDoingThis,
               style: Platform.isIOS
                   ? CupertinoTheme.of(context).textTheme.textStyle.copyWith(
                       fontSize: 17,
@@ -45,7 +46,7 @@ class PhrasesSection extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          'Add phrases that motivate you',
+          AppLocalizations.of(context).enterMotivatingPhrase,
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
             color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
@@ -62,8 +63,8 @@ class PhrasesSection extends StatelessWidget {
                 Expanded(
                   child: AdaptiveTextField(
                     controller: controller,
-                    label: 'Phrase ${index + 1}',
-                    placeholder: 'Enter a motivating phrase',
+                    label: AppLocalizations.of(context).phrases,
+                    placeholder: AppLocalizations.of(context).enterMotivatingPhrase,
                     prefix: Icon(
                       Platform.isIOS
                           ? CupertinoIcons.quote_bubble

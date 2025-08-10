@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import '../../../../shared/widgets/common/habit_icon.dart';
 import 'dart:io';
+import '../../../../l10n/app_localizations.dart';
 
 class IconPicker extends StatelessWidget {
   final String selectedIcon;
@@ -21,7 +22,7 @@ class IconPicker extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Choose an Icon',
+          AppLocalizations.of(context).chooseIcon,
           style: Platform.isIOS
               ? CupertinoTheme.of(context).textTheme.textStyle.copyWith(
                     fontSize: 17,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'dart:io';
+import '../../../../l10n/app_localizations.dart';
 
 class ColorPicker extends StatelessWidget {
   final Color selectedColor;
@@ -31,7 +32,7 @@ class ColorPicker extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Choose a Color',
+          AppLocalizations.of(context).chooseColor,
           style: Platform.isIOS
               ? CupertinoTheme.of(context).textTheme.textStyle.copyWith(
                     fontSize: 17,
