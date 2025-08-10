@@ -3,7 +3,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../../../shared/models/habit.dart';
 import '../../../../shared/providers/habit_provider.dart';
 
-class AddHabitViewModel extends ChangeNotifier {
+class HabitFormViewModel extends ChangeNotifier {
   final HabitProvider _habitProvider;
   final Habit? habitToEdit;
   
@@ -17,7 +17,7 @@ class AddHabitViewModel extends ChangeNotifier {
   bool _isLoading = false;
   String? _error;
   
-  AddHabitViewModel({
+  HabitFormViewModel({
     required HabitProvider habitProvider,
     this.habitToEdit,
   }) : _habitProvider = habitProvider {

@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:katomik/shared/providers/navigation_provider.dart';
 import 'package:katomik/shared/providers/habit_provider.dart';
 import 'package:katomik/shared/providers/auth_provider.dart';
-import 'package:katomik/features/habit/presentation/screens/add_habit_screen.dart';
+import 'package:katomik/features/habit/presentation/screens/habit_form_screen.dart';
 import 'package:katomik/core/platform/platform_service.dart';
 import 'package:katomik/core/navigation/main_screen_tab_config.dart';
 
@@ -34,10 +34,10 @@ class MainScreenController {
     }
   }
 
-  static void navigateToAddHabit(BuildContext context) {
+  static void navigateToHabitForm(BuildContext context) {
     final route = context.platform.isIOS
-        ? CupertinoPageRoute(builder: (_) => const AddHabitScreen())
-        : MaterialPageRoute(builder: (_) => const AddHabitScreen());
+        ? CupertinoPageRoute(builder: (_) => const HabitFormScreen())
+        : MaterialPageRoute(builder: (_) => const HabitFormScreen());
     Navigator.push(context, route);
   }
 

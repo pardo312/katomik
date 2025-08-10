@@ -1,4 +1,4 @@
-export 'presentation/screens/add_habit_screen.dart';
+export 'presentation/screens/habit_form_screen.dart';
 export 'presentation/screens/habit_detail_screen.dart';
 
 export 'presentation/widgets/color_picker.dart';
@@ -14,5 +14,5 @@ export 'presentation/widgets/icon_picker.dart';
 export 'presentation/widgets/images_section.dart';
 export 'presentation/widgets/phrases_section.dart';
 
-export 'presentation/providers/add_habit_view_model.dart';
+export 'presentation/providers/habit_form_view_model.dart';
 export 'presentation/providers/habit_detail_view_model.dart';

@@ -50,7 +50,7 @@ class _MainScreenState extends State<MainScreen> {
               index: index,
               updateIndex: _updateIndex,
             ),
-            onAddPressed: () => MainScreenController.navigateToAddHabit(context),
+            onAddPressed: () => MainScreenController.navigateToHabitForm(context),
           );
         }
 
@@ -63,7 +63,7 @@ class _MainScreenState extends State<MainScreen> {
             index: index,
             updateIndex: _updateIndex,
           ),
-          onAddPressed: () => MainScreenController.navigateToAddHabit(context),
+          onAddPressed: () => MainScreenController.navigateToHabitForm(context),
         );
       },
     );

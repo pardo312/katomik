@@ -8,28 +8,28 @@ import '../widgets/color_picker.dart';
 import '../widgets/icon_picker.dart';
 import '../widgets/phrases_section.dart';
 import '../widgets/images_section.dart';
-import '../providers/add_habit_view_model.dart';
+import '../providers/habit_form_view_model.dart';
 import 'dart:io';
 import '../../../../core/utils/platform_messages.dart';
 import '../../../../core/utils/image_picker_helper.dart';
 
-class AddHabitScreen extends StatefulWidget {
+class HabitFormScreen extends StatefulWidget {
   final Habit? habitToEdit;
 
-  const AddHabitScreen({super.key, this.habitToEdit});
+  const HabitFormScreen({super.key, this.habitToEdit});
 
   @override
-  State<AddHabitScreen> createState() => _AddHabitScreenState();
+  State<HabitFormScreen> createState() => _HabitFormScreenState();
 }
 
-class _AddHabitScreenState extends State<AddHabitScreen> {
+class _HabitFormScreenState extends State<HabitFormScreen> {
   final _formKey = GlobalKey<FormState>();
-  late final AddHabitViewModel _viewModel;
+  late final HabitFormViewModel _viewModel;
 
   @override
   void initState() {
     super.initState();
-    _viewModel = AddHabitViewModel(
+    _viewModel = HabitFormViewModel(
       habitProvider: context.read<HabitProvider>(),
       habitToEdit: widget.habitToEdit,
     );

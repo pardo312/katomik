@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:katomik/features/habit/presentation/screens/habit_detail_screen.dart';
 import 'dart:io';
 import '../../../features/settings/presentation/screens/theme_settings_screen.dart';
-import '../../../features/habit/presentation/screens/add_habit_screen.dart';
+import '../../../features/habit/presentation/screens/habit_form_screen.dart';
 import '../../models/habit.dart';
 
 class AdaptiveNavigationHelper {
@@ -94,7 +94,7 @@ class AdaptiveTabScaffold extends StatelessWidget {
                   );
                 case '/add-habit':
                   return CupertinoPageRoute(
-                    builder: (context) => const AddHabitScreen(),
+                    builder: (context) => const HabitFormScreen(),
                   );
                 case '/habit-detail':
                   final habit = settings.arguments as Habit;

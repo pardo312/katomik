@@ -5,7 +5,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:katomik/shared/models/habit.dart';
 import 'package:katomik/shared/providers/habit_provider.dart';
 import 'package:katomik/shared/providers/community_provider.dart';
-import 'add_habit_screen.dart';
+import 'habit_form_screen.dart';
 import '../../../../shared/widgets/common/habit_icon.dart';
 import 'package:katomik/features/community/presentation/widgets/make_habit_public_dialog.dart';
 import 'package:katomik/features/community/presentation/screens/community_detail_screen.dart';
@@ -267,10 +267,10 @@ class _HabitDetailScreenState extends State<HabitDetailScreen>
   Future<void> _navigateToEditHabit() async {
     final route = Platform.isIOS
         ? CupertinoPageRoute(
-            builder: (_) => AddHabitScreen(habitToEdit: _viewModel.habit),
+            builder: (_) => HabitFormScreen(habitToEdit: _viewModel.habit),
           )
         : MaterialPageRoute(
-            builder: (_) => AddHabitScreen(habitToEdit: _viewModel.habit),
+            builder: (_) => HabitFormScreen(habitToEdit: _viewModel.habit),
           );
 
     await Navigator.push(context, route);
