@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:katomik/l10n/app_localizations.dart';
 import '../../../../shared/providers/community_provider.dart';
 import '../../../../shared/providers/habit_provider.dart';
 import '../../../../shared/providers/auth_provider.dart';
@@ -169,10 +170,10 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen>
         unselectedLabelColor: Theme.of(context).colorScheme.onSurfaceVariant,
         indicatorColor: Theme.of(context).colorScheme.primary,
         indicatorWeight: 3,
-        tabs: const [
-          Tab(text: 'Leaderboard'),
-          Tab(text: 'Stats'),
-          Tab(text: 'About'),
+        tabs: [
+          Tab(text: AppLocalizations.of(context).leaderboard),
+          Tab(text: AppLocalizations.of(context).stats),
+          Tab(text: AppLocalizations.of(context).about),
         ],
       ),
     );

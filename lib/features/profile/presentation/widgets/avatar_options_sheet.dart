@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:katomik/l10n/app_localizations.dart';
 import '../../../../core/platform/platform_service.dart';
 import '../../../../shared/providers/auth_provider.dart';
 
@@ -40,21 +41,21 @@ class AvatarOptionsSheet {
     showCupertinoModalPopup(
       context: context,
       builder: (context) => CupertinoActionSheet(
-        title: const Text('Change Profile Picture'),
+        title: Text(AppLocalizations.of(context).changeProfilePicture),
         actions: [
           CupertinoActionSheetAction(
             onPressed: () {
               Navigator.pop(context);
               onImageSourceSelected(ImageSource.camera);
             },
-            child: const Text('Take Photo'),
+            child: Text(AppLocalizations.of(context).takePhoto),
           ),
           CupertinoActionSheetAction(
             onPressed: () {
               Navigator.pop(context);
               onImageSourceSelected(ImageSource.gallery);
             },
-            child: const Text('Choose from Gallery'),
+            child: Text(AppLocalizations.of(context).chooseFromGallery),
           ),
           if (hasGoogleAccount)
             CupertinoActionSheetAction(
@@ -62,12 +63,12 @@ class AvatarOptionsSheet {
                 Navigator.pop(context);
                 onGoogleSync();
               },
-              child: const Text('Use Google Profile Picture'),
+              child: Text(AppLocalizations.of(context).useGoogleProfilePicture),
             ),
         ],
         cancelButton: CupertinoActionSheetAction(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
+          child: Text(AppLocalizations.of(context).cancel),
         ),
       ),
     );
@@ -87,7 +88,7 @@ class AvatarOptionsSheet {
           children: [
             ListTile(
               leading: const Icon(Icons.camera_alt),
-              title: const Text('Take Photo'),
+              title: Text(AppLocalizations.of(context).takePhoto),
               onTap: () {
                 Navigator.pop(context);
                 onImageSourceSelected(ImageSource.camera);
@@ -95,7 +96,7 @@ class AvatarOptionsSheet {
             ),
             ListTile(
               leading: const Icon(Icons.photo),
-              title: const Text('Choose from Gallery'),
+              title: Text(AppLocalizations.of(context).chooseFromGallery),
               onTap: () {
                 Navigator.pop(context);
                 onImageSourceSelected(ImageSource.gallery);
@@ -104,7 +105,7 @@ class AvatarOptionsSheet {
             if (hasGoogleAccount)
               ListTile(
                 leading: const Icon(Icons.account_circle),
-                title: const Text('Use Google Profile Picture'),
+                title: Text(AppLocalizations.of(context).useGoogleProfilePicture),
                 onTap: () {
                   Navigator.pop(context);
                   onGoogleSync();

@@ -753,5 +753,241 @@
   "redo": "Redo",
   "@redo": {
     "description": "Redo button text"
+  },
+  "january": "JANUARY",
+  "@january": {
+    "description": "January month name"
+  },
+  "february": "FEBRUARY",
+  "@february": {
+    "description": "February month name"
+  },
+  "march": "MARCH",
+  "@march": {
+    "description": "March month name"
+  },
+  "april": "APRIL",
+  "@april": {
+    "description": "April month name"
+  },
+  "may": "MAY",
+  "@may": {
+    "description": "May month name"
+  },
+  "june": "JUNE",
+  "@june": {
+    "description": "June month name"
+  },
+  "july": "JULY",
+  "@july": {
+    "description": "July month name"
+  },
+  "august": "AUGUST",
+  "@august": {
+    "description": "August month name"
+  },
+  "september": "SEPTEMBER",
+  "@september": {
+    "description": "September month name"
+  },
+  "october": "OCTOBER",
+  "@october": {
+    "description": "October month name"
+  },
+  "november": "NOVEMBER",
+  "@november": {
+    "description": "November month name"
+  },
+  "december": "DECEMBER",
+  "@december": {
+    "description": "December month name"
+  },
+  "sundayShort": "S",
+  "@sundayShort": {
+    "description": "Sunday abbreviation"
+  },
+  "mondayShort": "M",
+  "@mondayShort": {
+    "description": "Monday abbreviation"
+  },
+  "tuesdayShort": "T",
+  "@tuesdayShort": {
+    "description": "Tuesday abbreviation"
+  },
+  "wednesdayShort": "W",
+  "@wednesdayShort": {
+    "description": "Wednesday abbreviation"
+  },
+  "thursdayShort": "T",
+  "@thursdayShort": {
+    "description": "Thursday abbreviation"
+  },
+  "fridayShort": "F",
+  "@fridayShort": {
+    "description": "Friday abbreviation"
+  },
+  "saturdayShort": "S",
+  "@saturdayShort": {
+    "description": "Saturday abbreviation"
+  },
+  "networkError": "Network error. Please check your connection.",
+  "@networkError": {
+    "description": "Network error message"
+  },
+  "unexpectedError": "An unexpected error occurred",
+  "@unexpectedError": {
+    "description": "Unexpected error message"
+  },
+  "invalidArgument": "Invalid argument",
+  "@invalidArgument": {
+    "description": "Invalid argument error"
+  },
+  "failedToMakePublic": "Failed to make habit public - no data returned",
+  "@failedToMakePublic": {
+    "description": "Failed to make habit public error"
+  },
+  "habitIdRequired": "Habit ID cannot be empty",
+  "@habitIdRequired": {
+    "description": "Habit ID required error"
+  },
+  "descriptionRequired": "Community description is required",
+  "@descriptionRequired": {
+    "description": "Description required error"
+  },
+  "categoryRequired": "Category is required",
+  "@categoryRequired": {
+    "description": "Category required error"
+  },
+  "invalidCategory": "Invalid category: {category}",
+  "@invalidCategory": {
+    "description": "Invalid category error",
+    "placeholders": {
+      "category": {
+        "type": "String",
+        "example": "unknown"
+      }
+    }
+  },
+  "invalidDifficulty": "Invalid difficulty level: {difficulty}",
+  "@invalidDifficulty": {
+    "description": "Invalid difficulty error",
+    "placeholders": {
+      "difficulty": {
+        "type": "String",
+        "example": "extreme"
+      }
+    }
+  },
+  "failedToLoadCompletions": "Failed to load completions",
+  "@failedToLoadCompletions": {
+    "description": "Failed to load completions error"
+  },
+  "failedToRefreshHabit": "Failed to refresh habit",
+  "@failedToRefreshHabit": {
+    "description": "Failed to refresh habit error"
+  },
+  "failedToMakeHabitPublic": "Failed to make habit public",
+  "@failedToMakeHabitPublic": {
+    "description": "Failed to make habit public error"
+  },
+  "alreadySharedWithCommunity": "already shared with the community",
+  "@alreadySharedWithCommunity": {
+    "description": "Already shared with community message"
+  },
+  "anErrorOccurred": "An error occurred: {error}",
+  "@anErrorOccurred": {
+    "description": "Generic error with details",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "Connection timeout"
+      }
+    }
+  },
+  "charactersRequired": "{min}-{max} characters required",
+  "@charactersRequired": {
+    "description": "Character count requirement",
+    "placeholders": {
+      "min": {
+        "type": "int",
+        "example": "10"
+      },
+      "max": {
+        "type": "int",
+        "example": "500"
+      }
+    }
+  },
+  "description": "Description",
+  "@description": {
+    "description": "Description label"
+  },
+  "pleaseCheckYourInput": "Please check your input and try again. Make sure your password is at least 8 characters.",
+  "@pleaseCheckYourInput": {
+    "description": "Input validation message"
+  },
+  "onceYourHabitHasFiveMembers": "Once your habit has 5 members, control will be shared with the top 5 members by streak length.",
+  "@onceYourHabitHasFiveMembers": {
+    "description": "Community control sharing warning"
+  },
+  "communitySettings": "Community Settings",
+  "@communitySettings": {
+    "description": "Community settings section title"
+  },
+  "descriptionLabel": "Description",
+  "@descriptionLabel": {
+    "description": "Description field label"
+  },
+  "categoryLabel": "Category",
+  "@categoryLabel": {
+    "description": "Category field label"
+  },
+  "difficultyLevel": "Difficulty Level",
+  "@difficultyLevel": {
+    "description": "Difficulty level field label"
+  },
+  "pleaseProvideDescription": "Please provide a description for your habit",
+  "@pleaseProvideDescription": {
+    "description": "Description required error message"
+  },
+  "descriptionMustBeAtLeast": "Description must be at least 10 characters long",
+  "@descriptionMustBeAtLeast": {
+    "description": "Description minimum length error"
+  },
+  "descriptionMustBeOrLess": "Description must be 500 characters or less",
+  "@descriptionMustBeOrLess": {
+    "description": "Description maximum length error"
+  },
+  "beFirstToPropose": "Be the first to propose a change",
+  "@beFirstToPropose": {
+    "description": "Empty proposals state message for users with voting rights"
+  },
+  "checkBackLater": "Check back later for new proposals",
+  "@checkBackLater": {
+    "description": "Empty proposals state message for users without voting rights"
+  },
+  "health": "Health",
+  "@health": {
+    "description": "Health category"
+  },
+  "fitness": "Fitness",
+  "@fitness": {
+    "description": "Fitness category"
+  },
+  "productivity": "Productivity",
+  "@productivity": {
+    "description": "Productivity category"
+  },
+  "learning": "Learning",
+  "@learning": {
+    "description": "Learning category"
+  },
+  "mindfulness": "Mindfulness",
+  "@mindfulness": {
+    "description": "Mindfulness category"
+  },
+  "creativity": "Creativity",
+  "@creativity": {
+    "description": "Creativity category"
   }
 }

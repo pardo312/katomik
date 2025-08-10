@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:katomik/l10n/app_localizations.dart';
 import '../../../../core/constants/app_colors.dart';
 
 class CommunityFilters extends StatelessWidget {
@@ -15,22 +16,28 @@ class CommunityFilters extends StatelessWidget {
     required this.onDifficultyChanged,
   });
 
-  static const categories = [
-    {'value': null, 'label': 'All'},
-    {'value': 'wellness', 'label': 'Wellness'},
-    {'value': 'fitness', 'label': 'Fitness'},
-    {'value': 'education', 'label': 'Education'},
-    {'value': 'productivity', 'label': 'Productivity'},
-    {'value': 'health', 'label': 'Health'},
-    {'value': 'creative', 'label': 'Creative'},
-  ];
+  static List<Map<String, dynamic>> getCategories(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return [
+      {'value': null, 'label': l10n.all},
+      {'value': 'wellness', 'label': 'Wellness'},
+      {'value': 'fitness', 'label': 'Fitness'},
+      {'value': 'education', 'label': 'Education'},
+      {'value': 'productivity', 'label': 'Productivity'},
+      {'value': 'health', 'label': 'Health'},
+      {'value': 'creative', 'label': 'Creative'},
+    ];
+  }
 
-  static const difficulties = [
-    {'value': null, 'label': 'All'},
-    {'value': 'easy', 'label': 'Easy'},
-    {'value': 'medium', 'label': 'Medium'},
-    {'value': 'hard', 'label': 'Hard'},
-  ];
+  static List<Map<String, dynamic>> getDifficulties(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return [
+      {'value': null, 'label': l10n.all},
+      {'value': 'easy', 'label': l10n.easy},
+      {'value': 'medium', 'label': l10n.medium},
+      {'value': 'hard', 'label': l10n.hard},
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,15 +45,15 @@ class CommunityFilters extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Categories
-        const Text(
+        Text(
           'Category',
-          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 8),
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Row(
-            children: categories.map((category) {
+            children: getCategories(context).map((category) {
               final isSelected = selectedCategory == category['value'];
               return Padding(
                 padding: const EdgeInsets.only(right: 8),
@@ -80,13 +87,13 @@ class CommunityFilters extends StatelessWidget {
         const SizedBox(height: 16),
 
         // Difficulty
-        const Text(
-          'Difficulty',
-          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+        Text(
+          AppLocalizations.of(context).difficulty,
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 8),
         Row(
-          children: difficulties.map((difficulty) {
+          children: getDifficulties(context).map((difficulty) {
             final isSelected = selectedDifficulty == difficulty['value'];
             return Padding(
               padding: const EdgeInsets.only(right: 8),

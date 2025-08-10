@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:katomik/l10n/app_localizations.dart';
 import '../../../../core/platform/platform_service.dart';
 
 class LogoutConfirmationDialog {
@@ -8,17 +9,17 @@ class LogoutConfirmationDialog {
       return showCupertinoDialog<bool>(
         context: context,
         builder: (context) => CupertinoAlertDialog(
-          title: const Text('Logout'),
-          content: const Text('Are you sure you want to logout?'),
+          title: Text(AppLocalizations.of(context).logout),
+          content: Text(AppLocalizations.of(context).areYouSureLogout),
           actions: [
             CupertinoDialogAction(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancel'),
+              child: Text(AppLocalizations.of(context).cancel),
             ),
             CupertinoDialogAction(
               onPressed: () => Navigator.pop(context, true),
               isDestructiveAction: true,
-              child: const Text('Logout'),
+              child: Text(AppLocalizations.of(context).logout),
             ),
           ],
         ),
@@ -27,18 +28,18 @@ class LogoutConfirmationDialog {
       return showDialog<bool>(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text('Logout'),
-          content: const Text('Are you sure you want to logout?'),
+          title: Text(AppLocalizations.of(context).logout),
+          content: Text(AppLocalizations.of(context).areYouSureLogout),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancel'),
+              child: Text(AppLocalizations.of(context).cancel),
             ),
             TextButton(
               onPressed: () => Navigator.pop(context, true),
-              child: const Text(
-                'Logout',
-                style: TextStyle(color: Colors.red),
+              child: Text(
+                AppLocalizations.of(context).logout,
+                style: const TextStyle(color: Colors.red),
               ),
             ),
           ],

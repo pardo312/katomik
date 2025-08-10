@@ -78,7 +78,7 @@ class CommunityService {
           error: result.exception,
           data: {'query': 'searchCommunitiesQuery'},
         );
-        _errorHandler.handleGraphQLException(result.exception!);
+        _errorHandler.handleGraphQLException(result.exception!, null);
       }
 
       final List<dynamic> communities = result.data?['searchCommunityHabits'] ?? [];
@@ -97,7 +97,7 @@ class CommunityService {
         error: e,
         stackTrace: stackTrace,
       );
-      throw _errorHandler.mapException(e);
+      throw _errorHandler.mapException(e, null);
     }
   }
 
@@ -127,7 +127,7 @@ class CommunityService {
           error: result.exception,
           data: {'query': 'popularCommunitiesQuery'},
         );
-        _errorHandler.handleGraphQLException(result.exception!);
+        _errorHandler.handleGraphQLException(result.exception!, null);
       }
 
       final List<dynamic> communities = result.data?['popularCommunities'] ?? [];
@@ -145,7 +145,7 @@ class CommunityService {
         error: e,
         stackTrace: stackTrace,
       );
-      throw _errorHandler.mapException(e);
+      throw _errorHandler.mapException(e, null);
     }
   }
 
@@ -175,7 +175,7 @@ class CommunityService {
           error: result.exception,
           data: {'communityId': communityId},
         );
-        _errorHandler.handleGraphQLException(result.exception!);
+        _errorHandler.handleGraphQLException(result.exception!, null);
       }
 
       if (result.data?['communityDetails'] == null) {
@@ -201,7 +201,7 @@ class CommunityService {
         stackTrace: stackTrace,
         data: {'communityId': communityId},
       );
-      throw _errorHandler.mapException(e);
+      throw _errorHandler.mapException(e, null);
     }
   }
 
@@ -248,7 +248,7 @@ class CommunityService {
           'GraphQL error in getUserCommunities',
           error: result.exception,
         );
-        _errorHandler.handleGraphQLException(result.exception!);
+        _errorHandler.handleGraphQLException(result.exception!, null);
       }
 
       final List<dynamic> communities = result.data?['userCommunities'] ?? [];
@@ -267,7 +267,7 @@ class CommunityService {
         error: e,
         stackTrace: stackTrace,
       );
-      throw _errorHandler.mapException(e);
+      throw _errorHandler.mapException(e, null);
     }
   }
 
@@ -311,7 +311,7 @@ class CommunityService {
           error: result.exception,
           data: {'habitId': habitId},
         );
-        _errorHandler.handleGraphQLException(result.exception!);
+        _errorHandler.handleGraphQLException(result.exception!, null);
       }
 
       if (result.data?['makeHabitPublic'] == null) {
@@ -343,7 +343,7 @@ class CommunityService {
         stackTrace: stackTrace,
         data: {'habitId': habitId},
       );
-      throw _errorHandler.mapException(e);
+      throw _errorHandler.mapException(e, null);
     }
   }
 
@@ -372,7 +372,7 @@ class CommunityService {
           error: result.exception,
           data: {'communityId': communityId},
         );
-        _errorHandler.handleGraphQLException(result.exception!);
+        _errorHandler.handleGraphQLException(result.exception!, null);
       }
 
       if (result.data?['joinCommunityHabit'] == null) {
@@ -403,7 +403,7 @@ class CommunityService {
         stackTrace: stackTrace,
         data: {'communityId': communityId},
       );
-      throw _errorHandler.mapException(e);
+      throw _errorHandler.mapException(e, null);
     }
   }
 
@@ -432,7 +432,7 @@ class CommunityService {
           error: result.exception,
           data: {'communityId': communityId},
         );
-        _errorHandler.handleGraphQLException(result.exception!);
+        _errorHandler.handleGraphQLException(result.exception!, null);
       }
 
       final success = result.data?['leaveCommunityHabit'] as bool? ?? false;
@@ -457,7 +457,7 @@ class CommunityService {
         stackTrace: stackTrace,
         data: {'communityId': communityId},
       );
-      throw _errorHandler.mapException(e);
+      throw _errorHandler.mapException(e, null);
     }
   }
 

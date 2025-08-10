@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'dart:io';
+import 'package:katomik/l10n/app_localizations.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/utils/platform_messages.dart';
 import '../../../../data/services/community_service.dart';
@@ -27,6 +28,26 @@ class _MakeHabitPublicDialogState extends State<MakeHabitPublicDialog> {
   int _descriptionLength = 0;
 
   final List<String> _categories = ['health', 'productivity', 'learning', 'fitness', 'mindfulness', 'creativity'];
+  
+  String _getCategoryDisplayName(BuildContext context, String category) {
+    final l10n = AppLocalizations.of(context);
+    switch (category) {
+      case 'health':
+        return l10n.health;
+      case 'productivity':
+        return l10n.productivity;
+      case 'learning':
+        return l10n.learning;
+      case 'fitness':
+        return l10n.fitness;
+      case 'mindfulness':
+        return l10n.mindfulness;
+      case 'creativity':
+        return l10n.creativity;
+      default:
+        return category[0].toUpperCase() + category.substring(1);
+    }
+  }
 
   @override
   void initState() {
@@ -60,7 +81,7 @@ class _MakeHabitPublicDialogState extends State<MakeHabitPublicDialog> {
           children: _categories
               .map((category) => Center(
                     child: Text(
-                      category[0].toUpperCase() + category.substring(1),
+                      _getCategoryDisplayName(context, category),
                     ),
                   ))
               .toList(),
@@ -104,9 +125,9 @@ class _MakeHabitPublicDialogState extends State<MakeHabitPublicDialog> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Make Habit Public',
-                        style: TextStyle(
+                      Text(
+                        AppLocalizations.of(context).makeHabitPublic,
+                        style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                         ),
@@ -144,8 +165,7 @@ class _MakeHabitPublicDialogState extends State<MakeHabitPublicDialog> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      'Once your habit has 5 members, control will be shared '
-                      'with the top 5 members by streak length.',
+                      AppLocalizations.of(context).onceYourHabitHasFiveMembers,
                       style: TextStyle(
                         fontSize: 14,
                         color: AppColors.warning,
@@ -158,9 +178,9 @@ class _MakeHabitPublicDialogState extends State<MakeHabitPublicDialog> {
             
             const SizedBox(height: 24),
             
-            const Text(
-              'Community Settings',
-              style: TextStyle(
+            Text(
+              AppLocalizations.of(context).communitySettings,
+              style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
@@ -177,9 +197,9 @@ class _MakeHabitPublicDialogState extends State<MakeHabitPublicDialog> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Description',
-                    style: TextStyle(
+                  Text(
+                    AppLocalizations.of(context).descriptionLabel,
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                     ),
@@ -189,7 +209,7 @@ class _MakeHabitPublicDialogState extends State<MakeHabitPublicDialog> {
                       ? CupertinoTextField(
                           controller: _descriptionController,
                           maxLines: 3,
-                          placeholder: 'Describe your habit and community goals...',
+                          placeholder: AppLocalizations.of(context).describeHabitCommunityGoals,
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
                             border: Border.all(
@@ -202,7 +222,7 @@ class _MakeHabitPublicDialogState extends State<MakeHabitPublicDialog> {
                           controller: _descriptionController,
                           maxLines: 3,
                           decoration: InputDecoration(
-                            hintText: 'Describe your habit and community goals...',
+                            hintText: AppLocalizations.of(context).describeHabitCommunityGoals,
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
                             ),
@@ -213,7 +233,7 @@ class _MakeHabitPublicDialogState extends State<MakeHabitPublicDialog> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      '10-500 characters required',
+                      AppLocalizations.of(context).charactersRequired(10, 500),
                       style: TextStyle(
                         fontSize: 12,
                         color: _descriptionLength >= 10 && _descriptionLength <= 500
@@ -248,9 +268,9 @@ class _MakeHabitPublicDialogState extends State<MakeHabitPublicDialog> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Category',
-                    style: TextStyle(
+                  Text(
+                    AppLocalizations.of(context).categoryLabel,
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                     ),
@@ -272,8 +292,8 @@ class _MakeHabitPublicDialogState extends State<MakeHabitPublicDialog> {
                               children: [
                                 Text(
                                   _selectedCategory != null
-                                      ? _selectedCategory![0].toUpperCase() + _selectedCategory!.substring(1)
-                                      : 'Select a category',
+                                      ? _getCategoryDisplayName(context, _selectedCategory!)
+                                      : AppLocalizations.of(context).selectCategory,
                                   style: TextStyle(
                                     color: _selectedCategory != null
                                         ? CupertinoColors.label
@@ -296,11 +316,11 @@ class _MakeHabitPublicDialogState extends State<MakeHabitPublicDialog> {
                               borderRadius: BorderRadius.circular(8),
                             ),
                           ),
-                          hint: const Text('Select a category'),
+                          hint: Text(AppLocalizations.of(context).selectCategory),
                           items: _categories
                               .map((category) => DropdownMenuItem(
                                     value: category,
-                                    child: Text(category[0].toUpperCase() + category.substring(1)),
+                                    child: Text(_getCategoryDisplayName(context, category)),
                                   ))
                               .toList(),
                           onChanged: (value) => setState(() => _selectedCategory = value),
@@ -321,9 +341,9 @@ class _MakeHabitPublicDialogState extends State<MakeHabitPublicDialog> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Difficulty Level',
-                    style: TextStyle(
+                  Text(
+                    AppLocalizations.of(context).difficultyLevel,
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                     ),
@@ -337,18 +357,18 @@ class _MakeHabitPublicDialogState extends State<MakeHabitPublicDialog> {
                               setState(() => _selectedDifficulty = value);
                             }
                           },
-                          children: const {
+                          children: {
                             'EASY': Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 16),
-                              child: Text('Easy'),
+                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              child: Text(AppLocalizations.of(context).easy),
                             ),
                             'MEDIUM': Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 16),
-                              child: Text('Medium'),
+                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              child: Text(AppLocalizations.of(context).medium),
                             ),
                             'HARD': Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 16),
-                              child: Text('Hard'),
+                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              child: Text(AppLocalizations.of(context).hard),
                             ),
                           },
                         )
@@ -357,18 +377,18 @@ class _MakeHabitPublicDialogState extends State<MakeHabitPublicDialog> {
                           onSelectionChanged: (Set<String> selection) {
                             setState(() => _selectedDifficulty = selection.first);
                           },
-                          segments: const [
+                          segments: [
                             ButtonSegment(
                               value: 'EASY',
-                              label: Text('Easy'),
+                              label: Text(AppLocalizations.of(context).easy),
                             ),
                             ButtonSegment(
                               value: 'MEDIUM',
-                              label: Text('Medium'),
+                              label: Text(AppLocalizations.of(context).medium),
                             ),
                             ButtonSegment(
                               value: 'HARD',
-                              label: Text('Hard'),
+                              label: Text(AppLocalizations.of(context).hard),
                             ),
                           ],
                         ),
@@ -384,9 +404,9 @@ class _MakeHabitPublicDialogState extends State<MakeHabitPublicDialog> {
                 Expanded(
                   child: TextButton(
                     onPressed: () => Navigator.pop(context),
-                    child: const Text(
-                      'Cancel',
-                      style: TextStyle(
+                    child: Text(
+                      AppLocalizations.of(context).cancel,
+                      style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                       ),
@@ -401,21 +421,21 @@ class _MakeHabitPublicDialogState extends State<MakeHabitPublicDialog> {
                       if (description.isEmpty) {
                         PlatformMessages.showError(
                           context,
-                          'Please provide a description for your habit',
+                          AppLocalizations.of(context).pleaseProvideDescription,
                         );
                         return;
                       }
                       if (description.length < 10) {
                         PlatformMessages.showError(
                           context,
-                          'Description must be at least 10 characters long',
+                          AppLocalizations.of(context).descriptionMustBeAtLeast,
                         );
                         return;
                       }
                       if (description.length > 500) {
                         PlatformMessages.showError(
                           context,
-                          'Description must be 500 characters or less',
+                          AppLocalizations.of(context).descriptionMustBeOrLess,
                         );
                         return;
                       }
@@ -435,9 +455,9 @@ class _MakeHabitPublicDialogState extends State<MakeHabitPublicDialog> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: const Text(
-                      'Make Public',
-                      style: TextStyle(
+                    child: Text(
+                      AppLocalizations.of(context).makeHabitPublic,
+                      style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                       ),

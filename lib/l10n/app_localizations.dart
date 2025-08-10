@@ -1147,6 +1147,318 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Redo'**
   String get redo;
+
+  /// January month name
+  ///
+  /// In en, this message translates to:
+  /// **'JANUARY'**
+  String get january;
+
+  /// February month name
+  ///
+  /// In en, this message translates to:
+  /// **'FEBRUARY'**
+  String get february;
+
+  /// March month name
+  ///
+  /// In en, this message translates to:
+  /// **'MARCH'**
+  String get march;
+
+  /// April month name
+  ///
+  /// In en, this message translates to:
+  /// **'APRIL'**
+  String get april;
+
+  /// May month name
+  ///
+  /// In en, this message translates to:
+  /// **'MAY'**
+  String get may;
+
+  /// June month name
+  ///
+  /// In en, this message translates to:
+  /// **'JUNE'**
+  String get june;
+
+  /// July month name
+  ///
+  /// In en, this message translates to:
+  /// **'JULY'**
+  String get july;
+
+  /// August month name
+  ///
+  /// In en, this message translates to:
+  /// **'AUGUST'**
+  String get august;
+
+  /// September month name
+  ///
+  /// In en, this message translates to:
+  /// **'SEPTEMBER'**
+  String get september;
+
+  /// October month name
+  ///
+  /// In en, this message translates to:
+  /// **'OCTOBER'**
+  String get october;
+
+  /// November month name
+  ///
+  /// In en, this message translates to:
+  /// **'NOVEMBER'**
+  String get november;
+
+  /// December month name
+  ///
+  /// In en, this message translates to:
+  /// **'DECEMBER'**
+  String get december;
+
+  /// Sunday abbreviation
+  ///
+  /// In en, this message translates to:
+  /// **'S'**
+  String get sundayShort;
+
+  /// Monday abbreviation
+  ///
+  /// In en, this message translates to:
+  /// **'M'**
+  String get mondayShort;
+
+  /// Tuesday abbreviation
+  ///
+  /// In en, this message translates to:
+  /// **'T'**
+  String get tuesdayShort;
+
+  /// Wednesday abbreviation
+  ///
+  /// In en, this message translates to:
+  /// **'W'**
+  String get wednesdayShort;
+
+  /// Thursday abbreviation
+  ///
+  /// In en, this message translates to:
+  /// **'T'**
+  String get thursdayShort;
+
+  /// Friday abbreviation
+  ///
+  /// In en, this message translates to:
+  /// **'F'**
+  String get fridayShort;
+
+  /// Saturday abbreviation
+  ///
+  /// In en, this message translates to:
+  /// **'S'**
+  String get saturdayShort;
+
+  /// Network error message
+  ///
+  /// In en, this message translates to:
+  /// **'Network error. Please check your connection.'**
+  String get networkError;
+
+  /// Unexpected error message
+  ///
+  /// In en, this message translates to:
+  /// **'An unexpected error occurred'**
+  String get unexpectedError;
+
+  /// Invalid argument error
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid argument'**
+  String get invalidArgument;
+
+  /// Failed to make habit public error
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to make habit public - no data returned'**
+  String get failedToMakePublic;
+
+  /// Habit ID required error
+  ///
+  /// In en, this message translates to:
+  /// **'Habit ID cannot be empty'**
+  String get habitIdRequired;
+
+  /// Description required error
+  ///
+  /// In en, this message translates to:
+  /// **'Community description is required'**
+  String get descriptionRequired;
+
+  /// Category required error
+  ///
+  /// In en, this message translates to:
+  /// **'Category is required'**
+  String get categoryRequired;
+
+  /// Invalid category error
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid category: {category}'**
+  String invalidCategory(String category);
+
+  /// Invalid difficulty error
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid difficulty level: {difficulty}'**
+  String invalidDifficulty(String difficulty);
+
+  /// Failed to load completions error
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load completions'**
+  String get failedToLoadCompletions;
+
+  /// Failed to refresh habit error
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to refresh habit'**
+  String get failedToRefreshHabit;
+
+  /// Failed to make habit public error
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to make habit public'**
+  String get failedToMakeHabitPublic;
+
+  /// Already shared with community message
+  ///
+  /// In en, this message translates to:
+  /// **'already shared with the community'**
+  String get alreadySharedWithCommunity;
+
+  /// Generic error with details
+  ///
+  /// In en, this message translates to:
+  /// **'An error occurred: {error}'**
+  String anErrorOccurred(String error);
+
+  /// Character count requirement
+  ///
+  /// In en, this message translates to:
+  /// **'{min}-{max} characters required'**
+  String charactersRequired(int min, int max);
+
+  /// Description label
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get description;
+
+  /// Input validation message
+  ///
+  /// In en, this message translates to:
+  /// **'Please check your input and try again. Make sure your password is at least 8 characters.'**
+  String get pleaseCheckYourInput;
+
+  /// Community control sharing warning
+  ///
+  /// In en, this message translates to:
+  /// **'Once your habit has 5 members, control will be shared with the top 5 members by streak length.'**
+  String get onceYourHabitHasFiveMembers;
+
+  /// Community settings section title
+  ///
+  /// In en, this message translates to:
+  /// **'Community Settings'**
+  String get communitySettings;
+
+  /// Description field label
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get descriptionLabel;
+
+  /// Category field label
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get categoryLabel;
+
+  /// Difficulty level field label
+  ///
+  /// In en, this message translates to:
+  /// **'Difficulty Level'**
+  String get difficultyLevel;
+
+  /// Description required error message
+  ///
+  /// In en, this message translates to:
+  /// **'Please provide a description for your habit'**
+  String get pleaseProvideDescription;
+
+  /// Description minimum length error
+  ///
+  /// In en, this message translates to:
+  /// **'Description must be at least 10 characters long'**
+  String get descriptionMustBeAtLeast;
+
+  /// Description maximum length error
+  ///
+  /// In en, this message translates to:
+  /// **'Description must be 500 characters or less'**
+  String get descriptionMustBeOrLess;
+
+  /// Empty proposals state message for users with voting rights
+  ///
+  /// In en, this message translates to:
+  /// **'Be the first to propose a change'**
+  String get beFirstToPropose;
+
+  /// Empty proposals state message for users without voting rights
+  ///
+  /// In en, this message translates to:
+  /// **'Check back later for new proposals'**
+  String get checkBackLater;
+
+  /// Health category
+  ///
+  /// In en, this message translates to:
+  /// **'Health'**
+  String get health;
+
+  /// Fitness category
+  ///
+  /// In en, this message translates to:
+  /// **'Fitness'**
+  String get fitness;
+
+  /// Productivity category
+  ///
+  /// In en, this message translates to:
+  /// **'Productivity'**
+  String get productivity;
+
+  /// Learning category
+  ///
+  /// In en, this message translates to:
+  /// **'Learning'**
+  String get learning;
+
+  /// Mindfulness category
+  ///
+  /// In en, this message translates to:
+  /// **'Mindfulness'**
+  String get mindfulness;
+
+  /// Creativity category
+  ///
+  /// In en, this message translates to:
+  /// **'Creativity'**
+  String get creativity;
 }
 
 class _AppLocalizationsDelegate

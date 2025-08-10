@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:katomik/l10n/app_localizations.dart';
 import '../providers/governance_view_model.dart';
 import '../widgets/proposal_card.dart';
 import '../../../../core/constants/app_colors.dart';
@@ -39,7 +40,7 @@ class ProposalsTab extends StatelessWidget {
                   'type': proposal.type,
                   'title': proposal.title,
                   'proposedBy': proposal.proposedBy,
-                  'createdAt': _formatTime(proposal.createdAt),
+                  'createdAt': _formatTime(context, proposal.createdAt),
                   'expiresIn': proposal.timeRemaining,
                   'votesRequired': proposal.votesRequired,
                   'votes': proposal.votes.map((v) => {
@@ -86,7 +87,7 @@ class ProposalsTab extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            'No Active Proposals',
+            AppLocalizations.of(context).noProposals,
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
@@ -96,8 +97,8 @@ class ProposalsTab extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             hasVotingRights
-                ? 'Be the first to propose a change'
-                : 'Check back later for new proposals',
+                ? AppLocalizations.of(context).beFirstToPropose
+                : AppLocalizations.of(context).checkBackLater,
             style: TextStyle(
               fontSize: 14,
               color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
@@ -108,7 +109,7 @@ class ProposalsTab extends StatelessWidget {
             ElevatedButton.icon(
               onPressed: onCreateProposal,
               icon: const Icon(CupertinoIcons.add),
-              label: const Text('Create Proposal'),
+              label: Text(AppLocalizations.of(context).createProposal),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
@@ -121,10 +122,11 @@ class ProposalsTab extends StatelessWidget {
     );
   }
 
-  String _formatTime(DateTime dateTime) {
+  String _formatTime(BuildContext context, DateTime dateTime) {
     final difference = DateTime.now().difference(dateTime);
-    if (difference.inDays > 0) return '${difference.inDays} days ago';
-    if (difference.inHours > 0) return '${difference.inHours} hours ago';
-    return '${difference.inMinutes} minutes ago';
+    final l10n = AppLocalizations.of(context);
+    if (difference.inDays > 0) return l10n.daysAgo(difference.inDays);
+    if (difference.inHours > 0) return l10n.hoursAgo(difference.inHours);
+    return l10n.minutesAgo(difference.inMinutes);
   }
 }

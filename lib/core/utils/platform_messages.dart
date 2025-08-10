@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:katomik/l10n/app_localizations.dart';
 import '../platform/platform_service.dart';
 
 class PlatformMessages {
@@ -14,7 +15,7 @@ class PlatformMessages {
           actions: [
             CupertinoDialogAction(
               onPressed: () => Navigator.pop(context),
-              child: const Text('OK'),
+              child: Text(AppLocalizations.of(context).ok),
             ),
           ],
         ),
@@ -38,7 +39,7 @@ class PlatformMessages {
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('OK'),
+                child: Text(AppLocalizations.of(context).ok),
               ),
             ],
           ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:katomik/l10n/app_localizations.dart';
 import '../../../../core/constants/app_colors.dart';
 
 class CommunityMemberStatus extends StatelessWidget {
@@ -48,7 +49,7 @@ class CommunityMemberStatus extends StatelessWidget {
           context,
           icon: CupertinoIcons.person_2_fill,
           value: memberCount.toString(),
-          label: 'Members',
+          label: AppLocalizations.of(context).members,
         ),
         if (isMember) ...[
           _buildInfoItem(
@@ -108,7 +109,7 @@ class CommunityMemberStatus extends StatelessWidget {
             child: ElevatedButton.icon(
               onPressed: onJoin,
               icon: const Icon(CupertinoIcons.add_circled),
-              label: const Text('Join Community'),
+              label: Text(AppLocalizations.of(context).joinCommunity),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
@@ -124,7 +125,7 @@ class CommunityMemberStatus extends StatelessWidget {
             child: OutlinedButton.icon(
               onPressed: onGovernance,
               icon: const Icon(CupertinoIcons.chart_pie),
-              label: const Text('Governance'),
+              label: Text(AppLocalizations.of(context).governance),
               style: OutlinedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(
@@ -140,7 +141,7 @@ class CommunityMemberStatus extends StatelessWidget {
               CupertinoIcons.xmark_circle,
               color: AppColors.error,
             ),
-            tooltip: 'Leave Community',
+            tooltip: AppLocalizations.of(context).leaveCommunity,
           ),
         ],
       ],

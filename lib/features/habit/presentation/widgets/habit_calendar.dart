@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'dart:io';
+import 'package:katomik/l10n/app_localizations.dart';
 import '../../../../core/utils/date_utils.dart';
 
 class HabitCalendar extends StatelessWidget {
@@ -60,7 +61,7 @@ class HabitCalendar extends StatelessWidget {
           onPressed: onPreviousMonth,
         ),
         Text(
-          _getMonthName(focusedMonth).toUpperCase(),
+          _getMonthName(focusedMonth, context).toUpperCase(),
           style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
@@ -93,7 +94,16 @@ class HabitCalendar extends StatelessWidget {
   }
   
   Widget _buildWeekDayHeaders(BuildContext context) {
-    const weekDays = ['d', 'l', 'm', 'm', 'j', 'v', 's'];
+    final l10n = AppLocalizations.of(context);
+    final weekDays = [
+      l10n.sundayShort,
+      l10n.mondayShort,
+      l10n.tuesdayShort,
+      l10n.wednesdayShort,
+      l10n.thursdayShort,
+      l10n.fridayShort,
+      l10n.saturdayShort,
+    ];
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: weekDays.map((day) => SizedBox(
@@ -337,10 +347,21 @@ class HabitCalendar extends StatelessWidget {
     return index - firstWeekday - daysInMonth + 1;
   }
   
-  String _getMonthName(DateTime date) {
-    const months = [
-      'ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO',
-      'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE',
+  String _getMonthName(DateTime date, BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final months = [
+      l10n.january,
+      l10n.february,
+      l10n.march,
+      l10n.april,
+      l10n.may,
+      l10n.june,
+      l10n.july,
+      l10n.august,
+      l10n.september,
+      l10n.october,
+      l10n.november,
+      l10n.december,
     ];
     return months[date.month - 1];
   }

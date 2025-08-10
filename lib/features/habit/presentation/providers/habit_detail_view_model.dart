@@ -5,6 +5,7 @@ import '../../../../shared/providers/habit_provider.dart';
 import '../../../../shared/providers/community_provider.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../../../core/utils/color_utils.dart';
+import '../../../../l10n/app_localizations.dart';
 
 class HabitDetailViewModel extends ChangeNotifier {
   final HabitProvider _habitProvider;
@@ -140,10 +141,11 @@ class HabitDetailViewModel extends ChangeNotifier {
     }
   }
   
-  String getMonthName(DateTime date) {
-    const months = [
-      'ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO',
-      'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE',
+  String getMonthName(BuildContext context, DateTime date) {
+    final l10n = AppLocalizations.of(context);
+    final months = [
+      l10n.january, l10n.february, l10n.march, l10n.april, l10n.may, l10n.june,
+      l10n.july, l10n.august, l10n.september, l10n.october, l10n.november, l10n.december,
     ];
     return months[date.month - 1];
   }
@@ -162,7 +164,13 @@ class HabitDetailViewModel extends ChangeNotifier {
     );
   }
   
-  List<String> get weekDayLabels => ['d', 'l', 'm', 'm', 'j', 'v', 's'];
+  List<String> getWeekDayLabels(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return [
+      l10n.sundayShort, l10n.mondayShort, l10n.tuesdayShort, l10n.wednesdayShort,
+      l10n.thursdayShort, l10n.fridayShort, l10n.saturdayShort
+    ];
+  }
 }
 
 class MakePublicResult {

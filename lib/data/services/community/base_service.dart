@@ -42,7 +42,7 @@ abstract class BaseCommunityService {
           error: result.exception,
           data: {'query': operationName},
         );
-        _errorHandler.handleGraphQLException(result.exception!);
+        _errorHandler.handleGraphQLException(result.exception!, null);
       }
 
       final data = result.data;
@@ -64,7 +64,7 @@ abstract class BaseCommunityService {
         error: e,
         stackTrace: stackTrace,
       );
-      throw _errorHandler.mapException(e);
+      throw _errorHandler.mapException(e, null);
     }
   }
 
@@ -93,7 +93,7 @@ abstract class BaseCommunityService {
           error: result.exception,
           data: variables,
         );
-        _errorHandler.handleGraphQLException(result.exception!);
+        _errorHandler.handleGraphQLException(result.exception!, null);
       }
 
       final data = result.data;
@@ -115,7 +115,7 @@ abstract class BaseCommunityService {
         error: e,
         stackTrace: stackTrace,
       );
-      throw _errorHandler.mapException(e);
+      throw _errorHandler.mapException(e, null);
     }
   }
 

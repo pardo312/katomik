@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:katomik/l10n/app_localizations.dart';
 import 'dart:io';
 
 class ImagePickerHelper {
@@ -19,17 +20,17 @@ class ImagePickerHelper {
     showCupertinoModalPopup(
       context: context,
       builder: (BuildContext context) => CupertinoActionSheet(
-        title: const Text('Select Image Source'),
+        title: Text(AppLocalizations.of(context).selectImageSource),
         actions: [
           CupertinoActionSheetAction(
-            child: const Text('Camera'),
+            child: Text(AppLocalizations.of(context).camera),
             onPressed: () {
               Navigator.pop(context);
               onSourceSelected(ImageSource.camera);
             },
           ),
           CupertinoActionSheetAction(
-            child: const Text('Photo Library'),
+            child: Text(AppLocalizations.of(context).photoLibrary),
             onPressed: () {
               Navigator.pop(context);
               onSourceSelected(ImageSource.gallery);
@@ -38,7 +39,7 @@ class ImagePickerHelper {
         ],
         cancelButton: CupertinoActionSheetAction(
           isDefaultAction: true,
-          child: const Text('Cancel'),
+          child: Text(AppLocalizations.of(context).cancel),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -54,7 +55,7 @@ class ImagePickerHelper {
             children: [
               ListTile(
                 leading: const Icon(Icons.camera_alt),
-                title: const Text('Camera'),
+                title: Text(AppLocalizations.of(context).camera),
                 onTap: () {
                   Navigator.pop(context);
                   onSourceSelected(ImageSource.camera);
@@ -62,7 +63,7 @@ class ImagePickerHelper {
               ),
               ListTile(
                 leading: const Icon(Icons.photo_library),
-                title: const Text('Photo Library'),
+                title: Text(AppLocalizations.of(context).photoLibrary),
                 onTap: () {
                   Navigator.pop(context);
                   onSourceSelected(ImageSource.gallery);

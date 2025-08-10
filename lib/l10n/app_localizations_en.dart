@@ -596,4 +596,174 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get redo => 'Redo';
+
+  @override
+  String get january => 'JANUARY';
+
+  @override
+  String get february => 'FEBRUARY';
+
+  @override
+  String get march => 'MARCH';
+
+  @override
+  String get april => 'APRIL';
+
+  @override
+  String get may => 'MAY';
+
+  @override
+  String get june => 'JUNE';
+
+  @override
+  String get july => 'JULY';
+
+  @override
+  String get august => 'AUGUST';
+
+  @override
+  String get september => 'SEPTEMBER';
+
+  @override
+  String get october => 'OCTOBER';
+
+  @override
+  String get november => 'NOVEMBER';
+
+  @override
+  String get december => 'DECEMBER';
+
+  @override
+  String get sundayShort => 'S';
+
+  @override
+  String get mondayShort => 'M';
+
+  @override
+  String get tuesdayShort => 'T';
+
+  @override
+  String get wednesdayShort => 'W';
+
+  @override
+  String get thursdayShort => 'T';
+
+  @override
+  String get fridayShort => 'F';
+
+  @override
+  String get saturdayShort => 'S';
+
+  @override
+  String get networkError => 'Network error. Please check your connection.';
+
+  @override
+  String get unexpectedError => 'An unexpected error occurred';
+
+  @override
+  String get invalidArgument => 'Invalid argument';
+
+  @override
+  String get failedToMakePublic =>
+      'Failed to make habit public - no data returned';
+
+  @override
+  String get habitIdRequired => 'Habit ID cannot be empty';
+
+  @override
+  String get descriptionRequired => 'Community description is required';
+
+  @override
+  String get categoryRequired => 'Category is required';
+
+  @override
+  String invalidCategory(String category) {
+    return 'Invalid category: $category';
+  }
+
+  @override
+  String invalidDifficulty(String difficulty) {
+    return 'Invalid difficulty level: $difficulty';
+  }
+
+  @override
+  String get failedToLoadCompletions => 'Failed to load completions';
+
+  @override
+  String get failedToRefreshHabit => 'Failed to refresh habit';
+
+  @override
+  String get failedToMakeHabitPublic => 'Failed to make habit public';
+
+  @override
+  String get alreadySharedWithCommunity => 'already shared with the community';
+
+  @override
+  String anErrorOccurred(String error) {
+    return 'An error occurred: $error';
+  }
+
+  @override
+  String charactersRequired(int min, int max) {
+    return '$min-$max characters required';
+  }
+
+  @override
+  String get description => 'Description';
+
+  @override
+  String get pleaseCheckYourInput =>
+      'Please check your input and try again. Make sure your password is at least 8 characters.';
+
+  @override
+  String get onceYourHabitHasFiveMembers =>
+      'Once your habit has 5 members, control will be shared with the top 5 members by streak length.';
+
+  @override
+  String get communitySettings => 'Community Settings';
+
+  @override
+  String get descriptionLabel => 'Description';
+
+  @override
+  String get categoryLabel => 'Category';
+
+  @override
+  String get difficultyLevel => 'Difficulty Level';
+
+  @override
+  String get pleaseProvideDescription =>
+      'Please provide a description for your habit';
+
+  @override
+  String get descriptionMustBeAtLeast =>
+      'Description must be at least 10 characters long';
+
+  @override
+  String get descriptionMustBeOrLess =>
+      'Description must be 500 characters or less';
+
+  @override
+  String get beFirstToPropose => 'Be the first to propose a change';
+
+  @override
+  String get checkBackLater => 'Check back later for new proposals';
+
+  @override
+  String get health => 'Health';
+
+  @override
+  String get fitness => 'Fitness';
+
+  @override
+  String get productivity => 'Productivity';
+
+  @override
+  String get learning => 'Learning';
+
+  @override
+  String get mindfulness => 'Mindfulness';
+
+  @override
+  String get creativity => 'Creativity';
 }

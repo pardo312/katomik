@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:katomik/l10n/app_localizations.dart';
 import '../../../../core/constants/app_colors.dart';
 
 class ProposalCard extends StatelessWidget {
@@ -44,18 +45,18 @@ class ProposalCard extends StatelessWidget {
     }
   }
 
-  String _getProposalTypeLabel(String type) {
+  String _getProposalTypeLabel(String type, BuildContext context) {
     switch (type) {
       case 'MODIFY_HABIT':
-        return 'Modify Habit';
+        return AppLocalizations.of(context).modifyHabit;
       case 'DELETE_HABIT':
-        return 'Delete Habit';
+        return AppLocalizations.of(context).deleteHabit;
       case 'CHANGE_RULES':
-        return 'Change Rules';
+        return AppLocalizations.of(context).changeRules;
       case 'REMOVE_MEMBER':
-        return 'Remove Member';
+        return AppLocalizations.of(context).removeMember;
       default:
-        return 'Unknown';
+        return AppLocalizations.of(context).unknown;
     }
   }
 
@@ -120,7 +121,7 @@ class ProposalCard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
-                            _getProposalTypeLabel(type),
+                            _getProposalTypeLabel(type, context),
                             style: TextStyle(
                               fontSize: 12,
                               color: _getProposalColor(type),
@@ -234,14 +235,14 @@ class ProposalCard extends StatelessWidget {
                 icon: CupertinoIcons.checkmark_circle_fill,
                 count: approveCount,
                 color: Colors.green,
-                label: 'Approve',
+                label: AppLocalizations.of(context).approve,
               ),
               const SizedBox(width: 16),
               _buildVoteCount(
                 icon: CupertinoIcons.xmark_circle_fill,
                 count: rejectCount,
                 color: Colors.red,
-                label: 'Reject',
+                label: AppLocalizations.of(context).reject,
               ),
             ],
           ),
@@ -300,7 +301,7 @@ class ProposalCard extends StatelessWidget {
                   child: OutlinedButton.icon(
                     onPressed: () => onVote('REJECT'),
                     icon: const Icon(CupertinoIcons.xmark),
-                    label: const Text('Reject'),
+                    label: Text(AppLocalizations.of(context).reject),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: Colors.red,
                       side: const BorderSide(color: Colors.red),
@@ -312,7 +313,7 @@ class ProposalCard extends StatelessWidget {
                   child: ElevatedButton.icon(
                     onPressed: () => onVote('APPROVE'),
                     icon: const Icon(CupertinoIcons.checkmark),
-                    label: const Text('Approve'),
+                    label: Text(AppLocalizations.of(context).approve),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green,
                     ),

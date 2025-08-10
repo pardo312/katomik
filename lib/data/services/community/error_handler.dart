@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'package:flutter/widgets.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:katomik/l10n/app_localizations.dart';
 
 enum CommunityErrorType {
   network,
@@ -61,17 +63,23 @@ class CommunityErrorHandler {
            errorString.contains('socket');
   }
   
-  void handleGraphQLException(OperationException exception) {
+  void handleGraphQLException(OperationException exception, BuildContext? context) {
     if (exception.linkException != null) {
       final linkException = exception.linkException!;
       if (linkException is NetworkException) {
+        final message = context != null 
+            ? AppLocalizations.of(context).networkError
+            : 'Network error. Please check your connection.';
         throw CommunityServiceException(
-          'Network error. Please check your connection.',
+          message,
           type: CommunityErrorType.network,
         );
       } else if (linkException is ServerException) {
+        final message = context != null 
+            ? AppLocalizations.of(context).serverError
+            : 'Server error. Please try again later.';
         throw CommunityServiceException(
-          'Server error. Please try again later.',
+          message,
           type: CommunityErrorType.server,
         );
       }
@@ -99,18 +107,24 @@ class CommunityErrorHandler {
       }
     }
 
+    final message = context != null 
+        ? AppLocalizations.of(context).unexpectedError
+        : 'An unexpected error occurred';
     throw CommunityServiceException(
-      'An unexpected error occurred',
+      message,
       type: CommunityErrorType.unknown,
     );
   }
 
-  Exception mapException(dynamic error) {
+  Exception mapException(dynamic error, BuildContext? context) {
     if (error is CommunityServiceException) {
       return error;
     } else if (error is ArgumentError) {
+      final message = context != null 
+          ? AppLocalizations.of(context).invalidArgument
+          : 'Invalid argument';
       return CommunityServiceException(
-        error.message?.toString() ?? 'Invalid argument',
+        error.message?.toString() ?? message,
         type: CommunityErrorType.validation,
       );
     } else if (error is Exception) {
@@ -119,8 +133,11 @@ class CommunityErrorHandler {
         type: CommunityErrorType.unknown,
       );
     } else {
+      final message = context != null 
+          ? AppLocalizations.of(context).unexpectedError
+          : 'An unexpected error occurred';
       return CommunityServiceException(
-        'An unexpected error occurred',
+        message,
         type: CommunityErrorType.unknown,
       );
     }

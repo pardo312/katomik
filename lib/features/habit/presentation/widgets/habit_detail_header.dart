@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'package:katomik/l10n/app_localizations.dart';
 import 'package:katomik/shared/models/habit.dart';
 import 'package:katomik/shared/providers/habit_provider.dart';
 import 'dart:io';
@@ -27,7 +28,7 @@ class HabitDetailHeader extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            habit.phrases.isNotEmpty ? habit.phrases.join(' • ') : 'No phrases added',
+            habit.phrases.isNotEmpty ? habit.phrases.join(' • ') : AppLocalizations.of(context).description,
             style: Theme.of(context).textTheme.bodyLarge,
           ),
           if (habit.images.isNotEmpty) ...[
@@ -78,9 +79,10 @@ class HabitDetailHeader extends StatelessWidget {
               Consumer<HabitProvider>(
                 builder: (context, provider, _) {
                   final streak = provider.getStreakForHabit(habit.id!);
+                  final l10n = AppLocalizations.of(context);
                   return _InfoCard(
                     icon: Icons.local_fire_department,
-                    label: 'Current Streak',
+                    label: l10n.totalStreak,
                     value: '$streak days',
                     color: Colors.orange,
                   );

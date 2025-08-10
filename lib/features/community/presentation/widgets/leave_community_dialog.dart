@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:katomik/l10n/app_localizations.dart';
 import '../../../../core/constants/app_colors.dart';
 
 class LeaveCommunityDialog extends StatelessWidget {
@@ -14,7 +15,7 @@ class LeaveCommunityDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Leave Community?'),
+      title: Text(AppLocalizations.of(context).leaveCommunity),
       content: Text(
         'Are you sure you want to leave $communityName? '
         'You can rejoin anytime, and your progress will be saved.',
@@ -22,16 +23,16 @@ class LeaveCommunityDialog extends StatelessWidget {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
+          child: Text(AppLocalizations.of(context).cancel),
         ),
         TextButton(
           onPressed: () {
             Navigator.pop(context);
             onConfirm();
           },
-          child: const Text(
+          child: Text(
             'Leave',
-            style: TextStyle(color: AppColors.error),
+            style: const TextStyle(color: AppColors.error),
           ),
         ),
       ],

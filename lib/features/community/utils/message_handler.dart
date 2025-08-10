@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:katomik/l10n/app_localizations.dart';
 import '../../../../core/constants/app_colors.dart';
 
 class MessageHandler {
@@ -23,7 +24,7 @@ class MessageHandler {
         content: Text(message),
         actions: [
           CupertinoDialogAction(
-            child: const Text('OK'),
+            child: Text(AppLocalizations.of(context).ok),
             onPressed: () => Navigator.pop(dialogContext),
           ),
         ],
@@ -48,8 +49,8 @@ class MessageHandler {
     BuildContext context, {
     required String title,
     required String message,
-    String confirmText = 'Confirm',
-    String cancelText = 'Cancel',
+    String? confirmText,
+    String? cancelText,
     bool isDestructive = false,
   }) async {
     final result = await showDialog<bool>(
@@ -60,12 +61,12 @@ class MessageHandler {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, false),
-            child: Text(cancelText),
+            child: Text(cancelText ?? AppLocalizations.of(context).cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, true),
             child: Text(
-              confirmText,
+              confirmText ?? AppLocalizations.of(context).confirm,
               style: TextStyle(
                 color: isDestructive ? AppColors.error : null,
               ),

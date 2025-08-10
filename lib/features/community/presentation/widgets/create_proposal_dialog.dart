@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:katomik/l10n/app_localizations.dart';
 import '../../../../core/constants/app_colors.dart';
 
 class CreateProposalDialog extends StatefulWidget {
@@ -62,10 +63,10 @@ class _CreateProposalDialogState extends State<CreateProposalDialog> {
                   icon: const Icon(CupertinoIcons.xmark),
                   onPressed: () => Navigator.pop(context),
                 ),
-                const Expanded(
+                Expanded(
                   child: Text(
-                    'Create Proposal',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    AppLocalizations.of(context).createProposal,
+                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     textAlign: TextAlign.center,
                   ),
                 ),
@@ -90,21 +91,21 @@ class _CreateProposalDialogState extends State<CreateProposalDialog> {
                   _buildProposalTypeOption(
                     type: 'MODIFY_HABIT',
                     icon: CupertinoIcons.pencil_circle_fill,
-                    title: 'Modify Habit',
+                    title: AppLocalizations.of(context).modifyHabit,
                     description: 'Change habit settings or rules',
                     color: AppColors.info,
                   ),
                   _buildProposalTypeOption(
                     type: 'CHANGE_RULES',
                     icon: CupertinoIcons.doc_text_fill,
-                    title: 'Change Rules',
+                    title: AppLocalizations.of(context).changeRules,
                     description: 'Update community guidelines',
                     color: AppColors.warning,
                   ),
                   _buildProposalTypeOption(
                     type: 'REMOVE_MEMBER',
                     icon: CupertinoIcons.person_crop_circle_badge_xmark,
-                    title: 'Remove Member',
+                    title: AppLocalizations.of(context).removeMember,
                     description: 'Remove a member from the community',
                     color: Theme.of(context).colorScheme.tertiary,
                   ),
@@ -120,7 +121,7 @@ class _CreateProposalDialogState extends State<CreateProposalDialog> {
                   TextField(
                     controller: _titleController,
                     decoration: InputDecoration(
-                      hintText: 'Enter a clear, descriptive title',
+                      hintText: AppLocalizations.of(context).enterClearDescriptiveTitle,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -131,16 +132,16 @@ class _CreateProposalDialogState extends State<CreateProposalDialog> {
                   const SizedBox(height: 24),
 
                   // Description
-                  const Text(
-                    'Description',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                  Text(
+                    AppLocalizations.of(context).description,
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(height: 8),
                   TextField(
                     controller: _descriptionController,
                     maxLines: 4,
                     decoration: InputDecoration(
-                      hintText: 'Explain your proposal in detail',
+                      hintText: AppLocalizations.of(context).explainProposalDetail,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -276,9 +277,9 @@ class _CreateProposalDialogState extends State<CreateProposalDialog> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: const Text(
+                child: Text(
                   'Submit Proposal',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               ),
             ),

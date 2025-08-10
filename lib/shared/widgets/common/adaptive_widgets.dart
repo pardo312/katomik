@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'dart:io';
+import 'package:katomik/l10n/app_localizations.dart';
 import '../../../core/platform/platform_service.dart';
 import '../../../core/platform/platform_constants.dart';
 
@@ -444,16 +445,16 @@ class AdaptiveDatePicker extends StatelessWidget {
                     CupertinoButton(
                       padding: EdgeInsets.zero,
                       onPressed: () => Navigator.of(context).pop(),
-                      child: const Text('Cancel'),
+                      child: Text(AppLocalizations.of(context).cancel),
                     ),
                     CupertinoButton(
                       padding: EdgeInsets.zero,
                       onPressed: () {
                         Navigator.of(context).pop();
                       },
-                      child: const Text(
-                        'Done',
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                      child: Text(
+                        AppLocalizations.of(context).done,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ),
                   ],

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:katomik/l10n/app_localizations.dart';
 import 'package:katomik/shared/models/habit.dart';
 import 'package:katomik/shared/providers/habit_provider.dart';
 import 'package:katomik/core/utils/date_utils.dart';
@@ -39,7 +40,7 @@ class HabitCalendarGrid extends StatelessWidget {
             child: Column(
               children: [
                 Text(
-                  _getMonthName(focusedMonth).toUpperCase(),
+                  _getMonthName(focusedMonth, context).toUpperCase(),
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -65,7 +66,15 @@ class HabitCalendarGrid extends StatelessWidget {
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: ['d', 'l', 'm', 'm', 'j', 'v', 's']
+          children: [
+            AppLocalizations.of(context).sundayShort,
+            AppLocalizations.of(context).mondayShort,
+            AppLocalizations.of(context).tuesdayShort,
+            AppLocalizations.of(context).wednesdayShort,
+            AppLocalizations.of(context).thursdayShort,
+            AppLocalizations.of(context).fridayShort,
+            AppLocalizations.of(context).saturdayShort,
+          ]
               .map(
                 (day) => SizedBox(
                   width: 32,
@@ -320,20 +329,21 @@ class HabitCalendarGrid extends StatelessWidget {
     );
   }
 
-  String _getMonthName(DateTime date) {
-    const months = [
-      'ENERO',
-      'FEBRERO',
-      'MARZO',
-      'ABRIL',
-      'MAYO',
-      'JUNIO',
-      'JULIO',
-      'AGOSTO',
-      'SEPTIEMBRE',
-      'OCTUBRE',
-      'NOVIEMBRE',
-      'DICIEMBRE',
+  String _getMonthName(DateTime date, BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final months = [
+      l10n.january,
+      l10n.february,
+      l10n.march,
+      l10n.april,
+      l10n.may,
+      l10n.june,
+      l10n.july,
+      l10n.august,
+      l10n.september,
+      l10n.october,
+      l10n.november,
+      l10n.december,
     ];
     return months[date.month - 1];
   }

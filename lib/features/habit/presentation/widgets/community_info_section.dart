@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:katomik/l10n/app_localizations.dart';
 import '../../../community/presentation/screens/community_detail_screen.dart';
 import '../../../../core/constants/app_colors.dart';
 
@@ -81,7 +82,7 @@ class CommunityInfoSection extends StatelessWidget {
                 );
               },
               icon: const Icon(CupertinoIcons.arrow_right_circle),
-              label: const Text('View Community'),
+              label: Text(AppLocalizations.of(context).viewCommunity),
               style: OutlinedButton.styleFrom(
                 foregroundColor: AppColors.primary,
                 side: BorderSide(color: AppColors.primary),
@@ -136,9 +137,9 @@ class CommunityInfoSection extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     'Share with Community',
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
